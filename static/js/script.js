@@ -1,13 +1,12 @@
 document.addEventListener("DOMContentLoaded", function () {
-console.log("penis")
-    
+   
     const exit_button = document.getElementById("exit")
     const play_button = document.getElementById("play")
 
     // Can only redirect to blank page.
     exit_button.addEventListener("click", function (event) {
         if (event.target === exit_button) {
-            new_window = window.open("about:blank", "_self");
+            new_window = window.open("https://www.google.com/", "_self");
         }
     });
 
