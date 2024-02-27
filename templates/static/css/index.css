@@ -1,0 +1,87 @@
+body, html {
+    height: 100%;
+    margin: 0;
+    background-color: black;
+    color: black;
+    font-family: Arial, sans-serif; /* Using a standard font */
+}
+
+.container {
+    text-align: center;
+    position: relative;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+h1 {
+    font-size: 48px;
+    margin: 0;
+    font-weight: bold;
+}
+
+.image-container {
+    margin: 20px auto; /* Center the container */
+    width: 100%; /* Use the full width of its parent */
+    height: 400px; /* Example height */
+    display: flex; /* Use flexbox to center the image */
+    justify-content: center; /* Center horizontally */
+    align-items: center; /* Center vertically */
+    overflow: hidden; /* Hide parts of the image that exceed the container's bounds */
+}
+
+.image-container img {
+    max-width: 100%; /* Ensure the image is not wider than the container */
+    max-height: 100%; /* Ensure the image is not taller than the container */
+    object-fit: cover; /* Cover the container's area, may crop the image */
+}
+
+
+.buttons {
+    margin-top: 20px;
+}
+
+button {
+    background-color: #f0f0f0;
+    color: black;
+    border: none;
+    padding: 10px 20px;
+    margin: 0 10px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: #ddd;
+}
+
+button#play {
+    border: 2px solid #EEBD22; /* Adds a white frame around the buttons */
+    border-radius: 10px; /* Rounds the corners of the buttons */
+    background-color: #B91D2D; /* Background color for the exit button */
+    color: white; /* Text color for better contrast */
+    padding: 10px 20px; /* Adjusts padding for a larger clickable area */
+    font-size: 16px; /* Adjusts the font size */
+    cursor: pointer; /* Changes the cursor to a pointer to indicate it's clickable */
+    transition: background-color 0.3s; /* Smooth transition for background color change */
+}
+
+button#play {
+    background-color: #35654d; /* Overrides the background color for the play button */
+}
+
+
+/* Responsive adjustments for smaller screens */
+@media (max-width: 600px) {
+    h1 {
+        font-size: 32px;
+    }
+    .image-container {
+        width: 200px; /* Smaller width for smaller screens */
+        height: 150px; /* Smaller height for smaller screens */
+    }
+    button {
+        padding: 5px 10px;
+        font-size: 14px;
+    }
+}
