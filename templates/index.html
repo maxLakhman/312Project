@@ -8,14 +8,29 @@
 </head>
 <body>
     <div class="container">
+
         <h1 style="color: #EEBD22;">Blackjack</h1>
         <div class="image-container">
             <img src="{{ url_for('static', filename='images/index-background.png') }}" alt="landing-page-backgroung">
         </div>
+        
+        <!-- Login window popup stuff -->
+        <div id="login-modal" class="modal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <h2>Login</h2>
+                <form>
+                    <input type="text" id="username" placeholder="Username" required>
+                    <input type="password" id="password" placeholder="Password" required>
+                    <button id="submit">Submit</button>
+                </form>
+
         <div class="buttons">
             <button id="exit">EXIT</button>
             <button id="play">PLAY</button>
+            <button onclick="openLoginModal()">LOGIN</button>
         </div>
+
     </div>
     <script src="{{ url_for('static', filename='js/script.js')}}"></script>
 </body>
