@@ -55,7 +55,7 @@ button:hover {
     background-color: #ddd;
 }
 
-button#exit, button#play {
+button#play {
     border: 2px solid #EEBD22; /* Adds a white frame around the buttons */
     border-radius: 10px; /* Rounds the corners of the buttons */
     background-color: #B91D2D; /* Background color for the exit button */
