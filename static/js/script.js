@@ -24,9 +24,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
 // functions for a login window
 function openLoginModal() { 
-    document.getElementById("loginModal").style.display = "block";
+    document.getElementById("login-modal").style.display = "block";
 }
 
 function closeLoginModal() {
-    document.getElementById("loginModal").style.display = "none";
+    document.getElementById("login-modal").style.display = "none";
 }
