@@ -55,7 +55,7 @@ button:hover {
     background-color: #ddd;
 }
 
-button#play {
+button#exit,button#play {
     border: 2px solid #EEBD22; /* Adds a white frame around the buttons */
     border-radius: 10px; /* Rounds the corners of the buttons */
     background-color: #B91D2D; /* Background color for the exit button */
@@ -66,7 +66,7 @@ button#play {
     transition: background-color 0.3s; /* Smooth transition for background color change */
 }
 
-button#play {
+button#exit,button#play {
     background-color: #35654d; /* Overrides the background color for the play button */
 }
 
