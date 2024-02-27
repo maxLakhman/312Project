@@ -18,7 +18,7 @@ def home():
 @app.after_request
 def set_header(response):
     # Add the "X-Content-Type-Options: nosniff" header to the response.
-    response.headers['X-Content-Type-Options'] = 'nosniff'
+    # response.headers['X-Content-Type-Options'] = 'nosniff'
     # Return the modified response
     return response
 
