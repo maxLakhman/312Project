@@ -12,9 +12,7 @@ body, html {
 
 .container {
     text-align: center;
-    position: relative;
-    top: 50%;
-    transform: translateY(-50%);
+    padding-top: 10%;
 }
 
 h1 {
@@ -84,6 +82,36 @@ button#exit,button#play {
 
 .input-basic {
     padding: 6px;
+}
+
+/*
+======================= Footer Section =======================
+*/
+.chat-container {
+    display: flex;
+    flex-flow: column;
+    align-items: center;
+}
+
+.chat-message-container {
+    background-color: #aaaaaa;
+    width: 33%;
+    min-height: 200px;
+}
+
+.chat-form {
+    display: flex;
+}
+
+/*
+======================= Footer Section =======================
+*/
+footer {
+    display: flex;
+    padding: 10px;
+    border-top: solid #151515 5px;
+    background-color: #101010;
+    margin-top: 5%;
 }
 
 /*
