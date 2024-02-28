@@ -1,5 +1,4 @@
 document.addEventListener("DOMContentLoaded", function () {
-   
     const exit_button = document.getElementById("exit")
     const play_button = document.getElementById("play")
 
@@ -23,10 +22,13 @@ document.addEventListener("DOMContentLoaded", function () {
 })
 
 // functions for a login window
+// When executed scroll will be disabled and enabled
 function openLoginModal() { 
-    document.getElementById("loginModal").style.display = "block";
+    document.getElementById("login-modal").style.display = "block";
+    document.body.classList.add('disable-scroll');
 }
 
 function closeLoginModal() {
-    document.getElementById("loginModal").style.display = "none";
+    document.getElementById("login-modal").style.display = "none";
+    document.body.classList.remove('disable-scroll');
 }
