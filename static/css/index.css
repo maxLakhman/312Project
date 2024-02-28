@@ -1,3 +1,7 @@
+/*
+======================= Defaults =======================
+*/
+
 body, html {
     height: 100%;
     margin: 0;
@@ -40,22 +44,7 @@ h1 {
     margin-top: 20px;
 }
 
-button {
-    background-color: #f0f0f0;
-    color: black;
-    border: none;
-    padding: 10px 20px;
-    margin: 0 10px;
-    font-size: 16px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
-
-button:hover {
-    background-color: #ddd;
-}
-
-button#exit,button#play, button#login {
+button#exit,button#play {
     border: 2px solid #EEBD22; /* Adds a white frame around the buttons */
     border-radius: 10px; /* Rounds the corners of the buttons */
     background-color: #B91D2D; /* Background color for the exit button */
@@ -70,24 +59,36 @@ button#exit,button#play {
     background-color: #35654d; /* Overrides the background color for the play button */
 }
 
-
-/* Responsive adjustments for smaller screens */
-@media (max-width: 600px) {
-    h1 {
-        font-size: 32px;
-    }
-    .image-container {
-        width: 200px; /* Smaller width for smaller screens */
-        height: 150px; /* Smaller height for smaller screens */
-    }
-    button {
-        padding: 5px 10px;
-        font-size: 14px;
-    }
+.disable-scroll {
+    overflow: hidden;
 }
 
+.basic-button {
+    border-radius: 10px;
+    border: none;
+    padding: 10px 20px;
+    margin: 0 10px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: filter 0.3s ease;
+}
 
-/* Login modal style stuff */
+.basic-button:hover {
+    filter: brightness(70%)
+}
+
+.primary {
+    background-color: green;
+    color: white;
+}
+
+.input-basic {
+    padding: 6px;
+}
+
+/*
+======================= Modal Section =======================
+*/
 .modal {
     display: none; 
     position: fixed; 
@@ -103,10 +104,14 @@ button#exit,button#play {
     background-color: #5a5a5a;
     color: white;
     margin: 15% auto; 
-    padding: 20px;
-    border: 1px solid #2c2c2c;
-    border-radius: 5%;
+    padding: 30px;
+    border: 1px solid #888;
     width: 30%; 
+    border-radius: 20px;
+
+    display: flex;
+    flex-flow: column;
+    align-items: center;
 }
 
 .close {
@@ -123,20 +128,41 @@ button#exit,button#play {
     cursor: pointer;
 }
 
-h2 {
+#login-form {
+    display: flex;
+    flex-flow: column;
+    width: 50%;
+}
+
+#login-form > * {
+    margin-bottom: 15px;
+}
+
+#login-header {
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+#login-header-text {
+    flex-grow: 2;
     text-align: center;
 }
 
-/* Login form style stuff */
-form {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-}
-
-input[type=text], input[type=password] {
-    padding: 10px;
-    border: none;
-    border-radius: 5px;
-    background-color: #ffffff;
+/*
+======================= Responsive stuff =======================
+*/
+/* Responsive adjustments for smaller screens */
+@media (max-width: 600px) {
+    h1 {
+        font-size: 32px;
+    }
+    .image-container {
+        width: 200px; /* Smaller width for smaller screens */
+        height: 150px; /* Smaller height for smaller screens */
+    }
+    button {
+        padding: 5px 10px;
+        font-size: 14px;
+    }
 }
