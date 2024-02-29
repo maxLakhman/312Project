@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blackjack</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
+    <link rel="shortcut icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
 </head>
 <body>
     <!-- Login window popup stuff -->
@@ -36,6 +37,31 @@
         </div>
 
     </div>
+
+    <div class="container chat-container">
+        <div class="chat-form">
+            <input type="text" id="chat-text" class="input-basic" placeholder="Send message">
+            <button id="chat-submit" class="basic-button primary">Submit</button>
+        </div>
+
+        <div class="chat-message-container">
+
+        </div>
+    </div>
+
+    <footer>
+        <div>
+            Helpful Links
+            <ul>
+                <li><a href="/">Terms and Conditions</a></li>
+                <li><a href="/">Market</a></li>
+                <li><a href="/">Something else</a></li>
+                <li><a href="/">Other rules</a></li>
+                <li><a href="https://www.ncpgambling.org/help-treatment/about-the-national-problem-gambling-helpline/">Gambling Problem?</a></li>
+            </ul>
+        </div>
+    </footer>
+
     <script src="{{ url_for('static', filename='js/script.js')}}"></script>
 </body>
 </html>
