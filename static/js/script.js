@@ -36,6 +36,7 @@ document.addEventListener("DOMContentLoaded", function () {
     
     // Register Submit Button
     register_button.addEventListener("click", function (event) {
+
         // Stopping default close on click
         event.preventDefault();
 
@@ -47,20 +48,23 @@ document.addEventListener("DOMContentLoaded", function () {
         console.log("Password: " + password);
         console.log("Confirm Password: " + password_confirm);
 
+        // Creating new request
         var request = new XMLHttpRequest();
 
         request.onreadystatechange = function(){
             if(this.readyState ===4 && this.status === 200){
+                // ToDo
                 console.log("test12");
             }
         };
 
         request.open("POST", "/register");
         request.setRequestHeader("Content-Type", "application/json");
+
+        // Filling data
         let data = {"username": username, "password": password, "password_confirm": password_confirm}
         
-        console.log(data);
-        console.log(JSON.stringify(data));
+        // Sending to /register
         request.send(JSON.stringify(data));
 
     });

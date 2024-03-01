@@ -13,9 +13,10 @@ app = Flask(__name__)
 mongo_client = MongoClient('mongo')
 db = mongo_client["BlackJack"]
 
-user_collection = db["user"]
-password_collection = db["password"]
-chat_collection = db["chat"]
+user_table = db["user"]
+password_table = db["password"]
+chat_table = db["chat"]
+
 
 
 # index page
@@ -36,13 +37,12 @@ def auth():
     
     return
 
-# ToDo: Register CURRENTLY BROKEN
+# ToDo: Register
 @app.route('/register', methods=['POST'])
 def register():
-    # # do the registering stuff here
+
 
     received_data = request.get_json()
-    print(received_data)
     username = received_data.get('username')
     password = received_data.get("password")
     password_confirm = received_data.get("password_confirm")
@@ -50,7 +50,7 @@ def register():
     print("Received password:", password)
     print("Received password_confirm:", password_confirm)
 
-
+    
 
 
     response_data = {"status": "success", "message": "Registration successful"}
