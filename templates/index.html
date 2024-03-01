@@ -18,7 +18,7 @@
             <form id="login-form">
                 <input type="text" id="login_username" class="input-basic" placeholder="Username" required>
                 <input type="password" id="login_password" class="input-basic" placeholder="Password" required>
-                <button id="login_submit" class="basic-button primary">Submit</button>
+                <button id="login_submit" class="basic-button primary" type="button">Submit</button>
                 <!-- Error Message -->
                 <div id="login_error" style="color: red;"></div>
             </form>
@@ -32,13 +32,14 @@
                 <h2 id="register-header-text">Register</h2>
                 <span class="close" onclick="closeRegisterModal()">&times;</span>
             </div>
-            <form id="register-form">
+            <form id="register-form" action="/register" method="post">
                 <input type="text" id="register_username" class="input-basic" placeholder="Username" required>
                 <input type="password" id="register_password" class="input-basic" placeholder="Password" required>
                 <input type="password" id="register_password_confirm" class="input-basic" placeholder="Re-enter Password" required>
                 <!-- Error Message -->
                 <div id="register_error" style="color: red;"></div>
-                <button id="register_submit" class="basic-button primary">Submit</button>
+                <input type="submit" id="register_submit" class="basic-button primary" value="Submit">
+                <!-- <button id="register_submit" class="basic-button primary" type="button">Submit</button> -->
             </form>
         </div>
     </div>
