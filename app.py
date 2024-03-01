@@ -1,17 +1,22 @@
 from flask import Flask, render_template
-from flask_pymongo import PyMongo
+# from flask_pymongo import PyMongo
+from pymongo import MongoClient
 
 
 app = Flask(__name__)
 
-# Connecting MongoDB
-app.config["MONGO_URI"] = "mongodb://localhost:27017/BlackJack"
-mongo = PyMongo(app)
+# # flask_pymongo. We can use or not idc
+# # Connecting MongoDB Flask
+# app.config["MONGO_URI"] = "mongodb://localhost:27017/BlackJack"
+# mongo = PyMongo(app)
 
-# Making Tables
-user_table = mongo.db.user
-password_table = mongo.db.password
-chat_table = mongo.db.table
+# Connecting to MongoDB
+mongo_client = MongoClient('mongo')
+db = mongo_client["BlackJack"]
+
+user_collection = db["user"]
+password_collection = db["password"]
+chat_collection = db["chat"]
 
 
 
@@ -40,6 +45,11 @@ def register():
     
     return
 
+# Login Routing Framework
+@app.route('/login')
+def login():
+    # ToDo: Login shit
+    return
 
 if __name__ == '__main__':
     app.run(debug=True, port=8080)
