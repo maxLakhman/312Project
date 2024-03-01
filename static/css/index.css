@@ -42,7 +42,7 @@ h1 {
     margin-top: 20px;
 }
 
-button#exit,button#play,button#login {
+button#exit,button#play,button#login,button#register {
     border: 2px solid #EEBD22; /* Adds a white frame around the buttons */
     border-radius: 10px; /* Rounds the corners of the buttons */
     background-color: #B91D2D; /* Background color for the exit button */
@@ -173,6 +173,27 @@ footer {
 }
 
 #login-header-text {
+    flex-grow: 2;
+    text-align: center;
+}
+
+#register-form {
+    display: flex;
+    flex-flow: column;
+    width: 50%;
+}
+
+#register-form > * {
+    margin-bottom: 15px;
+}
+
+#register-header {
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+#register-header-text {
     flex-grow: 2;
     text-align: center;
 }

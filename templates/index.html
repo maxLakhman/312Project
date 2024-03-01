@@ -16,9 +16,29 @@
                 <span class="close" onclick="closeLoginModal()">&times;</span>
             </div>
             <form id="login-form">
-                <input type="text" id="username" class="input-basic" placeholder="Username" required>
-                <input type="password" id="password" class="input-basic" placeholder="Password" required>
-                <button id="submit" class="basic-button primary">Submit</button>
+                <input type="text" id="login_username" class="input-basic" placeholder="Username" required>
+                <input type="password" id="login_password" class="input-basic" placeholder="Password" required>
+                <button id="login_submit" class="basic-button primary">Submit</button>
+                <!-- Error Message -->
+                <div id="login_error" style="color: red;"></div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Register window popup stuff -->
+    <div id="register-modal" class="modal">
+        <div class="modal-content">
+            <div id="register-header">
+                <h2 id="register-header-text">Register</h2>
+                <span class="close" onclick="closeRegisterModal()">&times;</span>
+            </div>
+            <form id="register-form">
+                <input type="text" id="register_username" class="input-basic" placeholder="Username" required>
+                <input type="password" id="register_password" class="input-basic" placeholder="Password" required>
+                <input type="password" id="register_password_confirm" class="input-basic" placeholder="Re-enter Password" required>
+                <!-- Error Message -->
+                <div id="register_error" style="color: red;"></div>
+                <button id="register_submit" class="basic-button primary">Submit</button>
             </form>
         </div>
     </div>
@@ -34,6 +54,7 @@
             <button id="exit">EXIT</button>
             <button id="play">PLAY</button>
             <button id="login" onclick="openLoginModal()">LOGIN</button>
+            <button id="register" onclick="openRegisterModal()">REGISTER</button>
         </div>
 
     </div>
