@@ -45,11 +45,5 @@ def register():
     
     return
 
-# Login Routing Framework
-@app.route('/login')
-def login():
-    # ToDo: Login shit
-    return
-
 if __name__ == '__main__':
     app.run(debug=True, port=8080)

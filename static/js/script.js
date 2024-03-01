@@ -20,64 +20,66 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
-    // Login Submit Button
-    login_button.addEventListener("click", function (event) {
-        // Stopping default close
-        event.preventDefault();
 
-        // Getting Fields
-        const username = document.getElementById("login_username").value;
-        const password = document.getElementById("login_password").value;
-        console.log("Username: " + username);
-        console.log("Password: " + password);
+    // Useless shit because I didn't read
+    // // Login Submit Button
+    // login_button.addEventListener("click", function (event) {
+    //     // Stopping default close
+    //     event.preventDefault();
 
-        // ToDo: Get username from database
-        if(username === "penis"){
+    //     // Getting Fields
+    //     const username = document.getElementById("login_username").value;
+    //     const password = document.getElementById("login_password").value;
+    //     console.log("Username: " + username);
+    //     console.log("Password: " + password);
 
-        }
-        else{
-            document.getElementById("login_error").innerText = "Invalid Username";
-        }
+    //     // ToDo: Get username from database
+    //     if(username === "penis"){
 
-        // ToDo: Get password from database
-        if(password === "poop"){
+    //     }
+    //     else{
+    //         document.getElementById("login_error").innerText = "Invalid Username";
+    //     }
 
-        }
-        else{
-            document.getElementById("login_error").innerText = "Invalid Password";
-        }
+    //     // ToDo: Get password from database
+    //     if(password === "poop"){
+
+    //     }
+    //     else{
+    //         document.getElementById("login_error").innerText = "Invalid Password";
+    //     }
 
 
-    });
+    // });
     
-    // Register Submit Button
-    register_button.addEventListener("click", function (event) {
-        // Stopping default close
-        event.preventDefault();
+    // // Register Submit Button
+    // register_button.addEventListener("click", function (event) {
+    //     // Stopping default close
+    //     event.preventDefault();
 
-        // Getting fields
-        const username = document.getElementById("register_username").value;
-        const password = document.getElementById("register_password").value;
-        const password_confirm = document.getElementById("register_password_confirm").value;
+    //     // Getting fields
+    //     const username = document.getElementById("register_username").value;
+    //     const password = document.getElementById("register_password").value;
+    //     const password_confirm = document.getElementById("register_password_confirm").value;
 
-        // Check if fields are empty
-        if(!username || !password || !password_confirm){
-            document.getElementById("register_error").innerText = "All Fields Must Be Filled"
-        }
-        // ToDo: Check database if username is taken
-        else if (username === "penis"){
+    //     // Check if fields are empty
+    //     if(!username || !password || !password_confirm){
+    //         document.getElementById("register_error").innerText = "All Fields Must Be Filled"
+    //     }
+    //     // ToDo: Check database if username is taken
+    //     else if (username === "penis"){
 
-        }
-        // Check for password missmatch
-        else if(password !== password_confirm){
-            document.getElementById("register_error").innerText = "Passwords Do Not Match";
-        }
-        // Todo: Register user
-        else {
+    //     }
+    //     // Check for password missmatch
+    //     else if(password !== password_confirm){
+    //         document.getElementById("register_error").innerText = "Passwords Do Not Match";
+    //     }
+    //     // Todo: Register user
+    //     else {
             
-        }
+    //     }
 
-    });
+    // });
 })
 
 // functions for a login & register window
