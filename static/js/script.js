@@ -1,4 +1,5 @@
 document.addEventListener("DOMContentLoaded", function () {
+    // Action Elements
     const exit_button = document.getElementById("exit")
     const play_button = document.getElementById("play")
     const register_button = document.getElementById("register_submit")
@@ -20,66 +21,49 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
+    // Login Submit Button
+    login_button.addEventListener("click", function (event) {
+        // Stopping default close on click
+        event.preventDefault();
 
-    // Useless shit because I didn't read
-    // // Login Submit Button
-    // login_button.addEventListener("click", function (event) {
-    //     // Stopping default close
-    //     event.preventDefault();
+        // Getting Fields
+        const username = document.getElementById("login_username").value;
+        const password = document.getElementById("login_password").value;
+        console.log("Username: " + username);
+        console.log("Password: " + password);
 
-    //     // Getting Fields
-    //     const username = document.getElementById("login_username").value;
-    //     const password = document.getElementById("login_password").value;
-    //     console.log("Username: " + username);
-    //     console.log("Password: " + password);
-
-    //     // ToDo: Get username from database
-    //     if(username === "penis"){
-
-    //     }
-    //     else{
-    //         document.getElementById("login_error").innerText = "Invalid Username";
-    //     }
-
-    //     // ToDo: Get password from database
-    //     if(password === "poop"){
-
-    //     }
-    //     else{
-    //         document.getElementById("login_error").innerText = "Invalid Password";
-    //     }
-
-
-    // });
+    });
     
-    // // Register Submit Button
-    // register_button.addEventListener("click", function (event) {
-    //     // Stopping default close
-    //     event.preventDefault();
+    // Register Submit Button
+    register_button.addEventListener("click", function (event) {
+        // Stopping default close on click
+        event.preventDefault();
 
-    //     // Getting fields
-    //     const username = document.getElementById("register_username").value;
-    //     const password = document.getElementById("register_password").value;
-    //     const password_confirm = document.getElementById("register_password_confirm").value;
+        // Getting Text Fields
+        const username = document.getElementById("register_username").value
+        const password = document.getElementById("register_password").value
+        const password_confirm = document.getElementById("register_password_confirm").value
+        console.log("Username: " + username);
+        console.log("Password: " + password);
+        console.log("Confirm Password: " + password_confirm);
 
-    //     // Check if fields are empty
-    //     if(!username || !password || !password_confirm){
-    //         document.getElementById("register_error").innerText = "All Fields Must Be Filled"
-    //     }
-    //     // ToDo: Check database if username is taken
-    //     else if (username === "penis"){
+        var request = new XMLHttpRequest();
 
-    //     }
-    //     // Check for password missmatch
-    //     else if(password !== password_confirm){
-    //         document.getElementById("register_error").innerText = "Passwords Do Not Match";
-    //     }
-    //     // Todo: Register user
-    //     else {
-            
-    //     }
+        request.onreadystatechange = function(){
+            if(this.readyState ===4 && this.status === 200){
+                console.log("test12");
+            }
+        };
 
-    // });
+        request.open("POST", "/register");
+        request.setRequestHeader("Content-Type", "application/json");
+        let data = {"username": username, "password": password, "password_confirm": password_confirm}
+        
+        console.log(data);
+        console.log(JSON.stringify(data));
+        request.send(JSON.stringify(data));
+
+    });
 })
 
 // functions for a login & register window
