@@ -42,7 +42,7 @@ def auth():
     
     return
 
-# ToDo: Register
+
 @app.route('/register', methods=['POST'])
 def register():
     # Getting JSON request and filling variables
@@ -51,40 +51,26 @@ def register():
     password = str(received_data.get("password"))
     password_confirm = str(received_data.get("password_confirm"))
 
-    print("Received username:", username)
-    print("Received password:", password)
-    print("Received password_confirm:", password_confirm)
-
     # HTML escape characters
     username = username.replace('&', '&amp;')
     username = username.replace('<', '&lt;')
     username = username.replace('>', '&gt;')
-    password = password.replace('&', '&amp;')
-    password = password.replace('<', '&lt;')
-    password = password.replace('>', '&gt;')
-    password_confirm = password.replace('&', '&amp;')
-    password_confirm = password.replace('<', '&lt;')
-    password_confirm = password.replace('>', '&gt;')
-
-
 
     # Checking if there will be duplicate username
     user_cursor = user_collection.find({"username": username})
     user_list = list(user_cursor)
+    
     print("User_list", user_list)
     # Empty Field
     if not username or not password or not password_confirm:
-        print("Empty Field")
         response_data = {"status": "error", "message": "Empty Field"}
 
     # Duplicate Username
     elif user_list:
-        print("Duplicate Username")
-        response_data = {"status": "error", "message": "Duplicate Username"}
+        response_data = {"status": "error", "message": "Username Taken"}
 
     # Password Missmatch
     elif password != password_confirm:
-        print("Password Mismatch")
         response_data = {"status": "error", "message": "Password Mismatch"}
     
     # Register User
@@ -98,12 +84,9 @@ def register():
         record = {"username": username, "hash": password_hash, "salt": salt}
         user_collection.insert_one(record)
 
-
-        print("Registration Successful")
         response_data = {"status": "success", "message": "Registration Successful"}
        
 
-    
     return jsonify(response_data)
 
 if __name__ == '__main__':

@@ -37,24 +37,39 @@ document.addEventListener("DOMContentLoaded", function () {
     // Register Submit Button
     register_button.addEventListener("click", function (event) {
 
-        // Stopping default close on click
+        // Stopping default close on submit
         event.preventDefault();
 
         // Getting Text Fields
         const username = document.getElementById("register_username").value
         const password = document.getElementById("register_password").value
         const password_confirm = document.getElementById("register_password_confirm").value
-        console.log("Username: " + username);
-        console.log("Password: " + password);
-        console.log("Confirm Password: " + password_confirm);
 
         // Creating new request
         var request = new XMLHttpRequest();
 
         request.onreadystatechange = function(){
             if(this.readyState ===4 && this.status === 200){
-                // ToDo
-                console.log("test12");
+
+                // Getting response from app.py def register()
+                const response = JSON.parse(this.responseText);
+        
+
+                // Setting error message
+                if(response["status"] === "error"){
+                    document.getElementById("register_success").innerText = "";
+                    document.getElementById("register_error").innerText = response["message"];
+                }
+                // Setting success message
+                else{
+                    document.getElementById("register_error").innerText = "";
+                    document.getElementById("register_success").innerText = response["message"];
+
+                    // Closing register window after 3 sec
+                    setTimeout(function() {
+                        closeRegisterModal();
+                    }, 3000);
+                }
             }
         };
 
@@ -66,7 +81,6 @@ document.addEventListener("DOMContentLoaded", function () {
         
         // Sending to /register
         request.send(JSON.stringify(data));
-
     });
 })
 
