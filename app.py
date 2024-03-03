@@ -36,20 +36,53 @@ def set_header(response):
     return response
 
 # auth routing framework
-@app.route('/auth')
+@app.route('/auth', methods=['POST'])
 def auth():
-    # parse the login info from the request here
-    
-    return
+    # Getting JSON request and filling variables
+    received_data = request.get_json()
+    username = received_data.get('username')
+    password = received_data.get('password')
+
+    # HTML escape characters
+    username = username.replace('&', '&amp;')
+    username = username.replace('<', '&lt;')
+    username = username.replace('>', '&gt;')
+
+    # Getting record of username
+    user_cursor = user_collection.find({"username": username})
+    user_list = list(user_cursor)
+
+    # Checking if a field is empty
+    if not username or not password:
+        response_data = {"status": "error", "message": "Empty Field"}
+    # If username not found
+    elif not user_list:
+        response_data = {"status": "error", "message": "Invalid Credentials"}
+    # Adding salt to given pw, hashing, then comparing to known user hash
+    else: 
+        user_password = user_list[0]["hash"]
+        user_salt = user_list[0]["salt"]
+        password = password.encode()
+
+        check_pass = bcrypt.hashpw(password, user_salt)
+
+        if check_pass == user_password:
+            response_data = {"status": "success", "message": "Welcome " + username}
+        else:
+            response_data = {"status": "error", "message": "Invalid Credentials"}
+
+
+    return jsonify(response_data)
+
 
 
 @app.route('/register', methods=['POST'])
 def register():
     # Getting JSON request and filling variables
     received_data = request.get_json()
-    username = str(received_data.get('username'))
-    password = str(received_data.get("password"))
-    password_confirm = str(received_data.get("password_confirm"))
+    username = received_data.get('username')
+    password = received_data.get("password")
+    password_confirm = received_data.get("password_confirm")
 
     # HTML escape characters
     username = username.replace('&', '&amp;')
@@ -60,7 +93,6 @@ def register():
     user_cursor = user_collection.find({"username": username})
     user_list = list(user_cursor)
     
-    print("User_list", user_list)
     # Empty Field
     if not username or not password or not password_confirm:
         response_data = {"status": "error", "message": "Empty Field"}

@@ -23,16 +23,55 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Login Submit Button
     login_button.addEventListener("click", function (event) {
-        // Stopping default close on click
+
+        // Stopping default close on submit
         event.preventDefault();
 
         // Getting Fields
         const username = document.getElementById("login_username").value;
         const password = document.getElementById("login_password").value;
-        console.log("Username: " + username);
-        console.log("Password: " + password);
 
+        var request = new XMLHttpRequest();
+
+        request.onreadystatechange = function(){
+            if(this.readyState ===4 && this.status === 200){
+
+                // Getting response
+                const response = JSON.parse(this.responseText);
+        
+                // Setting error message
+                if(response["status"] === "error"){
+                    document.getElementById("login_success").innerText = "";
+                    document.getElementById("login_error").innerText = response["message"];
+                }
+                // Setting success message
+                else{
+                    document.getElementById("login_error").innerText = "";
+                    document.getElementById("login_success").innerText = response["message"];
+
+                    // Closing register window after 3 sec
+                    setTimeout(function() {
+                        closeLoginModal();
+                        document.getElementById("login_success").innerText = "";
+                        document.getElementById("login_error").innerText = "";
+                    }, 3000);
+
+
+                }
+            }
+        };
+
+        // Making request
+        request.open("POST", "/auth");
+        request.setRequestHeader("Content-Type", "application/json");
+
+        // Filling data
+        let data = {"username": username, "password": password}
+        
+        // Sending to /register
+        request.send(JSON.stringify(data));
     });
+
     
     // Register Submit Button
     register_button.addEventListener("click", function (event) {
@@ -51,10 +90,9 @@ document.addEventListener("DOMContentLoaded", function () {
         request.onreadystatechange = function(){
             if(this.readyState ===4 && this.status === 200){
 
-                // Getting response from app.py def register()
+                // Getting response
                 const response = JSON.parse(this.responseText);
         
-
                 // Setting error message
                 if(response["status"] === "error"){
                     document.getElementById("register_success").innerText = "";
@@ -68,11 +106,14 @@ document.addEventListener("DOMContentLoaded", function () {
                     // Closing register window after 3 sec
                     setTimeout(function() {
                         closeRegisterModal();
+                        document.getElementById("register_error").innerText = "";
+                        document.getElementById("register_success").innerText = "";    
                     }, 3000);
                 }
             }
         };
-
+        
+        // Making request
         request.open("POST", "/register");
         request.setRequestHeader("Content-Type", "application/json");
 
