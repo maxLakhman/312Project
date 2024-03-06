@@ -1,5 +1,5 @@
 import json, bcrypt
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, redirect, url_for
 # from flask_pymongo import PyMongo
 from pymongo import MongoClient
 
@@ -120,6 +120,14 @@ def register():
        
 
     return jsonify(response_data)
+
+
+# lobby stuff
+@app.route('/lobby')
+def lobby():
+    # call to open the lobby page
+    return render_template('lobby.html')
+
 
 if __name__ == '__main__':
     app.run(debug=True, port=8080)

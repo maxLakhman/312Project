@@ -14,11 +14,9 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
-    // ToDo
+    // Lobby Redirect (brings up the interactive blackjack tables)
     play_button.addEventListener("click", function (event) {
-        if (event.target === play_button) {
-            console.log("To do");
-        }
+        window.location.href = "/lobby";
     });
 
     // Login Submit Button

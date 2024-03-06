@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,6 +8,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
     <link rel="shortcut icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
 </head>
+
 <body>
     <!-- Login window popup stuff -->
     <div id="login-modal" class="modal">
@@ -36,7 +38,8 @@
             <form id="register-form" action="/register" method="post">
                 <input type="text" id="register_username" class="input-basic" placeholder="Username" required>
                 <input type="password" id="register_password" class="input-basic" placeholder="Password" required>
-                <input type="password" id="register_password_confirm" class="input-basic" placeholder="Re-enter Password" required>
+                <input type="password" id="register_password_confirm" class="input-basic"
+                    placeholder="Re-enter Password" required>
                 <!-- Error Message -->
                 <div id="register_error" style="color: red;"></div>
                 <div id="register_success" style="color: green;"></div>
@@ -80,11 +83,13 @@
                 <li><a href="/">Market</a></li>
                 <li><a href="/">Something else</a></li>
                 <li><a href="/">Other rules</a></li>
-                <li><a href="https://www.ncpgambling.org/help-treatment/about-the-national-problem-gambling-helpline/">Gambling Problem?</a></li>
+                <li><a href="https://www.ncpgambling.org/help-treatment/about-the-national-problem-gambling-helpline/">Gambling
+                        Problem?</a></li>
             </ul>
         </div>
     </footer>
 
     <script src="{{ url_for('static', filename='js/script.js')}}"></script>
 </body>
+
 </html>
