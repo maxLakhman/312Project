@@ -1,6 +1,12 @@
-from flask import Flask, render_template
+import json, bcrypt
+from flask import Flask, render_template, request, jsonify
+from routes.auth import auth_blueprint
+# from flask_pymongo import PyMongo
+from pymongo import MongoClient
+
 
 app = Flask(__name__)
+app.register_blueprint(auth_blueprint)
 
 # index page
 @app.route('/')
@@ -12,21 +18,6 @@ def home():
 def set_header(response):
     response.headers['X-Content-Type-Options'] = 'nosniff'
     return response
-
-# auth routing framework
-@app.route('/auth')
-def auth():
-    # parse the login info from the request here
-    
-    return
-
-# register routing framework
-@app.route('/register')
-def register():
-    # do the registering stuff here
-    
-    return
-
 
 if __name__ == '__main__':
     app.run(debug=True, port=8080)

@@ -41,7 +41,7 @@
     <div class="container chat-container">
         <div class="chat-form">
             <input type="text" id="chat-text" class="input-basic" placeholder="Send message">
-            <button id="chat-submit" class="basic-button primary">Submit</button>
+            <button onclick="sendChat(this)" class="basic-button primary">Submit</button>
         </div>
 
         <div class="chat-message-container">
@@ -63,5 +63,6 @@
     </footer>
 
     <script src="{{ url_for('static', filename='js/script.js')}}"></script>
+    <script src="{{ url_for('static', filename='js/chat.js')}}"></script>
 </body>
 </html>
