@@ -87,7 +87,7 @@ button#exit,button#play {
 /*
 ======================= Footer Section =======================
 */
-.chat-container {
+.chat-box {
     display: flex;
     flex-flow: column;
     align-items: center;
