@@ -10,12 +10,6 @@ db = mongo_client["BlackJack"]
 
 # Making collections
 user_collection = db["user"]
-chat_collection = db["chat"]
-chat_id_collection = db["chat_id"]
-
- # Setting default chat id
-if chat_id_collection.count_documents({}) == 0:
-    chat_id_collection.insert_one({"_id" : 1, "message_id" : 1})
 
 # auth routing framework
 @auth_blueprint.route('/auth', methods=['POST'])

@@ -1,12 +1,11 @@
 import json, bcrypt
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request
 from routes.auth import auth_blueprint
-# from flask_pymongo import PyMongo
-from pymongo import MongoClient
-
+from routes.chat import chat_blueprint
 
 app = Flask(__name__)
 app.register_blueprint(auth_blueprint)
+app.register_blueprint(chat_blueprint)
 
 # index page
 @app.route('/')
