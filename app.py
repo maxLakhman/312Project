@@ -2,10 +2,14 @@ from flask import Flask, render_template
 
 app = Flask(__name__)
 
-# index page
+# index page docker compose up --build --force-recreate
 @app.route('/')
 def home():
     return render_template('index.html')
+
+@app.route('/settings.html')
+def openSettings():
+    return render_template('settings.html')
 
 # setting nosniff header
 @app.after_request

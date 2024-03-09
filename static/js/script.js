@@ -32,3 +32,7 @@ function closeLoginModal() {
     document.getElementById("login-modal").style.display = "none";
     document.body.classList.remove('disable-scroll');
 }
+
+function redirectToSettings(){
+    window.location.href = '/settings.html'
+}
