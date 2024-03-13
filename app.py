@@ -13,6 +13,13 @@ def home():
     return render_template('index.html')
 
 # setting nosniff header
+
+#settings page
+#docker compose up --build --force-recreate
+@app.route('/settings.html')
+def openSettings():
+    return render_template('settings.html')
+
 @app.after_request
 def set_header(response):
     response.headers['X-Content-Type-Options'] = 'nosniff'

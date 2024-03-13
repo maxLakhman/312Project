@@ -1,0 +1,21 @@
+body, html {
+    height: 100%;
+    margin: 0;
+    background-color: black;
+    color: black;
+    font-family: Arial, sans-serif; /* Using a standard font */
+    text-color: White;
+}
+.container {
+    text-align: center;
+    position: relative;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+h1 {
+    font-size: 48px;
+    margin: 0;
+    font-weight: bold;
+    color: white;
+}
