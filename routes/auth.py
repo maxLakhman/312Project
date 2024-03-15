@@ -1,15 +1,9 @@
 import json, bcrypt, secrets, hashlib
 from flask import Flask, render_template, request, jsonify, Blueprint, make_response
-from pymongo import MongoClient
+from routes.database_handler import *
+from routes.function_handler import *
 
 auth_blueprint = Blueprint("auth_blueprint", __name__, template_folder="templates")
-
-# Connecting to MongoDB
-mongo_client = MongoClient("db")
-db = mongo_client["BlackJack"]
-
-# Making collections
-user_collection = db["user"]
 
 
 # auth routing framework
@@ -21,13 +15,10 @@ def auth():
     password = received_data.get("password")
 
     # HTML escape characters
-    username = username.replace("&", "&amp;")
-    username = username.replace("<", "&lt;")
-    username = username.replace(">", "&gt;")
+    username = escape_html(username)
 
     # Getting record of username
-    user_cursor = user_collection.find({"username": username})
-    user_list = list(user_cursor)
+    user_list = db_find_by_username(username)
 
     # Checking if a field is empty
     if not username or not password:
@@ -44,17 +35,15 @@ def auth():
         check_pass = bcrypt.hashpw(password, user_salt)
 
         if check_pass == user_password:
+
             # Making auth token log2(64^256) = 1536 bits of entropy
-            auth_token = secrets.token_urlsafe(256)
-            token_hash = hashlib.sha256(auth_token.encode()).hexdigest()
-            user_collection.update_one(
-                {"username": username}, {"$set": {"auth_token": token_hash}}
-            )
+            auth_token = db_update_auth_token(username)
 
             # Making response
             response_data = {"status": "success", "message": "Welcome " + username}
             response = make_response(jsonify(response_data))
-            response.set_cookie("auth_token", auth_token)
+            response.set_cookie("auth_token", auth_token, httponly=True)
+
             return response
         else:
             response_data = {"status": "error", "message": "Invalid Credentials"}
@@ -71,13 +60,10 @@ def register():
     password_confirm = received_data.get("password_confirm")
 
     # HTML escape characters
-    username = username.replace("&", "&amp;")
-    username = username.replace("<", "&lt;")
-    username = username.replace(">", "&gt;")
+    username = escape_html(username)
 
     # Checking if there will be duplicate username
-    user_cursor = user_collection.find({"username": username})
-    user_list = list(user_cursor)
+    user_list = db_find_by_username(username)
 
     # Empty Field
     if not username or not password or not password_confirm:
@@ -93,20 +79,7 @@ def register():
 
     # Register User
     else:
-        # Hashing & salting password
-        salt = bcrypt.gensalt()
-        password = password.encode()
-        password_hash = bcrypt.hashpw(password, salt)
-
-        # Making record and adding to database
-        record = {
-            "username": username,
-            "hash": password_hash,
-            "salt": salt,
-            "tokens": 500,
-        }
-        user_collection.insert_one(record)
-
+        db_register_user(username)
         response_data = {"status": "success", "message": "Registration Successful"}
 
     return jsonify(response_data)
