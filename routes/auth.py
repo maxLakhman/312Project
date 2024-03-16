@@ -42,7 +42,7 @@ def auth():
             # Making response
             response_data = {"status": "success", "message": "Welcome " + username}
             response = make_response(jsonify(response_data))
-            response.set_cookie("auth_token", auth_token, httponly=True)
+            response.set_cookie("auth_token", auth_token, httponly=True, max_age=3600)
 
             return response
         else:
@@ -82,4 +82,19 @@ def register():
         db_register_user(username)
         response_data = {"status": "success", "message": "Registration Successful"}
 
+    return jsonify(response_data)
+
+
+@auth_blueprint.route("/logout", methods=["POST"])
+def logout():
+    user = db_verify_auth_token(request)
+    if user:
+        # Updates auth token with random token
+        discard = db_update_auth_token(user.get("username"))
+        response_data = {"status": "success", "message": "Logout Successful"}
+        response = make_response(jsonify(response_data))
+        response.set_cookie("auth_token", 0, httponly=True, max_age=0)
+        return response
+
+    response_data = {"status": "error", "message": "User is not logged in"}
     return jsonify(response_data)
