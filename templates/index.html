@@ -51,13 +51,17 @@
         <div class="image-container">
             <img src="{{ url_for('static', filename='images/index-background.png') }}" alt="landing-page-backgroung">
         </div>
-
         <div class="buttons">
+            {% if current_user.is_authenticated %}
+            <button id="exit">Welcome, {{ current_user.id }}</button>
+            <button id="logout" onclick="logout()">LOGOUT</button>
+            {% else %}
+            <button id="login" onclick="openLoginModal()">LOGIN</button>
+            <button id="register" onclick="openRegisterModal()">REGISTER</button>
+            {% endif %}
             <button id="exit">EXIT</button>
             <button id="play">PLAY</button>
-            <button id="login" onclick="openLoginModal()">LOGIN</button>
             <button id="settings" onclick="redirectToSettings()">SETTINGS</button>
-            <button id="register" onclick="openRegisterModal()">REGISTER</button>
         </div>
 
     </div>
@@ -101,5 +105,17 @@
     <script src="{{ url_for('static', filename='js/script.js')}}"></script>
     <script src="{{ url_for('static', filename='js/chat.js')}}"></script>
     <script src="{{ url_for('static', filename='js/settings.js')}}"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script>
+        $('#logout').click(function () {
+            $.ajax({
+                url: '/logout',
+                type: 'GET',
+                success: function () {
+                    window.location.href = '/';  // redirect to home page
+                }
+            });
+        });
+    </script>
 </body>
 </html>

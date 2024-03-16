@@ -3,17 +3,17 @@ from typing import List, Tuple, Any, Dict, Optional
 import bcrypt
 import hashlib
 import secrets
-from flask import Blueprint, jsonify, make_response, redirect, request, url_for
-from flask_login import LoginManager, UserMixin, login_required, login_user, logout_user
+from flask import Blueprint, jsonify, make_response, redirect, request, url_for, current_app
+from flask_login import UserMixin, login_required, login_user, logout_user
+from flask_login import LoginManager
 from pymongo import MongoClient
+
+login_manager = LoginManager()
 
 auth_blueprint = Blueprint("auth_blueprint", __name__, template_folder="templates")
 mongo_client = MongoClient("db")
 db = mongo_client["BlackJack"]
 user_collection = db["user"]
-
-login_manager = LoginManager()
-login_manager.init_app(auth_blueprint)
 
 
 class User(UserMixin):

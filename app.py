@@ -1,8 +1,18 @@
 from flask import Flask, render_template
-from routes.auth import auth_blueprint
+from flask_login import LoginManager, current_user
+from routes.auth import auth_blueprint, load_user
 from routes.chat import chat_blueprint
 
 app = Flask(__name__)
+app.secret_key = "super_secret_key"
+
+login_manager = LoginManager()
+login_manager.init_app(app)
+
+# Set the user_loader function
+login_manager.user_loader(load_user)
+
+
 app.register_blueprint(auth_blueprint)
 app.register_blueprint(chat_blueprint)
 
