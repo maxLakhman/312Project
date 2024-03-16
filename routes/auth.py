@@ -1,22 +1,33 @@
 from datetime import datetime, timedelta
-import bcrypt
-import secrets
-import hashlib
-from flask import request, jsonify, Blueprint, make_response
-from pymongo import MongoClient
 from typing import List, Tuple, Any, Dict, Optional
+import bcrypt
+import hashlib
+import secrets
+from flask import Blueprint, jsonify, make_response, redirect, request, url_for
+from flask_login import LoginManager, UserMixin, login_required, login_user, logout_user
+from pymongo import MongoClient
 
-# Define a blueprint for the authentication routes
 auth_blueprint = Blueprint("auth_blueprint", __name__, template_folder="templates")
-
-# Establish a connection to the MongoDB database
 mongo_client = MongoClient("db")
-
-# Select the "BlackJack" database
 db = mongo_client["BlackJack"]
-
-# Create a collection named "user" in the database
 user_collection = db["user"]
+
+login_manager = LoginManager()
+login_manager.init_app(auth_blueprint)
+
+
+class User(UserMixin):
+    """User class for Flask-Login"""
+    def __init__(self, username):
+        self.id = username
+
+
+@login_manager.user_loader
+def load_user(username):
+    """Load user for Flask-Login"""
+    if get_user(username):
+        return User(username)
+    return None
 
 
 def escape_html(username: str) -> str:
@@ -67,16 +78,17 @@ def auth() -> Dict[str, str]:
         check_pass, _ = hash_password(password, user_salt)
 
         if check_pass == user_password:
+            login_user(User(username))
+
             auth_token = secrets.token_urlsafe(256)
             token_hash = hashlib.sha256(auth_token.encode()).hexdigest()
             user_collection.update_one(
                 {"username": username}, {"$set": {"auth_token": token_hash}}
             )
 
-            response_data = {"status": "success", "message": "Welcome " + username}
+            response_data = {"status": "success", "message": f"Welcome {username}"}
             response = make_response(jsonify(response_data))
-            expires = datetime.now()
-            expires = expires + timedelta(hours=1)
+            expires = datetime.now() + timedelta(hours=1)
             response.set_cookie("auth_token", auth_token, expires=expires, httponly=True)
             return response
         else:
@@ -110,4 +122,14 @@ def register() -> Dict[str, str]:
         }
         user_collection.insert_one(record)
 
-        return create_response("success", "Registration Successful")
+        if not user_list and password == password_confirm:
+            login_user(User(username))
+            return create_response("success", "Registration Successful")
+
+
+@auth_blueprint.route("/logout")
+@login_required
+def logout():
+    """Handle the logout process"""
+    logout_user()
+    return redirect(url_for('home'))
