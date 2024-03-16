@@ -1,8 +1,8 @@
-import json
+from datetime import datetime, timedelta
 import bcrypt
 import secrets
 import hashlib
-from flask import Flask, render_template, request, jsonify, Blueprint, make_response
+from flask import request, jsonify, Blueprint, make_response
 from pymongo import MongoClient
 from typing import List, Tuple, Any, Dict, Optional
 
@@ -75,7 +75,9 @@ def auth() -> Dict[str, str]:
 
             response_data = {"status": "success", "message": "Welcome " + username}
             response = make_response(jsonify(response_data))
-            response.set_cookie("auth_token", auth_token)
+            expires = datetime.now()
+            expires = expires + timedelta(hours=1)
+            response.set_cookie("auth_token", auth_token, expires=expires, httponly=True)
             return response
         else:
             return create_response("error", "Invalid Credentials")
