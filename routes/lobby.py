@@ -22,6 +22,7 @@ lobby_blueprint = Blueprint(
 @lobby_blueprint.route("/lobby", methods=["GET"])
 def get_tables():
     tables = list(table_collection.find({}))
+    # print(tables)
     return render_template("lobby.html", tables=tables)
 
 

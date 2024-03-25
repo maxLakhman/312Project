@@ -18,19 +18,19 @@
         </div>
 
         <div class="table-gallery">
-            
+        
             <div class="table" id="table0">
                 <div id="table_error" style="color: red;"></div>
-
+        
                 <h2>Create a Table</h2>
                 <img src="static\images\tables\1280px-Blackjack_board.jpg" alt="Table Image">
                 <button id="join0" onclick="createTable()">Create</button>
             </div>
-            {% for tables in tables %}
-            <div class="table" id="table{{ tables.id }}">
-                <h2>Table {{ tables.id }}</h2>
+            {% for table in tables %}
+            <div class="table" id="Table {{ table.table_id }}">
+                <h2>Table {{ table.table_id }}</h2>
                 <img src="static\images\tables\1280px-Blackjack_board.jpg" alt="Table Image">
-                <button id="join{{ tables.id }}" onclick="joinTable()">Join</button>
+                <button id="join{{ table.table_id }}" onclick="joinTable('{{table.table_id}}')">Join</button>
             </div>
             {% endfor %}
         </div>

@@ -1,0 +1,15 @@
+.chat-box {
+    display: flex;
+    flex-flow: column;
+    align-items: center;
+}
+
+.chat-message-container {
+    background-color: #aaaaaa;
+    width: 33%;
+    min-height: 200px;
+}
+
+.chat-form {
+    display: flex;
+}
