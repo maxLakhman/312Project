@@ -1,4 +1,4 @@
-import json, bcrypt
+import json, bcrypt, uuid
 from flask import Flask, render_template, request, jsonify, redirect, url_for
 # from flask_pymongo import PyMongo
 from pymongo import MongoClient
@@ -18,6 +18,7 @@ db = mongo_client["BlackJack"]
 user_collection = db["user"]
 chat_collection = db["chat"]
 chat_id_collection = db["chat_id"]
+table_collection = db["tables"]
 
  # Setting default chat id
 if chat_id_collection.count_documents({}) == 0:
@@ -128,6 +129,35 @@ def lobby():
     # call to open the lobby page
     return render_template('lobby.html')
 
+
+
+# creating a blackjack table
+@app.route('/create-table', methods=['POST'])
+def create_table():
+
+    # finding the user who created the through their auth token
+    user = request.cookies.get('auth_token')
+
+    # creating a new table after request received
+    received_data = request.get_json()
+    table_name = "Table " + str(table_collection.count_documents({}) + 1)
+
+    # retrieve the player name who created the table
+    author_name = received_data.get('player_name')
+
+    # set a uuid for the table
+    table_id = str(uuid.uuid4())
+
+    # HTML escape
+    table_name = table_name.replace('&', '&amp;')
+    table_name = table_name.replace('<', '&lt;')
+    table_name = table_name.replace('>', '&gt;')
+
+    # creating the table
+    table_collection.insert_one({"table_id": table_id, "table_name": table_name, "players": [author_name]})
+
+    # send the user to the table page
+    return redirect(url_for('table', table_id=table_id))
 
 if __name__ == '__main__':
     app.run(debug=True, port=8080)
