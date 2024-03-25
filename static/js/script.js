@@ -59,7 +59,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 } else {
                     // document.getElementById("register_error").innerText = "";
                     // document.getElementById("register_success").innerText = response["message"];
-                    // window.location.reload(); // Reload the page on successful registration
+                    window.location.reload(); // Reload the page on successful registration
                     document.getElementById("register_error").innerText = "";
                     document.getElementById("register_success").innerText = response["message"];
                     //Clear form fields after successful registration

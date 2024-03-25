@@ -118,6 +118,23 @@ button#exit,button#play {
     padding: 6px;
 }
 
+.like-btn:hover {
+    fill: #bf1d3d;
+    cursor: pointer;
+}
+
+.like-container {
+    display: flex;
+}
+
+.message {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
 /*
 ======================= Footer Section =======================
 */
