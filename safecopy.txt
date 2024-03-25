@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blackjack</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
+    <link rel="shortcut icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
+</head>
+<body>
+    <header>
+        <nav>
+            <a href="/" id="home-link">Blackjack</a>
+                <div class="buttons">
+                    {% if current_user.is_authenticated %}
+                    <button id="exit">Welcome, {{ current_user.id }}</button>
+                    <button id="logout" onclick="logout()">LOGOUT</button>
+                    {% else %}
+                    <button id="login" onclick="openLoginModal()">LOGIN</button>
+                    <button id="register" onclick="openRegisterModal()">REGISTER</button>
+                    {% endif %}
+                    <!-- <button id="exit">EXIT</button>
+                    <button id="play">PLAY</button> -->
+                    <button id="settings" onclick="redirectToSettings()">SETTINGS</button>
+                </div>
+        
+            <!-- </div> -->
+        </nav>
+    </header>
+    
+
+    <!-- Login window popup stuff -->
+    <div id="login-modal" class="modal">
+        <div class="modal-content">
+            <div id="login-header">
+                <h2 id="login-header-text">Login</h2>
+                <span class="close" onclick="closeLoginModal()">&times;</span>
+            </div>
+            <form id="login-form">
+                <input type="text" id="login_username" class="input-basic" placeholder="Username" required>
+                <input type="password" id="login_password" class="input-basic" placeholder="Password" required>
+                <button id="login_submit" class="basic-button primary" type="button">Submit</button>
+                <!-- Error Message -->
+                <div id="login_error" style="color: red;"></div>
+                <div id="login_success" style="color: green;"></div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Register window popup stuff -->
+    <div id="register-modal" class="modal">
+        <div class="modal-content">
+            <div id="register-header">
+                <h2 id="register-header-text">Register</h2>
+                <span class="close" onclick="closeRegisterModal()">&times;</span>
+            </div>
+            <form id="register-form" action="/register" method="post">
+                <input type="text" id="register_username" class="input-basic" placeholder="Username" required>
+                <input type="password" id="register_password" class="input-basic" placeholder="Password" required>
+                <input type="password" id="register_password_confirm" class="input-basic" placeholder="Re-enter Password" required>
+                <!-- Error Message -->
+                <div id="register_error" style="color: red;"></div>
+                <div id="register_success" style="color: green;"></div>
+                <input type="submit" id="register_submit" class="basic-button primary" value="Submit">
+            </form>
+        </div>
+    </div>
+
+    <div class="container chat-box" id="chat-box-001">
+        <div class="chat-form">
+            <input type="text" id="chat-text" class="input-basic" placeholder="Send message">
+            <button onclick="sendChat(this)" class="basic-button primary">Submit</button>
+        </div>
+
+        <div class="chat-message-container">
+
+        </div>
+    </div>
+
+    <div class="container chat-box" id="chat-box-002">
+        <div class="chat-form">
+            <input type="text" id="chat-text" class="input-basic" placeholder="Send message">
+            <button onclick="sendChat(this)" class="basic-button primary">Submit</button>
+        </div>
+
+        <div class="chat-message-container">
+
+        </div>
+    </div>
+
+
+    <footer>
+        <div>
+            Helpful Links
+            <ul>
+                <li><a href="/">Terms and Conditions</a></li>
+                <li><a href="/">Market</a></li>
+                <li><a href="/">Something else</a></li>
+                <li><a href="/">Other rules</a></li>
+                <li><a href="https://www.ncpgambling.org/help-treatment/about-the-national-problem-gambling-helpline/">Gambling Problem?</a></li>
+            </ul>
+        </div>
+    </footer>
+
+    <script src="{{ url_for('static', filename='js/script.js')}}"></script>
+    <script src="{{ url_for('static', filename='js/chat.js')}}"></script>
+    <script src="{{ url_for('static', filename='js/settings.js')}}"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script>
+        $('#logout').click(function () {
+            $.ajax({
+                url: '/logout',
+                type: 'GET',
+                success: function () {
+                    window.location.href = '/';  // redirect to home page
+                }
+            });
+        });
+    </script>
+</body>
+</html>
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+/*
+======================= Defaults =======================
+*/
+header nav {
+    background-color: black; 
+    padding: 1px 10%; 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center;
+}
+
+header nav a#home-link {
+    color: #EEBD22; /* Set color of the link to golden */
+    text-decoration: none; /* Remove default underline */
+    font-size: 20px; /* Adjust font size */
+    font-weight: bold; /* Make the font bold */
+}
+
+header nav a#home-link:hover {
+    color: #FFD700; /* Change color on hover for better feedback */
+}
+
+
+/********************************************************/
+body, html {
+    height: 100%;
+    margin: 0;
+    background-color: #35654d;
+    color: black;
+    font-family: Arial, sans-serif; /* Using a standard font */
+}
+
+.container {
+    text-align: center;
+    padding-top: 10%;
+}
+
+h1 {
+    font-size: 48px;
+    margin: 0;
+    font-weight: bold;
+}
+
+
+
+/* .buttons {
+    margin-top: 20px;
+} */
+
+button#exit,button#play,button#login,button#register,button#settings,button#logout { 
+    border: 2px solid #EEBD22; 
+    border-radius: 10px;
+    background-color: #B91D2D;
+    color: white; 
+    padding: 10px 20px;
+    font-size: 16px; 
+    cursor: pointer; 
+    transition: background-color 0.3s; 
+}
+
+button#exit,button#play { 
+    background-color: #35654d; 
+} 
+
+.disable-scroll {
+    overflow: hidden;
+}
+
+.basic-button { 
+    border-radius: 10px;
+    border: none; 
+    padding: 10px 20px;
+    margin: 0 10px; 
+    font-size: 16px; 
+    cursor: pointer;
+    transition: filter 0.3s ease;
+}
+
+.basic-button:hover { 
+    filter: brightness(70%) 
+ } 
+
+.primary {
+    background-color: green;
+    color: white;
+}
+
+.input-basic {
+    padding: 6px;
+}
+
+/*
+======================= Footer Section =======================
+*/
+.chat-box {
+    display: flex;
+    flex-flow: column;
+    align-items: center;
+}
+
+.chat-message-container {
+    background-color: #aaaaaa;
+    width: 33%;
+    min-height: 200px;
+}
+
+.chat-form {
+    display: flex;
+}
+
+/*
+======================= Footer Section =======================
+*/
+footer {
+    display: flex;
+    padding: 10px;
+    border-top: solid #151515 5px;
+    background-color: #101010;
+    margin-top: 5%;
+}
+
+/*
+======================= Modal Section =======================
+*/
+.modal {
+    display: none; 
+    position: fixed; 
+    z-index: 1; 
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.4); 
+}
+
+.modal-content {
+    background-color: #5a5a5a;
+    color: white;
+    margin: 15% auto; 
+    padding: 30px;
+    border: 1px solid #888;
+    width: 30%; 
+    border-radius: 20px;
+
+    display: flex;
+    flex-flow: column;
+    align-items: center;
+}
+
+.close {
+    color: #ececec;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+    color: rgb(0, 0, 0);
+    text-decoration: none;
+    cursor: pointer;
+}
+
+#login-form {
+    display: flex;
+    flex-flow: column;
+    width: 50%;
+}
+
+#login-form > * {
+    margin-bottom: 15px;
+}
+
+#login-header {
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+#login-header-text {
+    flex-grow: 2;
+    text-align: center;
+}
+
+#register-form {
+    display: flex;
+    flex-flow: column;
+    width: 50%;
+}
+
+#register-form > * {
+    margin-bottom: 15px;
+}
+
+#register-header {
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+#register-header-text {
+    flex-grow: 2;
+    text-align: center;
+}
+
+/*
+======================= Responsive stuff =======================
+*/
+/* Responsive adjustments for smaller screens */
+@media (max-width: 600px) {
+    h1 {
+        font-size: 32px;
+    }
+    .image-container {
+        width: 200px; /* Smaller width for smaller screens */
+        height: 150px; /* Smaller height for smaller screens */
+    }
+    button {
+        padding: 5px 10px;
+        font-size: 14px;
+    }
+}
