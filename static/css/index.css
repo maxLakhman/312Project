@@ -1,13 +1,33 @@
 /*
 ======================= Defaults =======================
 */
+header nav {
+    background-color: black; 
+    padding: 1px 10%; 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center;
+}
 
+header nav a#home-link {
+    color: #EEBD22; /* Set color of the link to golden */
+    text-decoration: none; /* Remove default underline */
+    font-size: 20px; /* Adjust font size */
+    font-weight: bold; /* Make the font bold */
+}
+
+header nav a#home-link:hover {
+    color: #FFD700; /* Change color on hover for better feedback */
+}
+
+
+/********************************************************/
 body, html {
     height: 100%;
     margin: 0;
-    background-color: black;
+    background-color: #35654d;
     color: black;
-    font-family: Arial, sans-serif; /* Using a standard font */
+    font-family: Arial, sans-serif;
 }
 
 .container {
@@ -22,58 +42,72 @@ h1 {
 }
 
 .image-container {
-    margin: 20px auto; /* Center the container */
-    width: 100%; /* Use the full width of its parent */
-    height: 400px; /* Example height */
-    display: flex; /* Use flexbox to center the image */
-    justify-content: center; /* Center horizontally */
-    align-items: center; /* Center vertically */
-    overflow: hidden; /* Hide parts of the image that exceed the container's bounds */
+    margin: 20px auto;
+    width: 100%;
+    height: 400px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
 }
 
 .image-container img {
-    max-width: 100%; /* Ensure the image is not wider than the container */
-    max-height: 100%; /* Ensure the image is not taller than the container */
-    object-fit: cover; /* Cover the container's area, may crop the image */
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: cover;
 }
 
 
-.buttons {
+/* .buttons {
     margin-top: 20px;
+} */
+
+button#exit,button#play,button#login,button#register,button#settings,button#logout { 
+    border: 2px solid #EEBD22; 
+    border-radius: 10px;
+    background-color: #B91D2D;
+    color: white; 
+    padding: 10px 20px;
+    font-size: 16px; 
+    cursor: pointer; 
+    transition: background-color 0.3s; 
 }
 
 button#exit,button#play,button#login,button#register {
-    border: 2px solid #EEBD22; /* Adds a white frame around the buttons */
-    border-radius: 10px; /* Rounds the corners of the buttons */
-    background-color: #B91D2D; /* Background color for the exit button */
-    color: white; /* Text color for better contrast */
-    padding: 10px 20px; /* Adjusts padding for a larger clickable area */
-    font-size: 16px; /* Adjusts the font size */
-    cursor: pointer; /* Changes the cursor to a pointer to indicate it's clickable */
-    transition: background-color 0.3s; /* Smooth transition for background color change */
+    border: 2px solid #EEBD22;
+    border-radius: 10px;
+    background-color: #B91D2D;
+    color: white;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s;
 }
 
 button#exit,button#play {
-    background-color: #35654d; /* Overrides the background color for the play button */
+    background-color: #35654d;
 }
+button#exit,button#play { 
+    background-color: #35654d; 
+} 
 
 .disable-scroll {
     overflow: hidden;
 }
 
-.basic-button {
+.basic-button { 
     border-radius: 10px;
-    border: none;
+    border: none; 
     padding: 10px 20px;
-    margin: 0 10px;
-    font-size: 16px;
+    margin: 0 10px; 
+    font-size: 16px; 
     cursor: pointer;
     transition: filter 0.3s ease;
 }
 
-.basic-button:hover {
-    filter: brightness(70%)
-}
+.basic-button:hover { 
+    filter: brightness(70%) 
+ } 
 
 .primary {
     background-color: green;
@@ -84,10 +118,27 @@ button#exit,button#play {
     padding: 6px;
 }
 
+.like-btn:hover {
+    fill: #bf1d3d;
+    cursor: pointer;
+}
+
+.like-container {
+    display: flex;
+}
+
+.message {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
 /*
 ======================= Footer Section =======================
 */
-.chat-container {
+.chat-box {
     display: flex;
     flex-flow: column;
     align-items: center;
