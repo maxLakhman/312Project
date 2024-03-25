@@ -93,14 +93,18 @@ function loadHtmlMessages(messages, messageBox) {
         messageElement.classList.add('message');
 
         let text = document.createElement('p');
+        text.classList.add("text-message-container");
         text.textContent = message.message;
 
         // Create a span element for username
         const usernameElement = document.createElement('span');
-        usernameElement.textContent = message.username + ": ";
+        usernameElement.textContent = message.username + ":\t";
         usernameElement.classList.add('username');
 
         // Create the like button
+        const likeContainer = document.createElement('div');
+        likeContainer.classList.add("like-container");
+
         const likeBtn = document.createElement('a');
         likeBtn.addEventListener('click', () => {
             likeMessage(message._id.$oid, likeBtn);
@@ -120,10 +124,12 @@ function loadHtmlMessages(messages, messageBox) {
         const likeCount = document.createElement('span');
         likeCount.innerText = message.liked_list ? message.liked_list.length : 0;
 
+        likeContainer.append(likeBtn);
+        likeContainer.append(likeCount);
+
         text.insertBefore(usernameElement, text.firstChild);
-        text.append(likeBtn);
-        text.append(likeCount);
         messageElement.appendChild(text);
+        messageElement.appendChild(likeContainer);
 
         messageBox.appendChild(messageElement);
     });

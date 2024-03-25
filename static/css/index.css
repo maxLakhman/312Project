@@ -90,8 +90,20 @@ button#exit,button#play {
 }
 
 .like-btn:hover {
-    fill: red;
+    fill: #bf1d3d;
     cursor: pointer;
+}
+
+.like-container {
+    display: flex;
+}
+
+.message {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-left: 10px;
+    padding-right: 10px;
 }
 
 /*
