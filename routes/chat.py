@@ -130,9 +130,17 @@ def like_message():
         # Getting list of people who liked it. Empty list if not found.
         liked_list = chat_message.get("liked_list", [])
 
-        # If user already liked the post
         if user.get("username") in liked_list:
-            response = jsonify({"success": "false"})
+            username = user.get("username")
+
+            while username in liked_list:
+                liked_list.remove(username)
+
+            chat_collection.update_one(
+                {"_id": ObjectId(message_id)}, {"$set": {"liked_list": liked_list}}
+            )
+
+            response = jsonify({"success": "true"})
 
         # Add username to post likes
         else:
