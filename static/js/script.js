@@ -7,13 +7,6 @@ document.addEventListener("DOMContentLoaded", function () {
     // Opening login modal on page load
     // openLoginModal();
 
-    // Can only redirect to blank page.
-    exit_button.addEventListener("click", function (event) {
-        if (event.target === exit_button) {
-            new_window = window.open("https://www.google.com/", "_self");
-        }
-    });
-
     // Lobby Redirect (brings up the interactive blackjack tables)
     play_button.addEventListener("click", function (event) {
         window.location.href = "/lobby";
@@ -66,7 +59,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 } else {
                     // document.getElementById("register_error").innerText = "";
                     // document.getElementById("register_success").innerText = response["message"];
-                    // window.location.reload(); // Reload the page on successful registration
+                    window.location.reload(); // Reload the page on successful registration
                     document.getElementById("register_error").innerText = "";
                     document.getElementById("register_success").innerText = response["message"];
                     //Clear form fields after successful registration
