@@ -35,7 +35,7 @@ def db_verify_auth_token(request):
 
 
 # route for creating a new table
-@table_blueprint.route("/create-table", methods=["POST"])
+@table_blueprint.route("/create-table", methods=["POST", "GET"])
 def create_table():
 
     # checking auth token
@@ -56,8 +56,11 @@ def create_table():
 
     # insert the table into the collection
     table_collection.insert_one(table)
+    
+    # redirect to the table
+    join_table_url = url_for("table_blueprint.join_table", table_id=table.get("table_id"))
 
-    return redirect(url_for("join-table", table_id=table.get("table_id")))
+    return jsonify({"status": "success", "redirect": join_table_url})
 
 @table_blueprint.route("/join-table/<table_id>", methods=["GET"])
 def join_table(table_id):

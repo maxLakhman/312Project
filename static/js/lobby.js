@@ -10,12 +10,10 @@ function createTable() {
     request.onreadystatechange = function(){
         if(this.readyState ===4 && this.status === 200){
             const response = JSON.parse(this.responseText);
-            if(response["status"] === "error"){
-                document.getElementById("table_error").innerText = response["message"];
+            if(response.status === "success") {
+                window.location.href = response.redirect;
             }
-            else{
-                window.location.href = "/join-table/" + response["table_id"];
-            }
+            else{}
         }
     };
 
