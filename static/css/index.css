@@ -89,6 +89,11 @@ button#exit,button#play {
     padding: 6px;
 }
 
+.like-btn:hover {
+    fill: red;
+    cursor: pointer;
+}
+
 /*
 ======================= Footer Section =======================
 */

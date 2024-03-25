@@ -2,6 +2,7 @@ import hashlib
 from flask import Blueprint, jsonify, request
 from pymongo import MongoClient
 from bson.json_util import dumps
+from bson import ObjectId
 from routes.auth import user_collection
 
 from flask_login import login_required, current_user
@@ -113,3 +114,53 @@ def like_post(post_id):
 
     post = post_collection.find_one({'_id': ObjectId(post_id)})
     return jsonify(likes=len(post.get('likes', []))), 200
+
+@chat_blueprint.route("/like-message", methods=["POST"])
+def like_message():
+    received_data = request.get_json()
+
+    # Checking auth token and replacing username if found
+    user = db_verify_auth_token(request)
+    if user:
+        received_data["username"] = user.get("username")
+        message_id = received_data["id"]
+
+        chat_message = chat_collection.find_one({"_id": ObjectId(message_id)})
+
+        # Getting list of people who liked it. Empty list if not found.
+        liked_list = chat_message.get("liked_list", [])
+
+        # If user already liked the post
+        if user.get("username") in liked_list:
+            response = jsonify({"success": "false"})
+
+        # Add username to post likes
+        else:
+            liked_list.append(user.get("username"))
+            print(liked_list)
+
+            chat_collection.update_one(
+                {"_id": ObjectId(message_id)}, {"$set": {"liked_list": liked_list}}
+            )
+
+            print()
+
+            response = jsonify({"success": "true"})
+
+        return response
+
+    else:
+        response = jsonify({"success": "false"})
+        response.status_code = 404
+        return response
+    
+def db_verify_auth_token(request):
+    if "auth_token" in request.cookies:
+        browser_token = request.cookies.get("auth_token")
+        hashed_browser_token = hashlib.sha256(browser_token.encode()).hexdigest()
+
+        user = user_collection.find_one(
+            {"auth_token": hashed_browser_token}, {"_id": 0}
+        )
+        return user
+    return False

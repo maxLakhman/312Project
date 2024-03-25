@@ -8,6 +8,12 @@
     <link rel="shortcut icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
 </head>
 <body>
+    <script>
+        function getUsername() {
+            return "{{ current_user.id }}"
+        }
+    </script>
+
     <header>
         <nav>
             <a href="/" id="home-link">Blackjack</a>
