@@ -1,10 +1,18 @@
 document.addEventListener("DOMContentLoaded", function () {
+    // Action Elements
+    const exit_button = document.getElementById("exit")
+    const play_button = document.getElementById("play")
+    const register_button = document.getElementById("register_submit")
+    const login_button = document.getElementById("login_submit")
+    // Opening login modal on page load
+    // openLoginModal();
 
-    const register_button = document.getElementById("register_submit");
-    const login_button = document.getElementById("login_submit");
+    // Lobby Redirect (brings up the interactive blackjack tables)
+    play_button.addEventListener("click", function (event) {
+        window.location.href = "/lobby";
+    });
 
- 
-    // Handle login submission
+    // Login Submit Button
     login_button.addEventListener("click", function (event) {
         event.preventDefault(); // Prevent form submission
 
@@ -51,7 +59,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 } else {
                     // document.getElementById("register_error").innerText = "";
                     // document.getElementById("register_success").innerText = response["message"];
-                    // window.location.reload(); // Reload the page on successful registration
+                    window.location.reload(); // Reload the page on successful registration
                     document.getElementById("register_error").innerText = "";
                     document.getElementById("register_success").innerText = response["message"];
                     //Clear form fields after successful registration

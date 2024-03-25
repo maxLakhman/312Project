@@ -7,7 +7,7 @@ window.onload = function() {
     // Turn off if you want to debug
     setInterval(() => {
         initiateChatBoxes();
-    }, 200000)
+    }, 2000)
 };
 
 function sendChat(el) {
@@ -155,9 +155,11 @@ function likeMessage(id) {
                     }
                 } catch (error) {
                     console.error("Error parsing JSON response: ", error);
+                    openRegisterModal();
                 }
             } else {
                 console.error("Request failed with status: ", this.status);
+                openRegisterModal();
             }
         }
     };

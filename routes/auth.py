@@ -3,8 +3,16 @@ from typing import List, Tuple, Any, Dict, Optional
 import bcrypt
 import hashlib
 import secrets
-from flask import Blueprint, jsonify, make_response, redirect, request, url_for, current_app
-from flask_login import UserMixin, login_required, login_user, logout_user
+from flask import (
+    Blueprint,
+    jsonify,
+    make_response,
+    redirect,
+    request,
+    url_for,
+    current_app,
+)
+from flask_login import UserMixin, login_required, login_user, logout_user, current_user
 from flask_login import LoginManager
 from pymongo import MongoClient
 
@@ -18,6 +26,7 @@ user_collection = db["user"]
 
 class User(UserMixin):
     """User class for Flask-Login"""
+
     def __init__(self, username):
         self.id = username
 
@@ -89,7 +98,9 @@ def auth() -> Dict[str, str]:
             response_data = {"status": "success", "message": f"Welcome {username}"}
             response = make_response(jsonify(response_data))
             expires = datetime.now() + timedelta(hours=1)
-            response.set_cookie("auth_token", auth_token, expires=expires, httponly=True)
+            response.set_cookie(
+                "auth_token", auth_token, expires=expires, httponly=True
+            )
             return response
         else:
             return create_response("error", "Invalid Credentials")
@@ -114,23 +125,51 @@ def register() -> Dict[str, str]:
     else:
         password_hash, salt = hash_password(password)
 
+        auth_token = secrets.token_urlsafe(256)
+        token_hash = hashlib.sha256(auth_token.encode()).hexdigest()
+
         record = {
             "username": username,
             "hash": password_hash,
             "salt": salt,
+            "auth_token": token_hash,
             "tokens": 500,
         }
         user_collection.insert_one(record)
 
         if not user_list and password == password_confirm:
             login_user(User(username))
-            return create_response("success", "Registration Successful")
+            response = create_response("success", "Registration Successful")
+            expires = datetime.now() + timedelta(hours=1)
+            response.set_cookie(
+                "auth_token", auth_token, expires=expires, httponly=True
+            )
+            return response
 
 
 @auth_blueprint.route("/logout")
 @login_required
 def logout():
     """Handle the logout process"""
+    user = db_verify_auth_token(request)
+    if user:
+        # Updates auth token with random token
+        auth_token = secrets.token_urlsafe(256)
+        token_hash = hashlib.sha256(auth_token.encode()).hexdigest()
+        user_collection.update_one(
+            {"username": user.get("username")}, {"$set": {"auth_token": token_hash}}
+        )
     logout_user()
-    return redirect(url_for('home'))
+    return redirect(url_for("home"))
 
+
+def db_verify_auth_token(request):
+    if "auth_token" in request.cookies:
+        browser_token = request.cookies.get("auth_token")
+        hashed_browser_token = hashlib.sha256(browser_token.encode()).hexdigest()
+
+        user = user_collection.find_one(
+            {"auth_token": hashed_browser_token}, {"_id": 0}
+        )
+        return user
+    return False
