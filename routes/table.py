@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify, request, redirect, url_for
+from flask import Blueprint, jsonify, request, redirect, url_for, render_template
 from pymongo import MongoClient
 from bson.json_util import dumps
 from routes.auth import user_collection
@@ -52,17 +52,14 @@ def create_table():
     table = {
         "table_id": str(table_collection.count_documents({}) + 1),
         "players": [username],
-        "deck": [],
-        "dealer": [],
-        "game_over": False
     }
 
     # insert the table into the collection
     table_collection.insert_one(table)
 
-    return redirect(url_for("join_table", table_id=table.get("table_id")))
+    return redirect(url_for("join-table", table_id=table.get("table_id")))
 
-@table_blueprint.route("/join-table/<table_id>")
+@table_blueprint.route("/join-table/<table_id>", methods=["GET"])
 def join_table(table_id):
     user = db_verify_auth_token(request)
 
@@ -71,10 +68,15 @@ def join_table(table_id):
 
     username = user.get("username")
 
+
     table = table_collection.find_one({"table_id": table_id})
     if not table:
         return jsonify({"status": "error", "message": "Table not found."})
 
+    # check if the user is already in the table
+    if username in table.get("players"):
+        return render_template("table.html", table=table)
+    
     # make the max players 5
     if len(table.get("players")) >= 5:
         return jsonify({"status": "error", "message": "Table is full."})
@@ -84,4 +86,6 @@ def join_table(table_id):
         {"$push": {"players": username}}
     )
 
-    return jsonify({"status": "success", "message": "Joined table."})
+    table = table_collection.find_one({"table_id": table_id})
+
+    return render_template("table.html", table=table)
