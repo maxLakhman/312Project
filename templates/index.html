@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,6 +8,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
     <link rel="shortcut icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
 </head>
+
 <body>
     <script>
         function getUsername() {
@@ -25,8 +27,8 @@
                     <button id="login" onclick="openLoginModal()">LOGIN</button>
                     <button id="register" onclick="openRegisterModal()">REGISTER</button>
                     {% endif %}
-                    <!-- <button id="exit">EXIT</button>
-                    <button id="play">PLAY</button> -->
+                    <!-- <button id="exit">EXIT</button> -->
+                    <button id="play">PLAY</button>
                     <button id="settings" onclick="redirectToSettings()">SETTINGS</button>
                 </div>
         
@@ -63,7 +65,8 @@
             <form id="register-form" action="/register" method="post">
                 <input type="text" id="register_username" class="input-basic" placeholder="Username" required>
                 <input type="password" id="register_password" class="input-basic" placeholder="Password" required>
-                <input type="password" id="register_password_confirm" class="input-basic" placeholder="Re-enter Password" required>
+                <input type="password" id="register_password_confirm" class="input-basic"
+                    placeholder="Re-enter Password" required>
                 <!-- Error Message -->
                 <div id="register_error" style="color: red;"></div>
                 <div id="register_success" style="color: green;"></div>
@@ -124,4 +127,5 @@
         });
     </script>
 </body>
+
 </html>
