@@ -1,11 +1,31 @@
 /*
 ======================= Defaults =======================
 */
+header nav {
+    background-color: black; 
+    padding: 1px 10%; 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center;
+}
 
+header nav a#home-link {
+    color: #EEBD22; /* Set color of the link to golden */
+    text-decoration: none; /* Remove default underline */
+    font-size: 20px; /* Adjust font size */
+    font-weight: bold; /* Make the font bold */
+}
+
+header nav a#home-link:hover {
+    color: #FFD700; /* Change color on hover for better feedback */
+}
+
+
+/********************************************************/
 body, html {
     height: 100%;
     margin: 0;
-    background-color: black;
+    background-color: #35654d;
     color: black;
     font-family: Arial, sans-serif;
 }
@@ -38,8 +58,19 @@ h1 {
 }
 
 
-.buttons {
+/* .buttons {
     margin-top: 20px;
+} */
+
+button#exit,button#play,button#login,button#register,button#settings,button#logout { 
+    border: 2px solid #EEBD22; 
+    border-radius: 10px;
+    background-color: #B91D2D;
+    color: white; 
+    padding: 10px 20px;
+    font-size: 16px; 
+    cursor: pointer; 
+    transition: background-color 0.3s; 
 }
 
 button#exit,button#play,button#login,button#register {
@@ -56,24 +87,27 @@ button#exit,button#play,button#login,button#register {
 button#exit,button#play {
     background-color: #35654d;
 }
+button#exit,button#play { 
+    background-color: #35654d; 
+} 
 
 .disable-scroll {
     overflow: hidden;
 }
 
-.basic-button {
+.basic-button { 
     border-radius: 10px;
-    border: none;
+    border: none; 
     padding: 10px 20px;
-    margin: 0 10px;
-    font-size: 16px;
+    margin: 0 10px; 
+    font-size: 16px; 
     cursor: pointer;
     transition: filter 0.3s ease;
 }
 
-.basic-button:hover {
-    filter: brightness(70%)
-}
+.basic-button:hover { 
+    filter: brightness(70%) 
+ } 
 
 .primary {
     background-color: green;
@@ -87,7 +121,7 @@ button#exit,button#play {
 /*
 ======================= Footer Section =======================
 */
-.chat-container {
+.chat-box {
     display: flex;
     flex-flow: column;
     align-items: center;

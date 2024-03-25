@@ -1,126 +1,77 @@
-import json, bcrypt, uuid
-from flask import Flask, render_template, request, jsonify, redirect, url_for
-# from flask_pymongo import PyMongo
-from pymongo import MongoClient
-
+from flask import Flask, render_template
+from flask_login import LoginManager, current_user
+from routes.auth import auth_blueprint, load_user
+from routes.chat import chat_blueprint
 
 app = Flask(__name__)
-# # flask_pymongo. We can use or not idc
-# # Connecting MongoDB Flask
-# app.config["MONGO_URI"] = "mongodb://localhost:27017/BlackJack"
-# mongo = PyMongo(app)
+app.secret_key = "super_secret_key"
 
-# Connecting to MongoDB
-mongo_client = MongoClient('db')
-db = mongo_client["BlackJack"]
+login_manager = LoginManager()
+login_manager.init_app(app)
 
-# Making collections
-user_collection = db["user"]
-chat_collection = db["chat"]
-chat_id_collection = db["chat_id"]
-table_collection = db["tables"]
-
- # Setting default chat id
-if chat_id_collection.count_documents({}) == 0:
-    chat_id_collection.insert_one({"_id" : 1, "message_id" : 1})
+# Set the user_loader function
+login_manager.user_loader(load_user)
 
 
-# index page
+app.register_blueprint(auth_blueprint)
+app.register_blueprint(chat_blueprint)
+
+
 @app.route('/')
 def home():
+    """Render the index page."""
     return render_template('index.html')
 
-# setting nosniff header
+
+@app.route('/settings.html')
+def open_settings():
+    """Render the settings page."""
+    return render_template('settings.html')
+
+
 @app.after_request
 def set_header(response):
+    """Set the 'X-Content-Type-Options' header to 'nosniff'."""
     response.headers['X-Content-Type-Options'] = 'nosniff'
     return response
 
-# auth routing framework
-@app.route('/auth', methods=['POST'])
-def auth():
-    # Getting JSON request and filling variables
+
+
+# lobby stuff
+@app.route('/lobby')
+def lobby():
+    # call to open the lobby page
+    return render_template('lobby.html')
+
+
+
+# creating a blackjack table
+@app.route('/create-table', methods=['POST'])
+def create_table():
+
+    # finding the user who created the through their auth token
+    user = request.cookies.get('auth_token')
+
+    # creating a new table after request received
     received_data = request.get_json()
-    username = received_data.get('username')
-    password = received_data.get('password')
+    table_name = "Table " + str(table_collection.count_documents({}) + 1)
 
-    # HTML escape characters
-    username = username.replace('&', '&amp;')
-    username = username.replace('<', '&lt;')
-    username = username.replace('>', '&gt;')
+    # retrieve the player name who created the table
+    author_name = received_data.get('player_name')
 
-    # Getting record of username
-    user_cursor = user_collection.find({"username": username})
-    user_list = list(user_cursor)
+    # set a uuid for the table
+    table_id = str(uuid.uuid4())
 
-    # Checking if a field is empty
-    if not username or not password:
-        response_data = {"status": "error", "message": "Empty Field"}
-    # If username not found
-    elif not user_list:
-        response_data = {"status": "error", "message": "Invalid Credentials"}
-    # Adding salt to given pw, hashing, then comparing to known user hash
-    else: 
-        user_password = user_list[0]["hash"]
-        user_salt = user_list[0]["salt"]
-        password = password.encode()
+    # HTML escape
+    table_name = table_name.replace('&', '&amp;')
+    table_name = table_name.replace('<', '&lt;')
+    table_name = table_name.replace('>', '&gt;')
 
-        check_pass = bcrypt.hashpw(password, user_salt)
+    # creating the table
+    table_collection.insert_one({"table_id": table_id, "table_name": table_name, "players": [author_name]})
 
-        if check_pass == user_password:
-            response_data = {"status": "success", "message": "Welcome " + username}
-        else:
-            response_data = {"status": "error", "message": "Invalid Credentials"}
-
-
-    return jsonify(response_data)
-
-
-
-@app.route('/register', methods=['POST'])
-def register():
-    # Getting JSON request and filling variables
-    received_data = request.get_json()
-    username = received_data.get('username')
-    password = received_data.get("password")
-    password_confirm = received_data.get("password_confirm")
-
-    # HTML escape characters
-    username = username.replace('&', '&amp;')
-    username = username.replace('<', '&lt;')
-    username = username.replace('>', '&gt;')
-
-    # Checking if there will be duplicate username
-    user_cursor = user_collection.find({"username": username})
-    user_list = list(user_cursor)
-    
-    # Empty Field
-    if not username or not password or not password_confirm:
-        response_data = {"status": "error", "message": "Empty Field"}
-
-    # Duplicate Username
-    elif user_list:
-        response_data = {"status": "error", "message": "Username Taken"}
-
-    # Password Missmatch
-    elif password != password_confirm:
-        response_data = {"status": "error", "message": "Password Mismatch"}
-    
-    # Register User
-    else:
-        # Hashing & salting password
-        salt = bcrypt.gensalt()
-        password = password.encode()
-        password_hash = bcrypt.hashpw(password, salt)
-        
-        # Making record and adding to database
-        record = {"username": username, "hash": password_hash, "salt": salt}
-        user_collection.insert_one(record)
-
-        response_data = {"status": "success", "message": "Registration Successful"}
-       
-
-    return jsonify(response_data)
+    # send the user to the table page
+    return redirect(url_for('table', table_id=table_id))
 
 
 # lobby stuff
