@@ -1,132 +1,75 @@
 document.addEventListener("DOMContentLoaded", function () {
-    // Action Elements
-    const exit_button = document.getElementById("exit")
-    const play_button = document.getElementById("play")
-    const register_button = document.getElementById("register_submit")
-    const login_button = document.getElementById("login_submit")
-    // Opening login modal on page load
-    // openLoginModal();
 
-    // Can only redirect to blank page.
-    exit_button.addEventListener("click", function (event) {
-        if (event.target === exit_button) {
-            new_window = window.open("https://www.google.com/", "_self");
-        }
-    });
+    const register_button = document.getElementById("register_submit");
+    const login_button = document.getElementById("login_submit");
 
-    // ToDo
-    play_button.addEventListener("click", function (event) {
-        if (event.target === play_button) {
-            console.log("To do");
-        }
-    });
-
-    // Login Submit Button
+ 
+    // Handle login submission
     login_button.addEventListener("click", function (event) {
+        event.preventDefault(); // Prevent form submission
 
-        // Stopping default close on submit
-        event.preventDefault();
-
-        // Getting Fields
+        // Get input values
         const username = document.getElementById("login_username").value;
         const password = document.getElementById("login_password").value;
 
         var request = new XMLHttpRequest();
-
-        request.onreadystatechange = function(){
-            if(this.readyState ===4 && this.status === 200){
-
-                // Getting response
+        request.onreadystatechange = function() {
+            if (this.readyState === 4 && this.status === 200) {
                 const response = JSON.parse(this.responseText);
-        
-                // Setting error message
-                if(response["status"] === "error"){
+                if (response["status"] === "error") {
                     document.getElementById("login_success").innerText = "";
                     document.getElementById("login_error").innerText = response["message"];
-                }
-                // Setting success message
-                else{
+                } else {
                     document.getElementById("login_error").innerText = "";
                     document.getElementById("login_success").innerText = response["message"];
-
-                    // Closing register window after 3 sec
-                    setTimeout(function() {
-                        closeLoginModal();
-                        document.getElementById("login_success").innerText = "";
-                        document.getElementById("login_error").innerText = "";
-                    }, 3000);
-
-
+                    window.location.reload(); // Reload the page on successful login
                 }
             }
         };
 
-        // Making request
         request.open("POST", "/auth");
         request.setRequestHeader("Content-Type", "application/json");
-
-        // Filling data
-        let data = {"username": username, "password": password}
-        
-        // Sending to /register
-        request.send(JSON.stringify(data));
+        request.send(JSON.stringify({"username": username, "password": password}));
     });
 
-    
-    // Register Submit Button
+    // Handle registration submission
     register_button.addEventListener("click", function (event) {
+        event.preventDefault(); // Prevent form submission
 
-        // Stopping default close on submit
-        event.preventDefault();
+        // Get input values
+        const username = document.getElementById("register_username").value;
+        const password = document.getElementById("register_password").value;
+        const password_confirm = document.getElementById("register_password_confirm").value;
 
-        // Getting Text Fields
-        const username = document.getElementById("register_username").value
-        const password = document.getElementById("register_password").value
-        const password_confirm = document.getElementById("register_password_confirm").value
-
-        // Creating new request
         var request = new XMLHttpRequest();
-
-        request.onreadystatechange = function(){
-            if(this.readyState ===4 && this.status === 200){
-
-                // Getting response
+        request.onreadystatechange = function() {
+            if (this.readyState === 4 && this.status === 200) {
                 const response = JSON.parse(this.responseText);
-        
-                // Setting error message
-                if(response["status"] === "error"){
+                if (response["status"] === "error") {
                     document.getElementById("register_success").innerText = "";
                     document.getElementById("register_error").innerText = response["message"];
-                }
-                // Setting success message
-                else{
+                } else {
+                    // document.getElementById("register_error").innerText = "";
+                    // document.getElementById("register_success").innerText = response["message"];
+                    // window.location.reload(); // Reload the page on successful registration
                     document.getElementById("register_error").innerText = "";
                     document.getElementById("register_success").innerText = response["message"];
-
-                    // Closing register window after 3 sec
-                    setTimeout(function() {
-                        closeRegisterModal();
-                        document.getElementById("register_error").innerText = "";
-                        document.getElementById("register_success").innerText = "";    
-                    }, 3000);
+                    //Clear form fields after successful registration
+                    document.getElementById("register_username").value = '';
+                    document.getElementById("register_password").value = '';
+                    document.getElementById("register_password_confirm").value = '';
+                    // Removed window.location.reload() to prevent UI change to logged-in state
                 }
             }
         };
-        
-        // Making request
+
         request.open("POST", "/register");
         request.setRequestHeader("Content-Type", "application/json");
-
-        // Filling data
-        let data = {"username": username, "password": password, "password_confirm": password_confirm}
-        
-        // Sending to /register
-        request.send(JSON.stringify(data));
+        request.send(JSON.stringify({"username": username, "password": password, "password_confirm": password_confirm}));
     });
-})
+});
 
-// functions for a login & register window
-// When executed scroll will be disabled and enabled
+// Functions for login & register window manipulation
 function openLoginModal() { 
     document.getElementById("login-modal").style.display = "block";
     document.body.classList.add('disable-scroll');
@@ -135,6 +78,8 @@ function openLoginModal() {
 function closeLoginModal() {
     document.getElementById("login-modal").style.display = "none";
     document.body.classList.remove('disable-scroll');
+    document.getElementById("login_success").innerText = "";
+    document.getElementById("login_error").innerText = "";
 }
 
 function openRegisterModal(){
@@ -145,5 +90,6 @@ function openRegisterModal(){
 function closeRegisterModal() {
     document.getElementById("register-modal").style.display = "none";
     document.body.classList.remove('disable-scroll');
+    document.getElementById("register_success").innerText = "";
+    document.getElementById("register_error").innerText = "";
 }
-
