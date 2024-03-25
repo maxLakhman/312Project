@@ -1,7 +1,18 @@
 document.addEventListener("DOMContentLoaded", function () {
+    // Action Elements
+    const exit_button = document.getElementById("exit")
+    const play_button = document.getElementById("play")
+    const register_button = document.getElementById("register_submit")
+    const login_button = document.getElementById("login_submit")
+    // Opening login modal on page load
+    // openLoginModal();
 
-    const register_button = document.getElementById("register_submit");
-    const login_button = document.getElementById("login_submit");
+    // Can only redirect to blank page.
+    exit_button.addEventListener("click", function (event) {
+        if (event.target === exit_button) {
+            new_window = window.open("https://www.google.com/", "_self");
+        }
+    });
 
     // Lobby Redirect (brings up the interactive blackjack tables)
     play_button.addEventListener("click", function (event) {
@@ -9,8 +20,6 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     // Login Submit Button
- 
-    // Handle login submission
     login_button.addEventListener("click", function (event) {
         event.preventDefault(); // Prevent form submission
 
