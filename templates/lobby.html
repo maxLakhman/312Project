@@ -18,13 +18,21 @@
         </div>
 
         <div class="table-gallery">
+            
+            <div class="table" id="table0">
+                <div id="table_error" style="color: red;"></div>
 
-            <div class="table" id="table1">
                 <h2>Create a Table</h2>
                 <img src="static\images\tables\1280px-Blackjack_board.jpg" alt="Table Image">
-                <button id="join1">Create</button>
+                <button id="join0" onclick="createTable()">Create</button>
             </div>
-
+            {% for tables in tables %}
+            <div class="table" id="table{{ tables.id }}">
+                <h2>Table {{ tables.id }}</h2>
+                <img src="static\images\tables\1280px-Blackjack_board.jpg" alt="Table Image">
+                <button id="join{{ tables.id }}" onclick="joinTable()">Join</button>
+            </div>
+            {% endfor %}
         </div>
 
         <div class="sidebar">
@@ -33,6 +41,7 @@
 
     </div>
 
+    <script src="{{ url_for('static', filename='js/lobby.js') }}"></script>
 
 
 </body>
