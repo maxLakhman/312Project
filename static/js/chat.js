@@ -170,6 +170,6 @@ function likeMessage(id) {
 
     let data = {"id": id}
     
-    // Sending to /like-message toggle
+    // Sending to /like-message
     request.send(JSON.stringify(data));
 }
