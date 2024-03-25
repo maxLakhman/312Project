@@ -5,6 +5,12 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/table.css') }}">
 </head>
 <body>
+    <script>
+        function getUsername() {
+            return "{{ current_user.id }}"
+        }
+    </script>
+    
     <h1>Blackjack Table Room</h1>
 
     <div id="table">
