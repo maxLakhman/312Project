@@ -1,12 +1,42 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blackjack</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
+    <link rel="shortcut icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
 </head>
+
 <body>
+    <script>
+        function getUsername() {
+            return "{{ current_user.id }}"
+        }
+    </script>
+
+    <header>
+        <nav>
+            <a href="/" id="home-link">Blackjack</a>
+                <div class="buttons">
+                    {% if current_user.is_authenticated %}
+                    <button id="exit">Welcome, {{ current_user.id }}</button>
+                    <button id="logout" onclick="logout()">LOGOUT</button>
+                    {% else %}
+                    <button id="login" onclick="openLoginModal()">LOGIN</button>
+                    <button id="register" onclick="openRegisterModal()">REGISTER</button>
+                    {% endif %}
+                    <!-- <button id="exit">EXIT</button> -->
+                    <button id="play">PLAY</button>
+                    <button id="settings" onclick="redirectToSettings()">SETTINGS</button>
+                </div>
+        
+            <!-- </div> -->
+        </nav>
+    </header>
+    
+
     <!-- Login window popup stuff -->
     <div id="login-modal" class="modal">
         <div class="modal-content">
@@ -15,27 +45,87 @@
                 <span class="close" onclick="closeLoginModal()">&times;</span>
             </div>
             <form id="login-form">
-                <input type="text" id="username" class="input-basic" placeholder="Username" required>
-                <input type="password" id="password" class="input-basic" placeholder="Password" required>
-                <button id="submit" class="basic-button primary">Submit</button>
+                <input type="text" id="login_username" class="input-basic" placeholder="Username" required>
+                <input type="password" id="login_password" class="input-basic" placeholder="Password" required>
+                <button id="login_submit" class="basic-button primary" type="button">Submit</button>
+                <!-- Error Message -->
+                <div id="login_error" style="color: red;"></div>
+                <div id="login_success" style="color: green;"></div>
             </form>
         </div>
     </div>
 
-    <div class="container">
-
-        <h1 style="color: #EEBD22;">Blackjack</h1>
-        <div class="image-container">
-            <img src="{{ url_for('static', filename='images/index-background.png') }}" alt="landing-page-backgroung">
+    <!-- Register window popup stuff -->
+    <div id="register-modal" class="modal">
+        <div class="modal-content">
+            <div id="register-header">
+                <h2 id="register-header-text">Register</h2>
+                <span class="close" onclick="closeRegisterModal()">&times;</span>
+            </div>
+            <form id="register-form" action="/register" method="post">
+                <input type="text" id="register_username" class="input-basic" placeholder="Username" required>
+                <input type="password" id="register_password" class="input-basic" placeholder="Password" required>
+                <input type="password" id="register_password_confirm" class="input-basic"
+                    placeholder="Re-enter Password" required>
+                <!-- Error Message -->
+                <div id="register_error" style="color: red;"></div>
+                <div id="register_success" style="color: green;"></div>
+                <input type="submit" id="register_submit" class="basic-button primary" value="Submit">
+            </form>
         </div>
-
-        <div class="buttons">
-            <button id="exit">EXIT</button>
-            <button id="play">PLAY</button>
-            <button id="login" onclick="openLoginModal()">LOGIN</button>
-        </div>
-
     </div>
+
+    <div class="container chat-box" id="chat-box-001">
+        <div class="chat-form">
+            <input type="text" id="chat-text" class="input-basic" placeholder="Send message">
+            <button onclick="sendChat(this)" class="basic-button primary">Submit</button>
+        </div>
+
+        <div class="chat-message-container">
+
+        </div>
+    </div>
+
+    <div class="container chat-box" id="chat-box-002">
+        <div class="chat-form">
+            <input type="text" id="chat-text" class="input-basic" placeholder="Send message">
+            <button onclick="sendChat(this)" class="basic-button primary">Submit</button>
+        </div>
+
+        <div class="chat-message-container">
+
+        </div>
+    </div>
+
+
+    <footer>
+        <div>
+            Helpful Links
+            <ul>
+                <li><a href="/">Terms and Conditions</a></li>
+                <li><a href="/">Market</a></li>
+                <li><a href="/">Something else</a></li>
+                <li><a href="/">Other rules</a></li>
+                <!-- <li><a href="https://www.ncpgambling.org/help-treatment/about-the-national-problem-gambling-helpline/">Gambling Problem?</a></li> -->
+            </ul>
+        </div>
+    </footer>
+
     <script src="{{ url_for('static', filename='js/script.js')}}"></script>
+    <script src="{{ url_for('static', filename='js/chat.js')}}"></script>
+    <script src="{{ url_for('static', filename='js/settings.js')}}"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script>
+        $('#logout').click(function () {
+            $.ajax({
+                url: '/logout',
+                type: 'GET',
+                success: function () {
+                    window.location.href = '/';  // redirect to home page
+                }
+            });
+        });
+    </script>
 </body>
+
 </html>

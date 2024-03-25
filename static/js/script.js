@@ -1,28 +1,83 @@
 document.addEventListener("DOMContentLoaded", function () {
+    // Action Elements
     const exit_button = document.getElementById("exit")
     const play_button = document.getElementById("play")
-
+    const register_button = document.getElementById("register_submit")
+    const login_button = document.getElementById("login_submit")
     // Opening login modal on page load
-    openLoginModal();
+    // openLoginModal();
 
-    // Can only redirect to blank page.
-    exit_button.addEventListener("click", function (event) {
-        if (event.target === exit_button) {
-            new_window = window.open("https://www.google.com/", "_self");
-        }
-    });
-
-    // ToDo
+    // Lobby Redirect (brings up the interactive blackjack tables)
     play_button.addEventListener("click", function (event) {
-        if (event.target === play_button) {
-            console.log("To do");
-        }
+        window.location.href = "/lobby";
     });
-    
-})
 
-// functions for a login window
-// When executed scroll will be disabled and enabled
+    // Login Submit Button
+    login_button.addEventListener("click", function (event) {
+        event.preventDefault(); // Prevent form submission
+
+        // Get input values
+        const username = document.getElementById("login_username").value;
+        const password = document.getElementById("login_password").value;
+
+        var request = new XMLHttpRequest();
+        request.onreadystatechange = function() {
+            if (this.readyState === 4 && this.status === 200) {
+                const response = JSON.parse(this.responseText);
+                if (response["status"] === "error") {
+                    document.getElementById("login_success").innerText = "";
+                    document.getElementById("login_error").innerText = response["message"];
+                } else {
+                    document.getElementById("login_error").innerText = "";
+                    document.getElementById("login_success").innerText = response["message"];
+                    window.location.reload(); // Reload the page on successful login
+                }
+            }
+        };
+
+        request.open("POST", "/auth");
+        request.setRequestHeader("Content-Type", "application/json");
+        request.send(JSON.stringify({"username": username, "password": password}));
+    });
+
+    // Handle registration submission
+    register_button.addEventListener("click", function (event) {
+        event.preventDefault(); // Prevent form submission
+
+        // Get input values
+        const username = document.getElementById("register_username").value;
+        const password = document.getElementById("register_password").value;
+        const password_confirm = document.getElementById("register_password_confirm").value;
+
+        var request = new XMLHttpRequest();
+        request.onreadystatechange = function() {
+            if (this.readyState === 4 && this.status === 200) {
+                const response = JSON.parse(this.responseText);
+                if (response["status"] === "error") {
+                    document.getElementById("register_success").innerText = "";
+                    document.getElementById("register_error").innerText = response["message"];
+                } else {
+                    // document.getElementById("register_error").innerText = "";
+                    // document.getElementById("register_success").innerText = response["message"];
+                    window.location.reload(); // Reload the page on successful registration
+                    document.getElementById("register_error").innerText = "";
+                    document.getElementById("register_success").innerText = response["message"];
+                    //Clear form fields after successful registration
+                    document.getElementById("register_username").value = '';
+                    document.getElementById("register_password").value = '';
+                    document.getElementById("register_password_confirm").value = '';
+                    // Removed window.location.reload() to prevent UI change to logged-in state
+                }
+            }
+        };
+
+        request.open("POST", "/register");
+        request.setRequestHeader("Content-Type", "application/json");
+        request.send(JSON.stringify({"username": username, "password": password, "password_confirm": password_confirm}));
+    });
+});
+
+// Functions for login & register window manipulation
 function openLoginModal() { 
     document.getElementById("login-modal").style.display = "block";
     document.body.classList.add('disable-scroll');
@@ -31,4 +86,18 @@ function openLoginModal() {
 function closeLoginModal() {
     document.getElementById("login-modal").style.display = "none";
     document.body.classList.remove('disable-scroll');
+    document.getElementById("login_success").innerText = "";
+    document.getElementById("login_error").innerText = "";
+}
+
+function openRegisterModal(){
+    document.getElementById("register-modal").style.display = "block";
+    document.body.classList.add('disable-scroll');
+}
+
+function closeRegisterModal() {
+    document.getElementById("register-modal").style.display = "none";
+    document.body.classList.remove('disable-scroll');
+    document.getElementById("register_success").innerText = "";
+    document.getElementById("register_error").innerText = "";
 }

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blackjack</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/lobby.css') }}">
+    <link rel="shortcut icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
+</head>
+
+<body>
+
+    <div class="page-container">
+        
+        <div class="header">
+
+        </div>
+
+        <div class="table-gallery">
+            
+            <div class="table" id="table0">
+                <div id="table_error" style="color: red;"></div>
+
+                <h2>Create a Table</h2>
+                <img src="static\images\tables\1280px-Blackjack_board.jpg" alt="Table Image">
+                <button id="join0" onclick="createTable()">Create</button>
+            </div>
+            {% for tables in tables %}
+            <div class="table" id="table{{ tables.id }}">
+                <h2>Table {{ tables.id }}</h2>
+                <img src="static\images\tables\1280px-Blackjack_board.jpg" alt="Table Image">
+                <button id="join{{ tables.id }}" onclick="joinTable()">Join</button>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="sidebar">
+
+        </div>
+
+    </div>
+
+    <script src="{{ url_for('static', filename='js/lobby.js') }}"></script>
+
+
+</body>
+
+</html>

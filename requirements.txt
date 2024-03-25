@@ -4,4 +4,5 @@ Werkzeug
 MongoEngine
 bcrypt
 pymongo
+Flask-PyMongo
 jinja2
