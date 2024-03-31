@@ -11,17 +11,23 @@
             color: white;
         }
     </style>
+    <script></script>
 </head>
 <body>
-    <script>
-        function getUsername() {
-            return "{{ current_user.id }}"
-        }
-    </script>
 <div class="container">
     <h1>Settings</h1>
-    <button id="light">Light</button>
-    <button id="dark">Dark</button>
+    <div class="card-body">
+        <button id="light">Light</button>
+        <button id="dark">Dark</button>
+        <div id="music-player">
+            <audio id="audio-player" style="display: none;" controls loop >
+                <source src="../static/music/background_music.mp3" type = "audio/mpeg">
+            </audio>
+            <button id="play-btn">Play</button>
+            <button id="pause-btn">Pause</button>
+        </div>
+        <button id="home" onclick="redirectToHome()">HOME</button>
+    </div>
 </div>
 <script>
     // Function to set the light theme
@@ -38,5 +44,7 @@
     document.getElementById('light').addEventListener('click', setLightTheme);
     document.getElementById('dark').addEventListener('click', setDarkTheme);
 </script>
+<script src="{{ url_for('static', filename='js/settings.js')}}"></script>
+<script src="{{ url_for('static', filename='js/music.js')}}"></script>
 </body>
 </html>
