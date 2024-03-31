@@ -57,6 +57,9 @@ h1 {
     object-fit: cover;
 }
 
+body {
+    transition: background-color 0.3s; /* Smooth transition for background color change */
+}
 
 /* .buttons {
     margin-top: 20px;

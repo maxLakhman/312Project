@@ -11,7 +11,7 @@
             color: white;
         }
     </style>
-    <script></script>
+    <script src="{{ url_for('static', filename='js/settings.js')}}"></script>
 </head>
 <body>
 <div class="container">
@@ -19,6 +19,7 @@
     <div class="card-body">
         <button id="light">Light</button>
         <button id="dark">Dark</button>
+        <button id="change-background-btn">Change Background Color</button>
         <div id="music-player">
             <audio id="audio-player" style="display: none;" controls loop >
                 <source src="../static/music/background_music.mp3" type = "audio/mpeg">
@@ -29,21 +30,7 @@
         <button id="home" onclick="redirectToHome()">HOME</button>
     </div>
 </div>
-<script>
-    // Function to set the light theme
-    function setLightTheme() {
-        document.body.classList.remove('dark-mode');
-    }
 
-    // Function to set the dark theme
-    function setDarkTheme() {
-        document.body.classList.add('dark-mode');
-    }
-
-    // Adding click event listeners to the buttons
-    document.getElementById('light').addEventListener('click', setLightTheme);
-    document.getElementById('dark').addEventListener('click', setDarkTheme);
-</script>
 <script src="{{ url_for('static', filename='js/settings.js')}}"></script>
 <script src="{{ url_for('static', filename='js/music.js')}}"></script>
 </body>
