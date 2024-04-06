@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blackjack</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
+    <script src="{{ url_for('static', filename='js/settings.js')}}"></script>
     <link rel="shortcut icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
 </head>
 
@@ -75,28 +76,33 @@
         </div>
     </div>
 
-    <div class="container chat-box" id="chat-box-001">
-        <div class="chat-form">
-            <input type="text" id="chat-text" class="input-basic" placeholder="Send message">
-            <button onclick="sendChat(this)" class="basic-button primary">Submit</button>
+    <div class = "container" id = "both-boxes">
+        <div class="container chat-box" id="chat-box-001">
+            <div class="chat-form">
+                <input type="text" id="chat-text" class="input-basic" placeholder="Send message">
+                <button onclick="sendChat(this)" class="basic-button primary">Submit</button>
+            </div>
+
+            <div class="chat-message-container">
+
+            </div>
         </div>
 
-        <div class="chat-message-container">
+        <div class="container chat-box" id="chat-box-002">
+            <div class="chat-form">
+                <input type="text" id="chat-text" class="input-basic" placeholder="Send message">
+                <button onclick="sendChat(this)" class="basic-button primary">Submit</button>
+            </div>
 
+            <div class="chat-message-container">
+
+            </div>
         </div>
     </div>
 
-    <div class="container chat-box" id="chat-box-002">
-        <div class="chat-form">
-            <input type="text" id="chat-text" class="input-basic" placeholder="Send message">
-            <button onclick="sendChat(this)" class="basic-button primary">Submit</button>
-        </div>
-
-        <div class="chat-message-container">
-
-        </div>
+    <div id="music-player" hidden>
+        <audio id="audio-player" src="/static/music/Morning-Routine-Lofi-Study-Music(chosic.com).mp3" preload="auto" controls autoplay></audio>
     </div>
-
 
     <footer>
         <div>

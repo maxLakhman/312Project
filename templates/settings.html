@@ -14,24 +14,33 @@
     <script src="{{ url_for('static', filename='js/settings.js')}}"></script>
 </head>
 <body>
-<div class="container">
-    <h1>Settings</h1>
-    <div class="card-body">
-        <button id="light">Light</button>
-        <button id="dark">Dark</button>
-        <button id="change-background-btn">Change Background Color</button>
-        <div id="music-player">
-            <audio id="audio-player" style="display: none;" controls loop >
-                <source src="../static/music/background_music.mp3" type = "audio/mpeg">
-            </audio>
-            <button id="play-btn">Play</button>
-            <button id="pause-btn">Pause</button>
+<header>
+    <nav>
+        <a href="/" id="home-link">Blackjack</a>
+        <div class="buttons">
+            {% if current_user.is_authenticated %}
+            <button id="exit">Welcome, {{ current_user.id }}</button>
+            <button id="logout" onclick="logout()">LOGOUT</button>
+            {% else %}
+            <button id="login" onclick="openLoginModal()">LOGIN</button>
+            <button id="register" onclick="openRegisterModal()">REGISTER</button>
+            {% endif %}
         </div>
-        <button id="home" onclick="redirectToHome()">HOME</button>
+
+        <!-- </div> -->
+    </nav>
+</header>
+
+<div class="card">
+
+    <h1>Settings</h1>
+    <button id="change-background-btn">Change Background Color</button>
+    <div id="music-player" >
+        <audio id="audio-player" src="/static/music/Morning-Routine-Lofi-Study-Music(chosic.com).mp3" preload="auto" controls autoplay></audio>
     </div>
+    <button id="home" onclick="redirectToHome()">HOME</button>
 </div>
 
 <script src="{{ url_for('static', filename='js/settings.js')}}"></script>
-<script src="{{ url_for('static', filename='js/music.js')}}"></script>
 </body>
 </html>

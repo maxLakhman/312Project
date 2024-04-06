@@ -90,9 +90,12 @@ button#exit,button#play,button#login,button#register {
 button#exit,button#play {
     background-color: #35654d;
 }
+
 button#exit,button#play { 
     background-color: #35654d; 
-} 
+}
+
+
 
 .disable-scroll {
     overflow: hidden;
