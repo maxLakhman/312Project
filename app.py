@@ -33,6 +33,9 @@ def open_settings():
     return render_template('settings.html')
 
 
+#@app.route('../static/music/Morning-Routine-Lofi-Study-Music(chosic.com).mp3')
+#def serve_music():
+#    return render_template("../static/music/Morning-Routine-Lofi-Study-Music(chosic.com).mp3")
 @app.after_request
 def set_header(response):
     """Set the 'X-Content-Type-Options' header to 'nosniff'."""
