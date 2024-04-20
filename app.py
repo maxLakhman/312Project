@@ -1,5 +1,6 @@
 from flask import Flask, render_template
 from flask_login import LoginManager, current_user
+from flask_socketio import SocketIO, join_room, leave_room, emit
 from routes.auth import auth_blueprint, load_user
 from routes.chat import chat_blueprint
 from routes.lobby import lobby_blueprint
@@ -7,6 +8,7 @@ from routes.table import table_blueprint
 
 app = Flask(__name__)
 app.secret_key = "super_secret_key"
+socketio = SocketIO(app)
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -44,4 +46,4 @@ def set_header(response):
 
 
 if __name__ == '__main__':
-    app.run(debug=True, port=8080)
+    socketio.run(app, debug=True, port=8080)

@@ -1,4 +1,5 @@
 from flask import Blueprint, jsonify, request, redirect, url_for, render_template
+from flask_socketio import SocketIO, join_room, leave_room, emit
 from pymongo import MongoClient
 from bson.json_util import dumps
 from routes.auth import user_collection
@@ -92,3 +93,27 @@ def join_table(table_id):
     table = table_collection.find_one({"table_id": table_id})
 
     return render_template("table.html", table=table)
+
+@table_blueprint.route("/leave-table/<table_id>", methods=["GET"])
+def leave_table(table_id):
+    user = db_verify_auth_token(request)
+
+    if not user:
+        return jsonify({"status": "error", "message": "You are not logged in."})
+
+    username = user.get("username")
+
+    table = table_collection.find_one({"table_id": table_id})
+    if not table:
+        return jsonify({"status": "error", "message": "Table not found."})
+
+    if username not in table.get("players"):
+        return jsonify({"status": "error", "message": "You are not in this table."})
+
+    table_collection.update_one(
+        {"table_id": table_id},
+        {"$pull": {"players": username}}
+    )
+
+    return redirect(url_for("lobby_blueprint.get_tables"))
+
