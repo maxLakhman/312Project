@@ -26,4 +26,3 @@ def get_tables():
     return render_template("lobby.html", tables=tables)
 
 
-
