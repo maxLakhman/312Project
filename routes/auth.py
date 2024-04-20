@@ -1,8 +1,6 @@
 from datetime import datetime, timedelta
 from typing import List, Tuple, Any, Dict, Optional
-import bcrypt
-import hashlib
-import secrets
+import bcrypt, hashlib, secrets, os
 from flask import (
     Blueprint,
     jsonify,
@@ -16,12 +14,14 @@ from flask_login import UserMixin, login_required, login_user, logout_user, curr
 from flask_login import LoginManager
 from pymongo import MongoClient
 
+
 login_manager = LoginManager()
 
 auth_blueprint = Blueprint("auth_blueprint", __name__, template_folder="templates")
 mongo_client = MongoClient("db")
 db = mongo_client["BlackJack"]
 user_collection = db["user"]
+id_collection = db["id"]
 
 
 class User(UserMixin):
@@ -173,3 +173,52 @@ def db_verify_auth_token(request):
         )
         return user
     return False
+
+
+@login_required
+@auth_blueprint.route("/profile-pic", methods=["POST"])
+def upload_profile_pic():
+    file = request.files["profile_pic"]
+    if file and (
+        "." in file.filename
+        and file.filename.split(".")[1].lower() in {"png", "jpg", "jpeg", "gif", "jfif"}
+    ):
+        username = current_user.id
+
+        # removing old pfp
+        old_pfp = user_collection.find_one(
+            {"username": username}, {"profile_pic": 1}
+        ).get("profile_pic")
+        print("OLDPFP", old_pfp)
+        if old_pfp and os.path.isfile(old_pfp):
+            print(old_pfp)
+            os.remove(old_pfp)
+
+        filename = get_id()
+        upload_path = "static/images/profiles"
+        file_path = os.path.join(upload_path, str(filename))
+        file.save(file_path)
+        user_collection.update_one(
+            {"username": username}, {"$set": {"profile_pic": file_path}}
+        )
+        return (
+            jsonify(
+                {
+                    "status": "success",
+                    "message": "File uploaded successfully",
+                    "filepath": file_path,
+                }
+            ),
+            200,
+        )
+
+
+def get_id():
+    # If the id_collection is empty create id #1
+    if not list(id_collection.find({})):
+        id_collection.insert_one({"_id": 1, "id": 1})
+
+    json_id = id_collection.find_one({})
+    id = json_id.get("id")
+    id_collection.update_one({"_id": 1}, {"$set": {"id": (int(id) + 1)}})
+    return id

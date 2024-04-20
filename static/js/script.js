@@ -4,6 +4,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const play_button = document.getElementById("play")
     const register_button = document.getElementById("register_submit")
     const login_button = document.getElementById("login_submit")
+    const upload_button = document.getElementById("profile_pic_submit")
     // Opening login modal on page load
     // openLoginModal();
 
@@ -75,6 +76,28 @@ document.addEventListener("DOMContentLoaded", function () {
         request.setRequestHeader("Content-Type", "application/json");
         request.send(JSON.stringify({"username": username, "password": password, "password_confirm": password_confirm}));
     });
+
+    // Profile Pic submission
+// Profile Pic submission
+    upload_button.addEventListener("click", function (event){
+        event.preventDefault();
+        var file = document.getElementById('profile_pic').files[0];
+        var formData = new FormData();
+        formData.append('profile_pic', file);
+
+        var request = new XMLHttpRequest();
+        request.open("POST", "/profile-pic");
+        request.onreadystatechange = function() {
+            if (request.readyState === 4 && request.status === 200) {
+                const response = JSON.parse(this.responseText);
+                console.log(response);
+                if (response['status'] === "success"){
+                    document.getElementById("profile-pic-preview").src = "./"+ response["filepath"];
+                }
+            }
+        };
+        request.send(formData); // Send the FormData object
+    });
 });
 
 // Functions for login & register window manipulation
@@ -100,4 +123,14 @@ function closeRegisterModal() {
     document.body.classList.remove('disable-scroll');
     document.getElementById("register_success").innerText = "";
     document.getElementById("register_error").innerText = "";
+}
+
+function openUploadModal() {
+    document.getElementById("update-profile-pic-modal").style.display = "block";
+    document.body.classList.add('disable-scroll');
+}
+
+function closeUploadModal() {
+    document.getElementById("update-profile-pic-modal").style.display = "none";
+    document.body.classList.remove('disable-scroll');
 }

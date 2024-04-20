@@ -24,6 +24,7 @@
                     {% if current_user.is_authenticated %}
                     <button id="exit">Welcome, {{ current_user.id }}</button>
                     <button id="logout" onclick="logout()">LOGOUT</button>
+                    <button id="update-profile-pic" onclick="openUploadModal()">PROFILE PICTURE</button>
                     {% else %}
                     <button id="login" onclick="openLoginModal()">LOGIN</button>
                     <button id="register" onclick="openRegisterModal()">REGISTER</button>
@@ -37,6 +38,22 @@
         </nav>
     </header>
     
+    <!-- Profile Picture Shit -->
+    <div id="update-profile-pic-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="close" onclick="closeUploadModal()">&times;</span>
+                <h2>Upload Profile Picture</h2>
+            </div>
+            <form id="upload-form" enctype="multipart/form-data">
+                <input type="file" id="profile_pic" name="profile_pic" accept="image/*">
+                <button id="profile_pic_submit" type="submit" class="basic-button primary">Upload</button>
+            </form>
+            Image Preview:
+            <img id="profile-pic-preview" src="./static/images/index-background.png" width="300" height="300">
+        </div>
+    </div>
+
 
     <!-- Login window popup stuff -->
     <div id="login-modal" class="modal">
