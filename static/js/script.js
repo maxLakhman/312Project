@@ -1,10 +1,11 @@
 document.addEventListener("DOMContentLoaded", function () {
     // Action Elements
-    const exit_button = document.getElementById("exit")
-    const play_button = document.getElementById("play")
-    const register_button = document.getElementById("register_submit")
-    const login_button = document.getElementById("login_submit")
-    const upload_button = document.getElementById("profile_pic_submit")
+    const exit_button = document.getElementById("exit");
+    const play_button = document.getElementById("play");
+    const register_button = document.getElementById("register_submit");
+    const login_button = document.getElementById("login_submit");
+    const upload_button = document.getElementById("profile_pic_submit");
+    const profile_pic = document.getElementById("user-profile-pic");
     // Opening login modal on page load
     // openLoginModal();
 
@@ -79,6 +80,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Profile Pic submission
 // Profile Pic submission
+    profile_pic.addEventListener("click", function(event){
+        openUploadModal();
+    });
+    
     upload_button.addEventListener("click", function (event){
         event.preventDefault();
         var file = document.getElementById('profile_pic').files[0];
@@ -93,6 +98,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 console.log(response);
                 if (response['status'] === "success"){
                     document.getElementById("profile-pic-preview").src = "./"+ response["filepath"];
+                    document.getElementById("user-profile-pic").src ="./"+ response["filepath"];
                 }
             }
         };

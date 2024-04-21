@@ -19,12 +19,21 @@
 
     <header>
         <nav>
+            <div class="user-info">
+                {% if current_user.is_authenticated %}
+                <img id="user-profile-pic" src="./static/images/profiles/default" width="75" height="75">
+                <span id="user-name">Welcome, {{ current_user.id }} </span>
+                {% else %}
+                <img id="user-profile-pic" src="./static/images/profiles/default" width="75" height="75">
+                <span id="user-name">Welcome, Guest </span>
+                {% endif %}
+            </div>
             <a href="/" id="home-link">Blackjack</a>
                 <div class="buttons">
                     {% if current_user.is_authenticated %}
-                    <button id="exit">Welcome, {{ current_user.id }}</button>
+                    <!-- <button id="exit">Welcome, {{ current_user.id }}</button> -->
                     <button id="logout" onclick="logout()">LOGOUT</button>
-                    <button id="update-profile-pic" onclick="openUploadModal()">PROFILE PICTURE</button>
+                    <!-- <button id="update-profile-pic" onclick="openUploadModal()">PROFILE PICTURE</button> -->
                     {% else %}
                     <button id="login" onclick="openLoginModal()">LOGIN</button>
                     <button id="register" onclick="openRegisterModal()">REGISTER</button>
@@ -50,7 +59,7 @@
                 <button id="profile_pic_submit" type="submit" class="basic-button primary">Upload</button>
             </form>
             Image Preview:
-            <img id="profile-pic-preview" src="./static/images/index-background.png" width="300" height="300">
+            <img id="profile-pic-preview" src="./static/images/profiles/default" width="300" height="300">
         </div>
     </div>
 

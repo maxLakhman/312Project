@@ -61,10 +61,11 @@ function loadMessages(el) {
             if (this.status === 200) {
                 try {
                     const response = JSON.parse(this.responseText);
-                    console.log(response);
+                    // console.log(response);
                     
                     let messageBox = el.getElementsByClassName("chat-message-container")[0];
                     loadHtmlMessages(response, messageBox)
+                    scrollToBottom();
                 } catch (error) {
                     console.error("Error parsing JSON response: ", error);
                 }
@@ -172,4 +173,11 @@ function likeMessage(id) {
     
     // Sending to /like-message
     request.send(JSON.stringify(data));
+}
+
+function scrollToBottom(){
+    var chatContainers = document.querySelectorAll('.chat-message-container');
+    chatContainers.forEach(function(container){
+        container.scrollTop = container.scrollHeight;
+    });
 }

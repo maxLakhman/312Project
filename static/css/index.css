@@ -152,8 +152,13 @@ button#exit,button#play {
 
 .chat-message-container {
     background-color: #aaaaaa;
-    width: 33%;
+    width: 50%;
     min-height: 200px;
+    max-height: 300px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+
 }
 
 .chat-form {
@@ -193,7 +198,6 @@ footer {
     border: 1px solid #888;
     width: 30%; 
     border-radius: 20px;
-
     display: flex;
     flex-flow: column;
     align-items: center;
@@ -271,4 +275,23 @@ footer {
         padding: 5px 10px;
         font-size: 14px;
     }
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+}
+
+#user-profile-pic {
+    border-radius: 50%;
+    margin-right: 10px;
+}
+
+#user-name {
+    color: white;
+    font-weight: bold;
+}
+
+#profile-pic-preview {
+    border-radius: 50%;
 }
