@@ -7,7 +7,7 @@ window.onload = function() {
     // Turn off if you want to debug
     setInterval(() => {
         initiateChatBoxes();
-    }, 2000)
+    }, 1000000)
 };
 
 function sendChat(el) {
@@ -90,26 +90,38 @@ function loadHtmlMessages(messages, messageBox) {
 
     messages = JSON.parse(messages);
     messages.forEach(message => {
-        
+
+        // Message Block
         let messageElement = document.createElement('div');
         messageElement.classList.add('message');
         messageElement.style.display = 'flex';
-        
         messageElement.style.alignItems = 'center';
-        // messageElement.style.marginBottom = '10px';
 
+        // Message Container
+        let message_container = document.createElement('div');
+        message_container.classList.add("text-message-container");
+        
+        // Profile Picture
+        let profile_pic = document.createElement('img');
+        profile_pic.src = "../" + message.profile_pic;
+        profile_pic.width = 40;
+        profile_pic.height = 40;
+        profile_pic.style.borderRadius = '50%';
+        profile_pic.style.objectFit = 'cover';
+        profile_pic.classList.add('chat-profile-pic')
 
-
-
-        let text = document.createElement('p');
-        text.classList.add("text-message-container");
-        text.textContent = message.message;
-
-        // Create a span element for username
+        // Username
         const usernameElement = document.createElement('span');
         usernameElement.textContent = message.username + ":\t";
         usernameElement.classList.add('username');
         usernameElement.style.fontWeight = 'bold';
+
+        // Message Text
+        let message_text = document.createElement('span');
+        message_text.classList.add("message_text");
+        message_text.textContent = message.message;
+
+
         // Create the like button
         const likeContainer = document.createElement('div');
         likeContainer.classList.add("like-container");
@@ -133,21 +145,14 @@ function loadHtmlMessages(messages, messageBox) {
         const likeCount = document.createElement('span');
         likeCount.innerText = message.liked_list ? message.liked_list.length : 0;
 
+        message_container.appendChild(profile_pic);
+        message_container.appendChild(usernameElement);
+        message_container.appendChild(message_text);
+        
         likeContainer.append(likeBtn);
         likeContainer.append(likeCount);
 
-        // Create profile pic
-        const profile_pic = document.createElement('img');
-        profile_pic.src = "./" + message.profile_pic;
-        profile_pic.width = 35;
-        profile_pic.height = 35;
-        profile_pic.style.borderRadius = '50%';
-        profile_pic.style.objectFit = 'cover';
-        profile_pic.classList.add('chat-profile-pic')
-
-        text.insertBefore(profile_pic, text.firstChild);
-        text.insertBefore(usernameElement, profile_pic.nextSibling);
-        messageElement.appendChild(text);
+        messageElement.appendChild(message_container);
         messageElement.appendChild(likeContainer);
 
         messageBox.appendChild(messageElement);

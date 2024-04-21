@@ -11,6 +11,7 @@
 </head>
 
 <body>
+    
     <script>
         function getUsername() {
             return "{{ current_user.id }}"
@@ -21,10 +22,10 @@
         <nav>
             <div class="user-info">
                 {% if current_user.is_authenticated %}
-                <img id="user-profile-pic" src="./{{ current_user.profile_pic }}" width="75" height="75">
+                <img id="user-profile-pic" src="../{{ current_user.profile_pic }}" width="75" height="75">
                 <span id="user-name">Welcome, {{ current_user.id }} </span>
                 {% else %}
-                <img id="user-profile-pic" src="./static/images/profiles/default" width="75" height="75">
+                <img id="user-profile-pic" src="../static/images/profiles/default" width="75" height="75">
                 <span id="user-name">Welcome, Guest </span>
                 {% endif %}
             </div>
@@ -38,7 +39,6 @@
                     <button id="login" onclick="openLoginModal()">LOGIN</button>
                     <button id="register" onclick="openRegisterModal()">REGISTER</button>
                     {% endif %}
-                    <!-- <button id="exit">EXIT</button> -->
                     <button id="play">PLAY</button>
                     <button id="settings" onclick="redirectToSettings()">SETTINGS</button>
                 </div>
@@ -101,7 +101,7 @@
             </form>
         </div>
     </div>
-
+    
     <div class = "container" id = "both-boxes">
         <div class="container chat-box" id="chat-box-001">
             <div class="chat-form">

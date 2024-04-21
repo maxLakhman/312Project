@@ -42,7 +42,8 @@ def chat_post():
             )
         else:
             received_data["profile_pic"] = "static/images/profiles/default"
-
+    else:
+        received_data["profile_pic"] = "static/images/profiles/default"
     chat_collection.insert_one(received_data)
 
     list_cur = list(chat_collection.find({}))

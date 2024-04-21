@@ -22,10 +22,18 @@ header nav a#home-link:hover {
 
 
 /********************************************************/
+
+body{
+    background-image: url(../images/index-background.png);
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
 body, html {
     height: 100%;
     margin: 0;
-    background-color: #35654d;
+    background-color: black;
     color: black;
     font-family: Arial, sans-serif;
 }
@@ -33,6 +41,9 @@ body, html {
 .container {
     text-align: center;
     padding-top: 10%;
+}
+#chat-box-001{
+    margin-top: 300px;
 }
 
 h1 {
@@ -131,14 +142,44 @@ button#exit,button#play {
 
 .like-container {
     display: flex;
+    /* margin-left: 100%; */
 }
 
 .message {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: left;
+    /* width: 100%;
+    height: auto; */
+    /* justify-content: space-between; */
+    padding-top: 10px;
     padding-left: 10px;
     padding-right: 10px;
+}
+
+.text-message-container {
+    display: flex;
+    align-items: center;
+    justify-content: left;
+    justify-content: space-between;
+    max-width: 650px;
+}
+
+.username{
+    padding-left: 5px;
+    padding-right: 5px;
+    margin-bottom: auto;
+    margin-top: 10px;
+}
+.message_text {
+    text-align: left;
+    word-break: break-all;
+    width: 600px;
+    margin-bottom:auto;
+    margin-top: 10px;
+}
+.chat-profile-pic{
+    margin-bottom: auto;
 }
 
 /*
@@ -155,10 +196,10 @@ button#exit,button#play {
     width: 50%;
     min-height: 200px;
     max-height: 300px;
+    overflow-x:auto;
     overflow-y: auto;
     display: flex;
     flex-direction: column;
-
 }
 
 .chat-form {
