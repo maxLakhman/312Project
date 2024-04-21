@@ -21,7 +21,7 @@
         <nav>
             <div class="user-info">
                 {% if current_user.is_authenticated %}
-                <img id="user-profile-pic" src="./static/images/profiles/default" width="75" height="75">
+                <img id="user-profile-pic" src="./{{ current_user.profile_pic }}" width="75" height="75">
                 <span id="user-name">Welcome, {{ current_user.id }} </span>
                 {% else %}
                 <img id="user-profile-pic" src="./static/images/profiles/default" width="75" height="75">
@@ -59,7 +59,7 @@
                 <button id="profile_pic_submit" type="submit" class="basic-button primary">Upload</button>
             </form>
             Image Preview:
-            <img id="profile-pic-preview" src="./static/images/profiles/default" width="300" height="300">
+            <img id="profile-pic-preview" src="./{{current_user.profile_pic}}" width="300" height="300">
         </div>
     </div>
 
