@@ -15,7 +15,7 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 
 
-# Set the user_loader function
+# Sets pfp for current_user
 @login_manager.user_loader
 def load_user(username):
     user_info = list(user_collection.find({"username": username}))

@@ -175,6 +175,7 @@ def db_verify_auth_token(request):
     return False
 
 
+# Sets profile picture
 @login_required
 @auth_blueprint.route("/profile-pic", methods=["POST"])
 def upload_profile_pic():
@@ -185,7 +186,7 @@ def upload_profile_pic():
     ):
         username = current_user.id
 
-        # removing old pfp
+        # removing old pfp ########Commented out so old pfp will show in chat message ##########
         # old_pfp = user_collection.find_one(
         #     {"username": username}, {"profile_pic": 1}
         # ).get("profile_pic")
