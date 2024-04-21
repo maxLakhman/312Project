@@ -90,8 +90,16 @@ function loadHtmlMessages(messages, messageBox) {
 
     messages = JSON.parse(messages);
     messages.forEach(message => {
+        
         let messageElement = document.createElement('div');
         messageElement.classList.add('message');
+        messageElement.style.display = 'flex';
+        
+        messageElement.style.alignItems = 'center';
+        // messageElement.style.marginBottom = '10px';
+
+
+
 
         let text = document.createElement('p');
         text.classList.add("text-message-container");
@@ -101,7 +109,7 @@ function loadHtmlMessages(messages, messageBox) {
         const usernameElement = document.createElement('span');
         usernameElement.textContent = message.username + ":\t";
         usernameElement.classList.add('username');
-
+        usernameElement.style.fontWeight = 'bold';
         // Create the like button
         const likeContainer = document.createElement('div');
         likeContainer.classList.add("like-container");
@@ -110,7 +118,7 @@ function loadHtmlMessages(messages, messageBox) {
         likeBtn.addEventListener('click', () => {
             likeMessage(message._id.$oid, likeBtn);
         })
-
+        
         // Deal with coloring in the like button here
         let filled = message.liked_list ? message.liked_list.includes(getUsername()) : false;
 
@@ -128,7 +136,17 @@ function loadHtmlMessages(messages, messageBox) {
         likeContainer.append(likeBtn);
         likeContainer.append(likeCount);
 
-        text.insertBefore(usernameElement, text.firstChild);
+        // Create profile pic
+        const profile_pic = document.createElement('img');
+        profile_pic.src = "./" + message.profile_pic;
+        profile_pic.width = 35;
+        profile_pic.height = 35;
+        profile_pic.style.borderRadius = '50%';
+        profile_pic.style.objectFit = 'cover';
+        profile_pic.classList.add('chat-profile-pic')
+
+        text.insertBefore(profile_pic, text.firstChild);
+        text.insertBefore(usernameElement, profile_pic.nextSibling);
         messageElement.appendChild(text);
         messageElement.appendChild(likeContainer);
 

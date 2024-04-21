@@ -18,11 +18,7 @@ chat_collection = db["chat"]
 post_collection = db["posts"]
 
 
-chat_blueprint = Blueprint(
-    "chat_blueprint",
-    __name__,
-    template_folder="templates"
-)
+chat_blueprint = Blueprint("chat_blueprint", __name__, template_folder="templates")
 
 
 @chat_blueprint.route("/chat-messages", methods=["POST"])
@@ -33,9 +29,7 @@ def chat_post():
     # Checking auth token
     if "auth_token" in request.cookies:
         browser_token = request.cookies.get("auth_token")
-        hashed_browser_token = hashlib.sha256(
-            browser_token.encode()
-            ).hexdigest()
+        hashed_browser_token = hashlib.sha256(browser_token.encode()).hexdigest()
 
         # Finding user with same auth token
         user = user_collection.find_one(
@@ -43,6 +37,11 @@ def chat_post():
         )
         if user:
             received_data["username"] = user.get("username")
+            received_data["profile_pic"] = user.get(
+                "profile_pic", "static/images/profiles/default"
+            )
+        else:
+            received_data["profile_pic"] = "static/images/profiles/default"
 
     chat_collection.insert_one(received_data)
 
@@ -63,7 +62,6 @@ def chat_get():
 
     # Converting to the JSON
     json_data = dumps(list_cur, indent=2)
-
     return jsonify(json_data)
 
 
@@ -75,9 +73,7 @@ def post_create():
     # Checking auth token
     if "auth_token" in request.cookies:
         browser_token = request.cookies.get("auth_token")
-        hashed_browser_token = hashlib.sha256(
-            browser_token.encode()
-            ).hexdigest()
+        hashed_browser_token = hashlib.sha256(browser_token.encode()).hexdigest()
 
         # Finding user with same auth token
         user = user_collection.find_one(
@@ -93,27 +89,28 @@ def post_create():
     return jsonify({"message": "Post created"}), 201
 
 
-@chat_blueprint.route('/posts', methods=['GET'])
+@chat_blueprint.route("/posts", methods=["GET"])
 @login_required
 def get_posts():
     posts = list(post_collection.find())
     for post in posts:
-        post['_id'] = str(post['_id'])  # Convert ObjectId to string
+        post["_id"] = str(post["_id"])  # Convert ObjectId to string
     return jsonify(posts=posts), 200
 
 
-@chat_blueprint.route('/posts/<string:post_id>/like', methods=['POST'])
+@chat_blueprint.route("/posts/<string:post_id>/like", methods=["POST"])
 @login_required
 def like_post(post_id):
-    post = post_collection.find_one({'_id': ObjectId(post_id)})
+    post = post_collection.find_one({"_id": ObjectId(post_id)})
     if post is None:
-        return jsonify(error='Post not found'), 404
+        return jsonify(error="Post not found"), 404
     post_collection.update_one(
-        {'_id': ObjectId(post_id)},
-        {'$addToSet': {'likes': current_user.username}})
+        {"_id": ObjectId(post_id)}, {"$addToSet": {"likes": current_user.username}}
+    )
 
-    post = post_collection.find_one({'_id': ObjectId(post_id)})
-    return jsonify(likes=len(post.get('likes', []))), 200
+    post = post_collection.find_one({"_id": ObjectId(post_id)})
+    return jsonify(likes=len(post.get("likes", []))), 200
+
 
 @chat_blueprint.route("/like-message", methods=["POST"])
 def like_message():
@@ -161,7 +158,8 @@ def like_message():
         response = jsonify({"success": "false"})
         response.status_code = 404
         return response
-    
+
+
 def db_verify_auth_token(request):
     if "auth_token" in request.cookies:
         browser_token = request.cookies.get("auth_token")

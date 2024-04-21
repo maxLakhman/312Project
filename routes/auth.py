@@ -181,18 +181,18 @@ def upload_profile_pic():
     file = request.files["profile_pic"]
     if file and (
         "." in file.filename
-        and file.filename.split(".")[1].lower() in {"png", "jpg", "jpeg", "gif", "jfif"}
+        and file.filename.split(".")[1] in {"png", "jpg", "jpeg", "gif", "jfif"}
     ):
         username = current_user.id
 
         # removing old pfp
-        old_pfp = user_collection.find_one(
-            {"username": username}, {"profile_pic": 1}
-        ).get("profile_pic")
-        print("OLDPFP", old_pfp)
-        if old_pfp and os.path.isfile(old_pfp):
-            print(old_pfp)
-            os.remove(old_pfp)
+        # old_pfp = user_collection.find_one(
+        #     {"username": username}, {"profile_pic": 1}
+        # ).get("profile_pic")
+
+        # if old_pfp and os.path.isfile(old_pfp):
+        #     print(old_pfp)
+        #     os.remove(old_pfp)
 
         filename = get_id()
         upload_path = "static/images/profiles"
