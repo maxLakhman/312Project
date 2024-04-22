@@ -13,8 +13,8 @@ def handle_first_hand():
     if not current_user.is_authenticated:
         disconnect()
 
-    MongoClient = MongoClient("db")
-    db = MongoClient["BlackJack"]
+    mongo = MongoClient("db")
+    db = mongo["BlackJack"]
     user_collection = db["user"]
     table_collection = db["tables"]
 
@@ -24,7 +24,7 @@ def handle_first_hand():
     print(user)
 
     # find the table id
-    table = user.get("table_id")
+    table = user.get("table")
     print(table)
     table_info = table_collection.find_one({"table_id": table})
 
@@ -60,19 +60,19 @@ def handle_first_hand():
     )
 
     # emit the user's hand to the user and their username
-    emit('hand', {'hand': hand, 'dealer_hand': dealer_hand, 'username': username}, room=username)
+    emit('hand', {'hand': hand, 'dealer_hand': dealer_hand, 'username': username}, broadcast=True)
 
 
 
 
 @socketio.on('hit')
-def handle_deal_card(data):
+def handle_deal_card():
 
     if not current_user.is_authenticated:
         disconnect()
 
-    MongoClient = MongoClient("db")
-    db = MongoClient["BlackJack"]
+    mongo = MongoClient("db")
+    db = mongo["BlackJack"]
     user_collection = db["user"]
     table_collection = db["tables"]
 
@@ -80,9 +80,9 @@ def handle_deal_card(data):
     username = current_user.id
     user = user_collection.find_one({"username": username})
     print(user)
-
+    
     # find the table id
-    table = user.get("table_id")
+    table = user.get("table")
     print(table)
     table_info = table_collection.find_one({"table_id": table})
     print(table_info)
@@ -108,7 +108,7 @@ def handle_deal_card(data):
     )
 
     # emit the new card to the user
-    emit('hand', {'hand': hand, 'username': username}, room=username)
+    emit('hand', {'hand': hand, 'username': username}, broadcast=True)
 
 
 

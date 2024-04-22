@@ -13,6 +13,8 @@ CORS(app)
 app.config["SECRET_KEY"] = "secret_key"
 socketio = SocketIO(app, cors_allowed_origins="*")
 
+from routes import table_socket
+
 login_manager = LoginManager()
 login_manager.init_app(app)
 
