@@ -7,6 +7,7 @@ from routes.chat import chat_blueprint, chat_collection
 from routes.lobby import lobby_blueprint
 from routes.table import table_blueprint
 from routes.auth import *
+import json
 
 from bson.json_util import dumps
 from routes.auth import user_collection
@@ -33,12 +34,10 @@ login_manager.init_app(app)
 
 @socketio.on("send_message")
 def handle_send_message(data):
-    print("MESSSSSSAGGGGGGGEEEE SENT")
-    print(data)
-    print(type(data))
 
     # Checking auth token
-    if current_user:
+    print(current_user)
+    if current_user.is_authenticated:
         user = user_collection.find_one(
             {"username": current_user.username}
         )
@@ -50,16 +49,17 @@ def handle_send_message(data):
         else:
             data["profile_pic"] = "static/images/profiles/default"
     else:
+        data['username'] = "guest"
         data["profile_pic"] = "static/images/profiles/default"
-        
-    chat_collection.insert_one(data)
 
-    list_cur = list(chat_collection.find({}))
+    list_cur = chat_collection.insert_one(data)
+    inserted_id = list_cur.inserted_id
+
+    inserted_document = chat_collection.find_one({"_id": inserted_id})
 
     # Converting to the JSON
-    json_data = dumps(list_cur, indent=2)
+    json_data = dumps(inserted_document, indent=2)
 
-    print("Message received:", data)
     emit("new_message", json_data, broadcast=True)
 
 

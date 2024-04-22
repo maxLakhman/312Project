@@ -60,6 +60,11 @@ function sendChat(el){
 
 
 socket.on('new_message', function(data) {
+    console.log(data);
+    console.log(typeof data);
+    data = JSON.parse(data);
+    console.log(typeof data);
+    console.log(data);
     messageBox = document.getElementById(data.chat_box).children[1];
     messageBox.appendChild(newMessage(data));
 });
