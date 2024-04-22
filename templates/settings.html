@@ -34,7 +34,13 @@
 <div class="card">
 
     <h1>Settings</h1>
-    <button id="change-background-btn">Change Background Color</button>
+    <button id="change-background-btn">Select Background Color</button>
+    <select id="color-select" hidden>
+        <option value="red">Red</option>
+        <option value="#00FF00">Green</option>
+        <option value="rgb(0, 0, 255)">Black</option>
+        <!-- Add more color options as needed -->
+    </select>
     <div id="music-player" >
         <audio id="audio-player" src="/static/music/Morning-Routine-Lofi-Study-Music(chosic.com).mp3" preload="auto" controls autoplay></audio>
     </div>

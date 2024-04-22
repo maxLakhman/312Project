@@ -2,7 +2,7 @@
 ======================= Defaults =======================
 */
 header nav {
-    background-color: black; 
+    background-color: black;
     padding: 1px 10%; 
     display: flex; 
     justify-content: space-between; 

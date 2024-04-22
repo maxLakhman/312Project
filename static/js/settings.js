@@ -5,7 +5,6 @@ document.addEventListener('DOMContentLoaded', function() {
         document.body.style.backgroundColor = storedColor;
     }
 
-    // Event listener for changing background color
     var changeBackgroundBtn = document.getElementById('change-background-btn');
     if (changeBackgroundBtn) {
         changeBackgroundBtn.addEventListener('click', function() {
@@ -16,6 +15,53 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
+
+    var audio = document.getElementById('audio-player');
+
+    // Load the saved state
+    var savedVolume = localStorage.getItem('playerVolume');
+    if(savedVolume !== null) {
+        audio.volume = savedVolume;
+        //document.getElementById('volumeControl').value = savedVolume;
+    }
+    var savedTime = localStorage.getItem('playerTime');
+    if(savedTime !== null) {
+        audio.currentTime = savedTime;
+    }
+    var isPlaying = localStorage.getItem('isPlaying');
+    if(isPlaying === 'true') {
+        console.log("after lookup state, game plays")
+        audio.play();
+    }else{
+        console.log("after lookup state, game pause")
+        audio.pause();
+    }
+
+    //Event listeners here
+    // Add event listener for 'play' event
+    audio.addEventListener('play', function() {
+        console.log('Audio playback started');
+        localStorage.setItem('isPlaying', 'true');
+        // You can add your custom logic here
+    });
+
+    // Add event listener for 'pause' event
+    audio.addEventListener('pause', function() {
+        console.log('Audio playback paused');
+        localStorage.setItem('isPlaying', 'false');
+        // You can add your custom logic here
+    });
+    // Add event listener for 'volumechange' event
+    audio.addEventListener('volumechange', function() {
+        var volume = audio.volume;
+        console.log('Volume changed:', volume);
+        localStorage.setItem('playerVolume', volume);
+    });
+
+    // Save current time periodically
+    audio.addEventListener('timeupdate', function() {
+        localStorage.setItem('playerTime', audio.currentTime);
+    });
 });
 
 function redirectToSettings(){
@@ -25,48 +71,3 @@ function redirectToSettings(){
 function redirectToHome(){
     window.location.href = '/'
 }
-
-document.addEventListener('DOMContentLoaded', function() {
-    var audio = document.getElementById('audio-player');
-    var playPauseButton = document.querySelector('#music-player button');
-
-    // Load the saved state
-    //var savedVolume = localStorage.getItem('playerVolume');
-    //if(savedVolume !== null) {
-    //    audio.volume = savedVolume;
-    //    document.getElementById('volumeControl').value = savedVolume;
-    //}
-
-    var savedTime = localStorage.getItem('playerTime');
-    if(savedTime !== null) {
-        audio.currentTime = savedTime;
-    }
-
-    var isPlaying = localStorage.getItem('isPlaying');
-    if(isPlaying === 'true') {
-        audio.play();
-        playPauseButton.textContent = 'Pause';
-    }
-
-    window.togglePlayPause = function() {
-        if (audio.paused) {
-            audio.play();
-            playPauseButton.textContent = 'Pause';
-            localStorage.setItem('isPlaying', 'true');
-        } else {
-            audio.pause();
-            playPauseButton.textContent = 'Play';
-            localStorage.setItem('isPlaying', 'false');
-        }
-    };
-
-    //window.setVolume = function(value) {
-     //   audio.volume = value;
-     //   localStorage.setItem('playerVolume', value);
-    //};
-
-    // Save current time periodically
-    audio.addEventListener('timeupdate', function() {
-        localStorage.setItem('playerTime', audio.currentTime);
-    });
-});
