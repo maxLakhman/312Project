@@ -10,3 +10,4 @@ pymongo
 Flask-PyMongo
 jinja2
 Flask-Cors
+python-magic

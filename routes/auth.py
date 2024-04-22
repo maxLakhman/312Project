@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 from typing import List, Tuple, Any, Dict, Optional
-import bcrypt, hashlib, secrets, os
+import bcrypt, hashlib, secrets, os, magic
 from flask import (
     Blueprint,
     jsonify,
@@ -175,14 +175,21 @@ def db_verify_auth_token(request):
     return False
 
 
+def get_mime_type(file):
+    mime = magic.Magic(mime=True)
+    file_content = file.read()
+    file.seek(0)
+    return mime.from_buffer(file_content)
+
+
 # Sets profile picture
 @login_required
 @auth_blueprint.route("/profile-pic", methods=["POST"])
 def upload_profile_pic():
     file = request.files["profile_pic"]
     if file and (
-        "." in file.filename
-        and file.filename.split(".")[1] in {"png", "jpg", "jpeg", "gif", "jfif"}
+        get_mime_type(file)
+        in {"image/jpeg", "image/jpg", "image/webp", "image/png", "image/gif"}
     ):
         username = current_user.id
 
