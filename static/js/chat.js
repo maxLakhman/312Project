@@ -121,6 +121,7 @@ function newMessage(message) {
     // Message Block
     let messageElement = document.createElement('div');
     messageElement.classList.add('message');
+    messageElement.id = message._id.$oid;
     messageElement.style.display = 'flex';
     messageElement.style.alignItems = 'center';
 

@@ -3,10 +3,13 @@ from flask_login import LoginManager, current_user
 from flask_socketio import SocketIO, join_room, leave_room, emit
 from flask_cors import CORS
 from routes.auth import auth_blueprint, load_user
-from routes.chat import chat_blueprint
+from routes.chat import chat_blueprint, chat_collection
 from routes.lobby import lobby_blueprint
 from routes.table import table_blueprint
 from routes.auth import *
+
+from bson.json_util import dumps
+from routes.auth import user_collection
 
 app = Flask(__name__)
 CORS(app)
@@ -30,8 +33,34 @@ login_manager.init_app(app)
 
 @socketio.on("send_message")
 def handle_send_message(data):
+    print("MESSSSSSAGGGGGGGEEEE SENT")
+    print(data)
+    print(type(data))
+
+    # Checking auth token
+    if current_user:
+        user = user_collection.find_one(
+            {"username": current_user.username}
+        )
+        if user:
+            data["username"] = user.get("username")
+            data["profile_pic"] = user.get(
+                "profile_pic", "static/images/profiles/default"
+            )
+        else:
+            data["profile_pic"] = "static/images/profiles/default"
+    else:
+        data["profile_pic"] = "static/images/profiles/default"
+        
+    chat_collection.insert_one(data)
+
+    list_cur = list(chat_collection.find({}))
+
+    # Converting to the JSON
+    json_data = dumps(list_cur, indent=2)
+
     print("Message received:", data)
-    emit("new_message", data, broadcast=True)
+    emit("new_message", json_data, broadcast=True)
 
 
 # Sets pfp for current_user
