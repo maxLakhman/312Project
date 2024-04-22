@@ -9,11 +9,10 @@ services:
   web:
     build: .
     ports:
-      - "8080:8080"
+      - "8080"
+    networks:
+      - default
     volumes:
       - .:/app
-    depends_on:
-      - db
   db:
     image: mongo
-
