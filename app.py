@@ -12,6 +12,7 @@ from routes.auth import user_collection
 app = Flask(__name__)
 CORS(app)
 app.config["SECRET_KEY"] = "secret_key"
+app.config["MAX_CONTENT_LENGTH"] = 15 * 1024 * 1024
 socketio = SocketIO(app, cors_allowed_origins="*")
 
 from routes import table_socket
