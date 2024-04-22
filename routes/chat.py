@@ -159,7 +159,6 @@ def handle_like_message(data):
                 {"_id": ObjectId(message_id)}, {"$set": {"liked_list": liked_list}}
             )
             response = {"id": message_id, "likes": liked_list}
-            respose = json.dumps(response)
             emit("new_like", response)
 
         else:
@@ -168,11 +167,9 @@ def handle_like_message(data):
                 {"_id": ObjectId(message_id)}, {"$set": {"liked_list": liked_list}}
             )
             response = {"id": message_id, "likes": liked_list}
-            respose = json.dumps(response)
             emit("new_like", response)
     else:
         response = {"authenticated": False}
-        response = json.dumps(response)
         emit("new_like", response)
 
 
