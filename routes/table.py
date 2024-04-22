@@ -107,12 +107,16 @@ def join_table(table_id):
     )
 
     table = table_collection.find_one({"table_id": table_id})
+    print(table)
 
     # add the user's table to the user
     user_collection.update_one(
         {"username": username},
         {"$set": {"table": table_id}}
     )
+
+    print(user_collection.find_one({"username": username}))
+    
 
     return render_template("table.html", table=table)
 
