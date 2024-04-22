@@ -16,10 +16,13 @@ window.onload = function() {
 
 function sendChat(el){
     let input = el.parentElement.getElementsByTagName("input")[0];
-    let data = {"username": getUsername(), "message": input.value, "chat_box": el.parentElement.parentElement.id}
+    let data = {"username": "test", "message": input.value, "chat_box": el.parentElement.parentElement.id}
     socket.emit('send_message', data);
     input.value = '';
 }
+socket.on('new_message', function(data){
+    console.log(data);
+});
 
 
 

@@ -1,5 +1,6 @@
 document.addEventListener("DOMContentLoaded", function () {
     // Action Elements
+    
     const exit_button = document.getElementById("exit");
     const play_button = document.getElementById("play");
     const register_button = document.getElementById("register_submit");

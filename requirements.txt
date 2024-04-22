@@ -9,3 +9,4 @@ bcrypt
 pymongo
 Flask-PyMongo
 jinja2
+Flask-Cors

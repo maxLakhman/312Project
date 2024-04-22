@@ -1,6 +1,7 @@
 from flask import Flask, render_template
 from flask_login import LoginManager, current_user
 from flask_socketio import SocketIO, join_room, leave_room, emit
+from flask_cors import CORS
 from routes.auth import auth_blueprint, load_user
 from routes.chat import chat_blueprint
 from routes.lobby import lobby_blueprint
@@ -8,8 +9,9 @@ from routes.table import table_blueprint
 from routes.auth import *
 
 app = Flask(__name__)
+CORS(app)
 app.config["SECRET_KEY"] = "secret_key"
-socketio = SocketIO(app)
+socketio = SocketIO(app, cors_allowed_origins="*")
 
 login_manager = LoginManager()
 login_manager.init_app(app)
