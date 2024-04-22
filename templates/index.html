@@ -2,6 +2,7 @@
 <html lang="en">
 
 <head>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.4/socket.io.min.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blackjack</title>
@@ -142,11 +143,10 @@
             </ul>
         </div>
     </footer>
-
-    <script src="{{ url_for('static', filename='js/script.js')}}"></script>
-    <script src="{{ url_for('static', filename='js/chat.js')}}"></script>
-    <script src="{{ url_for('static', filename='js/settings.js')}}"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script defer src="{{ url_for('static', filename='js/chat.js')}}"></script>
+    <script defer src="{{ url_for('static', filename='js/script.js')}}"></script>
+    <script defer src="{{ url_for('static', filename='js/settings.js')}}"></script>
+    <script defer src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script>
         $('#logout').click(function () {
             $.ajax({
@@ -161,3 +161,5 @@
 </body>
 
 </html>
+
+

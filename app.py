@@ -8,11 +8,28 @@ from routes.table import table_blueprint
 from routes.auth import *
 
 app = Flask(__name__)
-app.secret_key = "super_secret_key"
+app.config["SECRET_KEY"] = "secret_key"
 socketio = SocketIO(app)
 
 login_manager = LoginManager()
 login_manager.init_app(app)
+
+
+# # Websocket Connections
+# @socketio.on("connect")
+# def handle_connect():
+#     print("Connection Successful")
+
+
+# @socketio.on("disconnect")
+# def handle_disconnect():
+#     print("Disconnection Successful")
+
+
+@socketio.on("send_message")
+def handle_send_message(data):
+    print("Message received:", data)
+    emit("new_message", data, broadcast=True)
 
 
 # Sets pfp for current_user
@@ -60,4 +77,4 @@ def set_header(response):
 
 
 if __name__ == "__main__":
-    socketio.run(app, debug=True, port=8080)
+    socketio.run(app, debug=True)

@@ -1,3 +1,6 @@
+const socket = io();
+
+
 window.onload = function() {
     console.log(getUsername());
 
@@ -5,44 +8,55 @@ window.onload = function() {
 
     // Updates every second 3 seconds
     // Turn off if you want to debug
-    setInterval(() => {
-        initiateChatBoxes();
-    }, 1000000)
+    // setInterval(() => {
+    //     initiateChatBoxes();
+    // }, 2000)
 };
 
-function sendChat(el) {
+
+function sendChat(el){
     let input = el.parentElement.getElementsByTagName("input")[0];
-
-    var request = new XMLHttpRequest();
-
-    request.onreadystatechange = function(){
-        if (this.readyState === XMLHttpRequest.DONE) {
-            if (this.status === 200) {
-                try {
-                    const response = JSON.parse(this.responseText);
-                    console.log(response);
-                    input.value = "";
-                    loadMessages(el.parentElement.parentElement);
-                } catch (error) {
-                    console.error("Error parsing JSON response: ", error);
-                }
-            } else {
-                console.error("Request failed with status: ", this.status);
-            }
-        }
-    };
-    
-    // Making request
-    request.open("POST", "/chat-messages");
-    request.setRequestHeader("Content-Type", "application/json");
-
-    // Filling data
-    let username = "guest";
-    let data = {"username": username, "message": input.value, "chat_box": el.parentElement.parentElement.id}
-    
-    // Sending to /chat-messages
-    request.send(JSON.stringify(data));
+    let data = {"username": getUsername(), "message": input.value, "chat_box": el.parentElement.parentElement.id}
+    socket.emit('send_message', data);
+    input.value = '';
 }
+
+
+
+// OLD sendChat(el)
+// function sendChat(el) {
+//     let input = el.parentElement.getElementsByTagName("input")[0];
+
+//     var request = new XMLHttpRequest();
+
+//     request.onreadystatechange = function(){
+//         if (this.readyState === XMLHttpRequest.DONE) {
+//             if (this.status === 200) {
+//                 try {
+//                     const response = JSON.parse(this.responseText);
+//                     console.log(response);
+//                     input.value = "";
+//                     loadMessages(el.parentElement.parentElement);
+//                 } catch (error) {
+//                     console.error("Error parsing JSON response: ", error);
+//                 }
+//             } else {
+//                 console.error("Request failed with status: ", this.status);
+//             }
+//         }
+//     };
+    
+//     // Making request
+//     request.open("POST", "/chat-messages");
+//     request.setRequestHeader("Content-Type", "application/json");
+
+//     // Filling data
+//     let username = "guest";
+//     let data = {"username": username, "message": input.value, "chat_box": el.parentElement.parentElement.id}
+    
+//     // Sending to /chat-messages
+//     request.send(JSON.stringify(data));
+// }
 
 // Go through all the chat boxes and initiate all their data
 function initiateChatBoxes() {
