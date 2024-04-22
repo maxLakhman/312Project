@@ -19,6 +19,8 @@ function sendChat(el){
     let data = {"username": getUsername(), "message": input.value, "chat_box": el.parentElement.parentElement.id}
     socket.emit('send_message', data);
     input.value = '';
+
+    scrollToBottom();
 }
 
 
@@ -67,6 +69,7 @@ socket.on('new_message', function(data) {
 });
 
 socket.on('new_like', function(data) {
+    console.log(data);
 
     if(data.authenticated == false) {
         openRegisterModal();
