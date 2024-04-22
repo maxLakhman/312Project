@@ -114,15 +114,19 @@ def register() -> Dict[str, str]:
     password = received_data.get("password")
     password_confirm = received_data.get("password_confirm")
 
-    user_list = get_user(username)
+    valid_pw = password_isvalid(password)
 
+    user_list = get_user(username)
     if is_empty(username, password, password_confirm):
         return create_response("error", "Empty Field")
     elif user_list:
         return create_response("error", "Username Taken")
     elif password != password_confirm:
         return create_response("error", "Password Mismatch")
+    elif "error" in valid_pw:
+        return create_response("error", valid_pw["error"])
     else:
+
         password_hash, salt = hash_password(password)
 
         auth_token = secrets.token_urlsafe(256)
@@ -234,3 +238,83 @@ def get_id():
     id = json_id.get("id")
     id_collection.update_one({"_id": 1}, {"$set": {"id": (int(id) + 1)}})
     return id
+
+
+def password_isvalid(password: str):
+    # Array of special chars
+
+    char_list = [
+        "~",
+        ":",
+        "'",
+        "+",
+        "[",
+        "\\",
+        "@",
+        "^",
+        "{",
+        "%",
+        "(",
+        "-",
+        '"',
+        "*",
+        "|",
+        ",",
+        "&",
+        "<",
+        "`",
+        "}",
+        ".",
+        "_",
+        "=",
+        "]",
+        "!",
+        ">",
+        ";",
+        "?",
+        "#",
+        "$",
+        ")",
+        "/",
+    ]
+
+    # All must be true
+    valid_lower = False
+    valid_upper = False
+    valid_digit = False
+    special_char = False
+
+    pass_list = []
+
+    for char in password:
+        pass_list.append(char)
+
+    if len(pass_list) < 8:
+        return {"error": "Password length must be ≥ 8"}
+
+    # Iterating through list of chars
+    for char in pass_list:
+        if char.isupper():
+            valid_upper = True
+        elif char.islower():
+            valid_lower = True
+        elif char.isdigit():
+            valid_digit = True
+        elif char in char_list:
+            special_char = True
+        else:
+            return {"error": {"Invalid character in password"}}
+
+    # Checking if password contains all
+    if valid_lower and valid_upper and valid_digit and special_char:
+        return {"success": "Valid"}
+    elif not valid_lower:
+        return {"error": "Password must contain at least one lowercase letter"}
+    elif not valid_upper:
+        return {"error": "Password must contain at least one uppercase letter"}
+    elif not valid_digit:
+        return {"error": "Password must contain at least one number"}
+    elif not special_char:
+        return {"error": "Password must contain at least one special character"}
+    else:
+        return {"penis": "penis"}
