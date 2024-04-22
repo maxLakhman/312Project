@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify, request, redirect, url_for, render_template
-from flask_socketio import SocketIO, join_room, leave_room, emit, disconnect
+from flask_socketio import SocketIO, emit, disconnect
 from flask_login import current_user
 from app import socketio
 from pymongo import MongoClient
@@ -9,7 +9,7 @@ import random
 
 
 @socketio.on('first_hand')
-def handle_first_hand(data):
+def handle_first_hand():
     if not current_user.is_authenticated:
         disconnect()
 
@@ -21,9 +21,11 @@ def handle_first_hand(data):
     # find the current user in the database
     username = current_user.id
     user = user_collection.find_one({"username": username})
+    print(user)
 
     # find the table id
     table = user.get("table_id")
+    print(table)
     table_info = table_collection.find_one({"table_id": table})
 
     # give the newly joined user their hand
@@ -47,13 +49,13 @@ def handle_first_hand(data):
     )
 
 
-    # emit the user's hand to the user
-    emit('hand', {'hand': hand}, room=username)
-
-    
+    # emit the user's hand to the user and their username
+    emit('first_hand', {'hand': hand, 'username': username}, room=username)
 
 
-@socketio.on('deal_card')
+
+
+@socketio.on('hit')
 def handle_deal_card(data):
 
     if not current_user.is_authenticated:
@@ -81,7 +83,7 @@ def handle_deal_card(data):
 
 
 
-@socketio.on('play_card')
+@socketio.on('stand')
 def handle_play_card(data):
     room = data['table_id']
     player_id = data['player_id']

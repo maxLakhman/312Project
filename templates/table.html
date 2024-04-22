@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.4/socket.io.min.js"></script>
     <title>Blackjack Table Room</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/table.css') }}">
 </head>
@@ -18,11 +19,14 @@
 
     <div class="container player-box" id="player-box">
         {% for player in table.players %}
-        <div class="player" id="player-{{ player.player_id }}">
+        <div class="player" id="player-{{ player }}">
             <h2>{{ player }}</h2>
             <p>Balance: 0</p>
             <p>Bet: 0</p>
             <p>Hand: 0</p>
+            <!-- div for displaying hand -->
+            <div class="hand" id="hand-{{ player }}">
+            </div>
         </div>
         {% endfor %}
 
@@ -43,5 +47,5 @@
 <script src="/socket.io/socket.io.js"></script>
     <script>
         var socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port);
-    </script>
+</script>
 </html>
