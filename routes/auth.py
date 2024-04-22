@@ -219,6 +219,10 @@ def upload_profile_pic():
             ),
             200,
         )
+    elif not file:
+        return jsonify({"status": "error", "message": "No file selected"}), 400
+    else:
+        return jsonify({"status": "error", "message": "Image type not supported"}), 400
 
 
 def get_id():
