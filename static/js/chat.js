@@ -7,7 +7,7 @@ window.onload = function() {
     // Turn off if you want to debug
     setInterval(() => {
         initiateChatBoxes();
-    }, 1000000)
+    }, 1000)
 };
 
 function sendChat(el) {
