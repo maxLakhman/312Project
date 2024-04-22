@@ -3,10 +3,14 @@ from flask_login import LoginManager, current_user
 from flask_socketio import SocketIO, join_room, leave_room, emit
 from flask_cors import CORS
 from routes.auth import auth_blueprint, load_user
-from routes.chat import chat_blueprint
+from routes.chat import chat_blueprint, chat_collection
 from routes.lobby import lobby_blueprint
 from routes.table import table_blueprint
 from routes.auth import *
+import json
+
+from bson.json_util import dumps
+from routes.auth import user_collection
 
 app = Flask(__name__)
 CORS(app)
@@ -32,8 +36,33 @@ login_manager.init_app(app)
 
 @socketio.on("send_message")
 def handle_send_message(data):
-    print("Message received:", data)
-    emit("new_message", data, broadcast=True)
+
+    # Checking auth token
+    print(current_user)
+    if current_user.is_authenticated:
+        user = user_collection.find_one(
+            {"username": current_user.username}
+        )
+        if user:
+            data["username"] = user.get("username")
+            data["profile_pic"] = user.get(
+                "profile_pic", "static/images/profiles/default"
+            )
+        else:
+            data["profile_pic"] = "static/images/profiles/default"
+    else:
+        data['username'] = "guest"
+        data["profile_pic"] = "static/images/profiles/default"
+
+    list_cur = chat_collection.insert_one(data)
+    inserted_id = list_cur.inserted_id
+
+    inserted_document = chat_collection.find_one({"_id": inserted_id})
+
+    # Converting to the JSON
+    json_data = dumps(inserted_document, indent=2)
+
+    emit("new_message", json_data, broadcast=True)
 
 
 # Sets pfp for current_user

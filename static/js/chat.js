@@ -16,13 +16,10 @@ window.onload = function() {
 
 function sendChat(el){
     let input = el.parentElement.getElementsByTagName("input")[0];
-    let data = {"username": "test", "message": input.value, "chat_box": el.parentElement.parentElement.id}
+    let data = {"username": getUsername(), "message": input.value, "chat_box": el.parentElement.parentElement.id}
     socket.emit('send_message', data);
     input.value = '';
 }
-socket.on('new_message', function(data){
-    console.log(data);
-});
 
 
 
@@ -60,6 +57,17 @@ socket.on('new_message', function(data){
 //     // Sending to /chat-messages
 //     request.send(JSON.stringify(data));
 // }
+
+
+socket.on('new_message', function(data) {
+    console.log(data);
+    console.log(typeof data);
+    data = JSON.parse(data);
+    console.log(typeof data);
+    console.log(data);
+    messageBox = document.getElementById(data.chat_box).children[1];
+    messageBox.appendChild(newMessage(data));
+});
 
 // Go through all the chat boxes and initiate all their data
 function initiateChatBoxes() {
@@ -108,72 +116,79 @@ function loadHtmlMessages(messages, messageBox) {
     messages = JSON.parse(messages);
     messages.forEach(message => {
 
-        // Message Block
-        let messageElement = document.createElement('div');
-        messageElement.classList.add('message');
-        messageElement.style.display = 'flex';
-        messageElement.style.alignItems = 'center';
-
-        // Message Container
-        let message_container = document.createElement('div');
-        message_container.classList.add("text-message-container");
-        
-        // Profile Picture
-        let profile_pic = document.createElement('img');
-        profile_pic.src = "../" + message.profile_pic;
-        profile_pic.width = 40;
-        profile_pic.height = 40;
-        profile_pic.style.borderRadius = '50%';
-        profile_pic.style.objectFit = 'cover';
-        profile_pic.classList.add('chat-profile-pic')
-
-        // Username
-        const usernameElement = document.createElement('span');
-        usernameElement.textContent = message.username + ":\t";
-        usernameElement.classList.add('username');
-        usernameElement.style.fontWeight = 'bold';
-
-        // Message Text
-        let message_text = document.createElement('span');
-        message_text.classList.add("message_text");
-        message_text.textContent = message.message;
-
-
-        // Create the like button
-        const likeContainer = document.createElement('div');
-        likeContainer.classList.add("like-container");
-
-        const likeBtn = document.createElement('a');
-        likeBtn.addEventListener('click', () => {
-            likeMessage(message._id.$oid, likeBtn);
-        })
-        
-        // Deal with coloring in the like button here
-        let filled = message.liked_list ? message.liked_list.includes(getUsername()) : false;
-
-        // Heart
-        likeBtn.innerHTML = `
-        <svg xmlns="http://www.w3.org/2000/svg" width="18px" height="18px" viewBox="0 0 24 18" ${filled ? "fill='red'" : "fill='none'"} class="like-btn">
-        <path fill-rule="evenodd" clip-rule="evenodd" d="M12 6.00019C10.2006 3.90317 7.19377 3.2551 4.93923 5.17534C2.68468 7.09558 2.36727 10.3061 4.13778 12.5772C5.60984 14.4654 10.0648 18.4479 11.5249 19.7369C11.6882 19.8811 11.7699 19.9532 11.8652 19.9815C11.9483 20.0062 12.0393 20.0062 12.1225 19.9815C12.2178 19.9532 12.2994 19.8811 12.4628 19.7369C13.9229 18.4479 18.3778 14.4654 19.8499 12.5772C21.6204 10.3061 21.3417 7.07538 19.0484 5.17534C16.7551 3.2753 13.7994 3.90317 12 6.00019Z" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style=""/>
-        </svg>
-        `;
-
-        // Create like count
-        const likeCount = document.createElement('span');
-        likeCount.innerText = message.liked_list ? message.liked_list.length : 0;
-
-        message_container.appendChild(profile_pic);
-        message_container.appendChild(usernameElement);
-        message_container.appendChild(message_text);
-        
-        likeContainer.append(likeBtn);
-        likeContainer.append(likeCount);
-
-        messageElement.appendChild(message_container);
-        messageElement.appendChild(likeContainer);
+        messageElement = newMessage(message);
 
         messageBox.appendChild(messageElement);
     });
+}
+
+function newMessage(message) {
+    // Message Block
+    let messageElement = document.createElement('div');
+    messageElement.classList.add('message');
+    messageElement.id = message._id.$oid;
+    messageElement.style.display = 'flex';
+    messageElement.style.alignItems = 'center';
+
+    // Message Container
+    let message_container = document.createElement('div');
+    message_container.classList.add("text-message-container");
+    
+    // Profile Picture
+    let profile_pic = document.createElement('img');
+    profile_pic.src = "../" + message.profile_pic;
+    profile_pic.width = 40;
+    profile_pic.height = 40;
+    profile_pic.style.borderRadius = '50%';
+    profile_pic.style.objectFit = 'cover';
+    profile_pic.classList.add('chat-profile-pic')
+
+    // Username
+    const usernameElement = document.createElement('span');
+    usernameElement.textContent = message.username + ":\t";
+    usernameElement.classList.add('username');
+    usernameElement.style.fontWeight = 'bold';
+
+    // Message Text
+    let message_text = document.createElement('span');
+    message_text.classList.add("message_text");
+    message_text.textContent = message.message;
+
+
+    // Create the like button
+    const likeContainer = document.createElement('div');
+    likeContainer.classList.add("like-container");
+
+    const likeBtn = document.createElement('a');
+    likeBtn.addEventListener('click', () => {
+        likeMessage(message._id.$oid, likeBtn);
+    })
+    
+    // Deal with coloring in the like button here
+    let filled = message.liked_list ? message.liked_list.includes(getUsername()) : false;
+
+    // Heart
+    likeBtn.innerHTML = `
+    <svg xmlns="http://www.w3.org/2000/svg" width="18px" height="18px" viewBox="0 0 24 18" ${filled ? "fill='red'" : "fill='none'"} class="like-btn">
+    <path fill-rule="evenodd" clip-rule="evenodd" d="M12 6.00019C10.2006 3.90317 7.19377 3.2551 4.93923 5.17534C2.68468 7.09558 2.36727 10.3061 4.13778 12.5772C5.60984 14.4654 10.0648 18.4479 11.5249 19.7369C11.6882 19.8811 11.7699 19.9532 11.8652 19.9815C11.9483 20.0062 12.0393 20.0062 12.1225 19.9815C12.2178 19.9532 12.2994 19.8811 12.4628 19.7369C13.9229 18.4479 18.3778 14.4654 19.8499 12.5772C21.6204 10.3061 21.3417 7.07538 19.0484 5.17534C16.7551 3.2753 13.7994 3.90317 12 6.00019Z" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style=""/>
+    </svg>
+    `;
+
+    // Create like count
+    const likeCount = document.createElement('span');
+    likeCount.innerText = message.liked_list ? message.liked_list.length : 0;
+
+    message_container.appendChild(profile_pic);
+    message_container.appendChild(usernameElement);
+    message_container.appendChild(message_text);
+    
+    likeContainer.append(likeBtn);
+    likeContainer.append(likeCount);
+
+    messageElement.appendChild(message_container);
+    messageElement.appendChild(likeContainer);
+
+    return messageElement;
 }
 
 // Send a request given an id to /like-message
