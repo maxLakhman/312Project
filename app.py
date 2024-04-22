@@ -15,6 +15,23 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 
 
+# Websocket Connections
+@socketio.on("connect")
+def handle_connect():
+    print("Connection Successful")
+
+
+@socketio.on("disconnect")
+def handle_disconnect():
+    print("Disconnection Successful")
+
+
+@socketio.on("send_message")
+def handle_send_message(data):
+    print("Message received:", data)
+    emit("new_message", data, broadcast=True)
+
+
 # Sets pfp for current_user
 @login_manager.user_loader
 def load_user(username):
