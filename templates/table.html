@@ -44,8 +44,7 @@
     <script src="{{ url_for('static', filename='js/chat.js')}}"></script>
 </body>
 <script src="{{ url_for('static', filename='js/table.js') }}"></script>
-<script src="/socket.io/socket.io.js"></script>
-    <script>
-        var socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port);
+<script>
+        const socket = io();
 </script>
 </html>
