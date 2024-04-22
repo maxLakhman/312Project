@@ -60,13 +60,30 @@ function sendChat(el){
 
 
 socket.on('new_message', function(data) {
-    console.log(data);
-    console.log(typeof data);
     data = JSON.parse(data);
-    console.log(typeof data);
-    console.log(data);
+
     messageBox = document.getElementById(data.chat_box).children[1];
     messageBox.appendChild(newMessage(data));
+});
+
+socket.on('new_like', function(data) {
+
+    if(data.authenticated == false) {
+        openRegisterModal();
+        return;
+    }
+
+    message = document.getElementById(data.id);
+    like_box = message.getElementsByClassName("like-container")[0];
+    span = like_box.getElementsByTagName("span")[0];
+    span.innerText = data.likes.length;
+
+    if(data.likes.includes(getUsername())) {
+        like_box.getElementsByTagName("svg")[0].style.fill = "red";
+    }
+    else{
+        like_box.getElementsByTagName("svg")[0].style.fill = "none";
+    }
 });
 
 // Go through all the chat boxes and initiate all their data
@@ -193,6 +210,7 @@ function newMessage(message) {
 
 // Send a request given an id to /like-message
 function likeMessage(id) {
+    /*
     var request = new XMLHttpRequest();
 
     request.onreadystatechange = function(){
@@ -223,11 +241,14 @@ function likeMessage(id) {
     // Making request
     request.open("POST", "/like-message");
     request.setRequestHeader("Content-Type", "application/json");
+    */
 
     let data = {"id": id}
+
+    socket.emit('like_message', data);
     
     // Sending to /like-message
-    request.send(JSON.stringify(data));
+    // request.send(JSON.stringify(data));
 }
 
 function scrollToBottom(){
