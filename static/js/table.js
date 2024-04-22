@@ -5,13 +5,24 @@ function first_hand(){
     socket.emit('first_hand');
 
     // receiving the first hand from the server
-    socket.on('first_hand', function(data){
+    socket.on('hand', function(data){
         console.log(data);
         // creating the table
         display_hand(data);
     });
 
 }
+
+function hit(){
+    socket.emit('hit');
+
+    // receiving the hand from the server
+    socket.on('hand', function(data){
+        console.log(data);
+        display_hand(data);
+    });
+}
+
 function display_hand(data){
     // find the player hand
     var player_hand = data.hand;

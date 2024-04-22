@@ -36,6 +36,11 @@ def handle_first_hand():
     hand = deck[:2]
     deck = deck[2:]
 
+    # also generate a hand for the dealer
+    dealer_hand = deck[:2]
+    deck = deck[2:]
+    
+
     # update the user's hand in the database
     user_collection.update_one(
         {"username": username},
@@ -48,9 +53,14 @@ def handle_first_hand():
         {"$set": {"deck": deck}}
     )
 
+    # update the dealer hand
+    table_collection.update_one(
+        {"table_id": table},
+        {"$set": {"dealer_hand": dealer_hand}}
+    )
 
     # emit the user's hand to the user and their username
-    emit('first_hand', {'hand': hand, 'username': username}, room=username)
+    emit('hand', {'hand': hand, 'dealer_hand': dealer_hand, 'username': username}, room=username)
 
 
 
@@ -77,6 +87,29 @@ def handle_deal_card(data):
     table_info = table_collection.find_one({"table_id": table})
     print(table_info)
 
+    # add a new card to the user's hand
+    hand = user.get("hand")
+    deck = table_info.get("deck")
+    random.shuffle(deck)
+    new_card = deck[0]
+    deck = deck[1:]
+    hand.append(new_card)
+
+    # update the user's hand in the database
+    user_collection.update_one(
+        {"username": username},
+        {"$set": {"hand": hand}}
+    )
+
+    # update the table's deck in the database
+    table_collection.update_one(
+        {"table_id": table},
+        {"$set": {"deck": deck}}
+    )
+
+    # emit the new card to the user
+    emit('hand', {'hand': hand, 'username': username}, room=username)
+
 
 
 
@@ -85,7 +118,6 @@ def handle_deal_card(data):
 
 @socketio.on('stand')
 def handle_play_card(data):
-    room = data['table_id']
-    player_id = data['player_id']
-    card = data['card']
-    emit('card_played', {'player_id': player_id, 'card': card}, room=room)
+    pass
+
+
