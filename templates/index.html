@@ -1,172 +1,54 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Blackjack</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
-    <script src="{{ url_for('static', filename='js/settings.js')}}"></script>
-    <link rel="shortcut icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
-</head>
-
-<body>
-    <script type="text/javascript" src="//code.jquery.com/jquery-1.4.2.min.js"></script>
-    <script type="text/javascript" src="//cdn.socket.io/4.4.1/socket.io.min.js"></script>
-    
-    <script>
-        function getUsername() {
-            return "{{ current_user.id }}"
+    <title>Settings</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/settings.css') }}">
+    <style>
+        .dark-mode {
+            background-color: #333;
+            color: white;
         }
-    </script>
-
-    <header>
-        <nav>
-            <div class="user-info">
-                {% if current_user.is_authenticated %}
-                <img id="user-profile-pic" src="../{{ current_user.profile_pic }}" width="75" height="75">
-                <span id="user-name">Welcome, {{ current_user.id }} </span>
-                {% else %}
-                <img id="user-profile-pic" src="../static/images/profiles/default" width="75" height="75">
-                <span id="user-name">Welcome, Guest </span>
-                {% endif %}
-            </div>
-            <a href="/" id="home-link">Blackjack</a>
-                <div class="buttons">
-                    {% if current_user.is_authenticated %}
-                    <!-- <button id="exit">Welcome, {{ current_user.id }}</button> -->
-                    <button id="logout" onclick="logout()">LOGOUT</button>
-                    <!-- <button id="update-profile-pic" onclick="openUploadModal()">PROFILE PICTURE</button> -->
-                    {% else %}
-                    <button id="login" onclick="openLoginModal()">LOGIN</button>
-                    <button id="register" onclick="openRegisterModal()">REGISTER</button>
-                    {% endif %}
-                    <button id="play">PLAY</button>
-                    <button id="settings" onclick="redirectToSettings()">SETTINGS</button>
-                </div>
-        
-            <!-- </div> -->
-        </nav>
-    </header>
-    
-    <!-- Profile Picture Shit -->
-    <div id="update-profile-pic-modal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <span class="close" onclick="closeUploadModal()">&times;</span>
-                <h2>Upload Profile Picture</h2>
-            </div>
-            <form id="upload-form" enctype="multipart/form-data">
-                <input type="file" id="profile_pic" name="profile_pic" accept="image/*">
-                <button id="profile_pic_submit" type="submit" class="basic-button primary">Upload</button>
-            </form>
-            Image Preview:
+    </style>
+    <script src="{{ url_for('static', filename='js/settings.js')}}"></script>
+</head>
+<body>
+<header>
+    <nav>
+        <a href="/" id="home-link">Blackjack</a>
+        <div class="buttons">
             {% if current_user.is_authenticated %}
-            <img id="profile-pic-preview" src="../{{current_user.profile_pic}}" width="300" height="300">
+            <button id="exit">Welcome, {{ current_user.id }}</button>
+            <button id="logout" onclick="logout()">LOGOUT</button>
             {% else %}
-            <img id="profile-pic-preview" src="../static/images/profiles/default" width="300" height="300">
+            <button id="login" onclick="openLoginModal()">LOGIN</button>
+            <button id="register" onclick="openRegisterModal()">REGISTER</button>
             {% endif %}
-            <div id="upload-error-msg" style="color: red;"></div>
-        </div>
-    </div>
-
-
-    <!-- Login window popup stuff -->
-    <div id="login-modal" class="modal">
-        <div class="modal-content">
-            <div id="login-header">
-                <h2 id="login-header-text">Login</h2>
-                <span class="close" onclick="closeLoginModal()">&times;</span>
-            </div>
-            <form id="login-form">
-                <input type="text" id="login_username" class="input-basic" placeholder="Username" required>
-                <input type="password" id="login_password" class="input-basic" placeholder="Password" required>
-                <button id="login_submit" class="basic-button primary" type="button">Submit</button>
-                <!-- Error Message -->
-                <div id="login_error" style="color: red;"></div>
-                <div id="login_success" style="color: green;"></div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Register window popup stuff -->
-    <div id="register-modal" class="modal">
-        <div class="modal-content">
-            <div id="register-header">
-                <h2 id="register-header-text">Register</h2>
-                <span class="close" onclick="closeRegisterModal()">&times;</span>
-            </div>
-            <form id="register-form" action="/register" method="post">
-                <input type="text" id="register_username" class="input-basic" placeholder="Username" required>
-                <input type="password" id="register_password" class="input-basic" placeholder="Password" required>
-                <input type="password" id="register_password_confirm" class="input-basic"
-                    placeholder="Re-enter Password" required>
-                <!-- Error Message -->
-                <div id="register_error" style="color: red;"></div>
-                <div id="register_success" style="color: green;"></div>
-                <input type="submit" id="register_submit" class="basic-button primary" value="Submit">
-            </form>
-        </div>
-    </div>
-    
-    <div class = "container" id = "both-boxes">
-        <div class="container chat-box" id="chat-box-001">
-            <div class="chat-form">
-                <input type="text" id="chat-text" class="input-basic" placeholder="Send message">
-                <button onclick="sendChat(this)" class="basic-button primary">Submit</button>
-            </div>
-
-            <div class="chat-message-container">
-
-            </div>
         </div>
 
-        <div class="container chat-box" id="chat-box-002">
-            <div class="chat-form">
-                <input type="text" id="chat-text" class="input-basic" placeholder="Send message">
-                <button onclick="sendChat(this)" class="basic-button primary">Submit</button>
-            </div>
+        <!-- </div> -->
+    </nav>
+</header>
 
-            <div class="chat-message-container">
+<div class="card">
 
-            </div>
-        </div>
-    </div>
-
-    <div id="music-player" hidden>
+    <h1>Settings</h1>
+    <button id="change-background-btn">Select Background Color</button>
+    <select id="color-select" hidden>
+        <option value="red">Red</option>
+        <option value="#00FF00">Green</option>
+        <option value="rgb(0, 0, 255)">Black</option>
+        <!-- Add more color options as needed -->
+    </select>
+    <div id="music-player" >
         <audio id="audio-player" src="/static/music/Morning-Routine-Lofi-Study-Music(chosic.com).mp3" preload="auto" controls autoplay></audio>
     </div>
+    <button id="home" onclick="redirectToHome()">HOME</button>
+</div>
 
-    <footer>
-        <div>
-            Helpful Links
-            <ul>
-                <li><a href="/">Terms and Conditions</a></li>
-                <li><a href="/">Market</a></li>
-                <li><a href="/">Something else</a></li>
-                <li><a href="/">Other rules</a></li>
-                <!-- <li><a href="https://www.ncpgambling.org/help-treatment/about-the-national-problem-gambling-helpline/">Gambling Problem?</a></li> -->
-            </ul>
-        </div>
-    </footer>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.4/socket.io.min.js"></script>
-    <script defer src="{{ url_for('static', filename='js/chat.js')}}"></script>
-    <script defer src="{{ url_for('static', filename='js/script.js')}}"></script>
-    <script defer src="{{ url_for('static', filename='js/settings.js')}}"></script>
-    <script defer src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <script>
-        $('#logout').click(function () {
-            $.ajax({
-                url: '/logout',
-                type: 'GET',
-                success: function () {
-                    window.location.href = '/';  // redirect to home page
-                }
-            });
-        });
-    </script>
+<script src="{{ url_for('static', filename='js/settings.js')}}"></script>
 </body>
-
 </html>
 
 
