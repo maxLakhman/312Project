@@ -70,7 +70,7 @@ def start_game(table_id):
         socketio.emit("current_player", {"username": current_player}, room=table_id)
 
         timer = 30
-        while timer >= 0 and not user_collection.find_one({"username": current_player},{"_id":0, "has_moved": 1}):
+        while timer > 0 and not user_collection.find_one({"username": current_player},{"_id":0, "has_moved": 1}):
             socketio.sleep(1)
             timer -= 1
         
@@ -100,7 +100,8 @@ def handle_fold_back(player, table_id):
     user_collection.update_one({"username": player}, {"$set": {"hand": [], "has_moved": True}})
     table_collection.update_one({"table_id": table_id}, {"$pull": {"players": player}})
     emit("update_hand", {"hand": [], "username": player}, room=table_id)
-
+    return
+    #### Todo: What to do with person who folds? Disconnect?
 
 @socketio.on("hit")
 def handle_hit(data):
@@ -133,7 +134,8 @@ def handle_hit(data):
     # update the table's deck in the database
     update_deck(table_id, deck)
 
-    user_collection.update_one({"username": current_player}, {"$set": {"hand": [], "has_moved": True}})
+    user_collection.update_one({"username": current_player}, {"$set": {"has_moved": True}})
+
 
     # emit the new card to the user
     emit("update_hand", {"hand": hand, "username": current_player}, room=table_id)
@@ -165,6 +167,7 @@ def next_turn(table_id):
     user_collection.update_one({"username": next_player}, {"$set": {"has_moved": False}})
 
     emit("next_turn", {"username": next_player}, room=table_id)
+
 
 def update_deck(table_id, deck):
     table_collection.update_one({"table_id": table_id}, {"$set": {"deck": deck}})
