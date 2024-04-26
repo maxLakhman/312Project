@@ -20,6 +20,12 @@ function hit(){
     });
 }
 
+socket.on('new_turn', function(data){
+    if(data.table_id == document.getElementById("table_id").getAttribute("data-id")) {
+        console.log(username);
+    }
+});
+
 function display_hand(data){
     // find the player hand
     var player_hand = data.hand;
