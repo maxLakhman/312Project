@@ -54,27 +54,27 @@ def start_game(table_id):
         deck = deck[2:]
         update_player_hand(player, player_hand)
         update_deck(table_id, deck)
-        emit("update_hand", {"hand": player_hand, "username": player}, room=table_id)
+        emit("update_hand", {"player_hand": player_hand, "username": player}, room=table_id)
     
     # First player
     current_player = table["players"][0]
-    table_collection.find_one({"table_id": table_id}, {"$set": {"current_player": current_player}})
+    table_collection.update_one({"table_id": table_id}, {"$set": {"current_player": current_player}})
+    user_collection.update_one({"username": current_player}, {"$set": {"has_moved": False}})
     
 
     # Game Loop Start
     game_over = False
     while not game_over:
 
-        current_player = table_collection.find_one({"table_id": table_id},{"current_player": 1})
-        user_collection.update_one({"username": current_player}, {"$set": {"has_moved": False}})
+        current_player = table_collection.find_one({"table_id": table_id},{"_id":0, "current_player": 1})
         socketio.emit("current_player", {"username": current_player}, room=table_id)
 
         timer = 30
-        while timer >= 0 and not user_collection.find_one({"username": current_player},{"has_moved": 1}):
+        while timer >= 0 and not user_collection.find_one({"username": current_player},{"_id":0, "has_moved": 1}):
             socketio.sleep(1)
             timer -= 1
         
-        if not user_collection.find_one({"username": current_player},{"has_moved": 1}):
+        if not user_collection.find_one({"username": current_player},{"_id":0,"has_moved": 1}):
             handle_fold_back(current_player, table_id)
 
         next_turn(table_id)
@@ -89,7 +89,7 @@ def handle_fold_front(data):
         disconnect()
 
     table_id = data["table_id"]
-    current_player = table_collection.find_one({"table_id": table_id},{"current_player": 1})
+    current_player = table_collection.find_one({"table_id": table_id},{"_id": 0, "current_player": 1})
 
     if current_user.id == current_player:
         handle_fold_back(current_player, table_id)
@@ -109,7 +109,7 @@ def handle_hit(data):
         disconnect()
 
     table_id = data["table_id"]
-    current_player = table_collection.find_one({"table_id": table_id},{"current_player": 1})
+    current_player = table_collection.find_one({"table_id": table_id},{"_id":0, "current_player": 1})
 
     if current_player != current_user.id:
         return
@@ -146,7 +146,7 @@ def handle_stand(data):
         disconnect()
     
     table_id = data["table_id"]
-    current_player = table_collection.find_one({"table_id": table_id},{"current_player": 1})
+    current_player = table_collection.find_one({"table_id": table_id},{"_id":0, "current_player": 1})
 
     if current_player != current_user.id:
         return
