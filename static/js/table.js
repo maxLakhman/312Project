@@ -1,14 +1,30 @@
 
-// onload emit a first_hand event
+// Onload init game
 window.onload = function() {
-    first_hand();
+    init_game();
 };
 
 
 // sending the socket request for a first hand whenever a user joins the page
-function first_hand(){
-    socket.emit('first_hand');
+function init_game(){
+    let table_id = document.getElementById("table_id").getAttribute("data-id");
+    socket.emit('init_game', {"table_id": table_id});
 }
+
+socket.on('init_players', function(data){
+    console.log(data);
+    let game_starting = document.getElementById("game_starting");
+    game_starting.innerText = data.message;
+    game_starting.style.display = "block";
+
+    if(data.message === "Game starting..."){
+        setTimeout(function(){
+            game_starting.innerText = "";
+            game_starting.style.display = "none";
+        }, 2000);
+    }
+});
+
 
 function hit(){
     socket.emit('hit');

@@ -115,7 +115,6 @@ def join_table(table_id):
     )
 
     
-    join_room(table_id)
     return render_template("table.html", table=table)
 
 @table_blueprint.route("/leave-table/<table_id>", methods=["GET"])
