@@ -22,7 +22,7 @@ def init_game(data):
     table_collection.update_one({"table_id": table_id}, {"$set": {"started": True}})
     
     time_out = 10
-    while time_out >= 0:
+    while time_out > 0:
         emit("init_players", {"table": table_id , "message": f"waiting {time_out} seconds for players to join."}, room=table_id)
         socketio.sleep(1)
         time_out -= 1
@@ -78,9 +78,6 @@ def start_game(table_id):
             handle_fold_back(current_player, table_id)
 
         next_turn(table_id)
-
-
-
 
 
 @socketio.on("fold")
