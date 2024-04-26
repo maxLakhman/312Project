@@ -1,4 +1,6 @@
 from flask import Blueprint, jsonify, request, redirect, url_for, render_template
+from flask_socketio import SocketIO, emit, disconnect, join_room, leave_room
+from app import socketio
 from pymongo import MongoClient
 from bson.json_util import dumps
 from routes.auth import user_collection
@@ -42,11 +44,6 @@ def create_table():
     user = db_verify_auth_token(request)
     if not user:
         return jsonify({"status": "error", "message": "You are not logged in."})
-    
-    # find the username
-    username = user.get("username")
-    
-    # table count
 
     # create a new table
     table = {
@@ -69,11 +66,12 @@ def create_table():
                  "2D", "3D", "4D", "5D", "6D", "7D", "8D", "9D", "10D", "JD", "QD", "KD", "AD",
                  "2S", "3S", "4S", "5S", "6S", "7S", "8S", "9S", "10S", "JS", "QS", "KS", "AS"],
         "dealer_hand": [], 
+        "started": False,
     }
 
     # insert the table into the collection
     table_collection.insert_one(table)
-    
+
     # redirect to the table
     join_table_url = url_for("table_blueprint.join_table", table_id=table.get("table_id"))
 
@@ -81,6 +79,8 @@ def create_table():
 
 @table_blueprint.route("/join-table/<table_id>", methods=["GET"])
 def join_table(table_id):
+
+
     user = db_verify_auth_token(request)
 
     if not user:
@@ -107,7 +107,6 @@ def join_table(table_id):
     )
 
     table = table_collection.find_one({"table_id": table_id})
-    print(table)
 
     # add the user's table to the user
     user_collection.update_one(
@@ -115,9 +114,8 @@ def join_table(table_id):
         {"$set": {"table": table_id}}
     )
 
-    print(user_collection.find_one({"username": username}))
     
-
+    join_room(table_id)
     return render_template("table.html", table=table)
 
 @table_blueprint.route("/leave-table/<table_id>", methods=["GET"])

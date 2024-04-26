@@ -7,120 +7,117 @@ from bson.json_util import dumps
 from routes.auth import user_collection
 from routes.table import table_collection
 import random
-import threading
 
 
-@socketio.on('first_hand')
-def handle_first_hand():
-    if not current_user.is_authenticated:
-        disconnect()
+@socketio.on("init_game")
+def init_game(data):
 
-    mongo = MongoClient("db")
-    db = mongo["BlackJack"]
-    user_collection = db["user"]
-    table_collection = db["tables"]
+    table_id = data["table_id"]
+    table = table_collection.find_one({"table_id": table_id})
 
-    # find the current user in the database
-    username = current_user.id
-    user = user_collection.find_one({"username": username})
-    print(user)
-
-    # find the table id
-    table = user.get("table")
-    print(table)
-    table_info = table_collection.find_one({"table_id": table})
-
-    # give the newly joined user their hand
-    deck = table_info.get("deck")
+    if table.get("started"):
+        emit("error", {"message": "Game already started."}, room=table_id)
+        return
     
-    # shuffle the deck and randomly select 2 cards for the user
-    random.shuffle(deck)
-    hand = deck[:2]
-    deck = deck[2:]
+    table_collection.update_one({"table_id": table_id}, {"$set": {"started": True}})
+    
+    time_out = 10
+    while time_out >= 0:
+        emit("init_players", {"table": table_id , "message": f"waiting {time_out} seconds for players to join."}, room=table_id)
+        socketio.sleep(1)
+        time_out -= 1
+    
+    emit("init_players", {"message": "Game starting"}, room=table_id)
 
-    # also generate a hand for the dealer
+    start_game(table_id)
+
+
+def start_game(table_id):
+    table = table_collection.find_one({"table_id": table_id})
+    player_list = table.get("players")
+    deck = table.get("deck")
+
+    # Shuffle Deck
+    random.shuffle(deck)
+
+    # Dealer
     dealer_hand = deck[:2]
     deck = deck[2:]
+    update_dealer_hand(table_id, dealer_hand)
+    update_deck(table_id, deck)
+    emit("update_hand", {"dealer_hand": dealer_hand}, room=table_id)
     
 
-    # update the user's hand in the database
-    user_collection.update_one(
-        {"username": username},
-        {"$set": {"hand": hand}}
-    )
+    # Giving everyone there their first hand
+    for player in player_list:
+        player_hand = deck[:2]
+        deck = deck[2:]
+        update_player_hand(player, player_hand)
+        update_deck(table_id, deck)
+        emit("update_hand", {"hand": player_hand, "username": player}, room=table_id)
+    
+    # First player
+    current_player = table["players"][0]
+    table_collection.find_one({"table_id": table_id}, {"$set": {"current_player": current_player}})
+    
 
-    # update the table's deck in the database
-    table_collection.update_one(
-        {"table_id": table},
-        {"$set": {"deck": deck}}
-    )
+    # Game Loop Start
+    game_over = False
+    while not game_over:
 
-    # update the dealer hand
-    table_collection.update_one(
-        {"table_id": table},
-        {"$set": {"dealer_hand": dealer_hand}}
-    )
+        current_player = table_collection.find_one({"table_id": table_id},{"current_player": 1})
+        user_collection.update_one({"username": current_player}, {"$set": {"has_moved": False}})
+        socketio.emit("current_player", {"username": current_player}, room=table_id)
 
-    # emit the user's hand to the user and their username
-    emit('hand', {'hand': hand, 'dealer_hand': dealer_hand, 'username': username}, broadcast=True)
-    game_loop(table)
+        timer = 30
+        while timer >= 0 and not user_collection.find_one({"username": current_player},{"has_moved": 1}):
+            socketio.sleep(1)
+            timer -= 1
+        
+        if not user_collection.find_one({"username": current_player},{"has_moved": 1}):
+            handle_fold_back(current_player, table_id)
 
-
-turn_over = threading.Event()
-def game_loop(table_id):
-    game_active = True
-    while game_active:
-        players = table_collection.find_one({"table_id": table_id})
-        players = players.get("players")
-        print("PENIS2", players)
-        if not players:
-            break
-            # ToDo: delete table
-
-        while players:
-            for player in players:
-                print("PENIS", player)
-                socketio.emit("new_turn", {"username": player, "table_id" : table_id})
-                # Create & start timer for player
-                timer = threading.Timer(60, handle_fold_back, player)
-                timer.start()
-                turn_over.wait()
-                timer.cancel()
-                turn_over.clear()
+        next_turn(table_id)
 
 
 
-@socketio.on('fold')
-def handle_fold_front():
-    handle_fold_back(current_user.id)
 
 
-def handle_fold_back(player):
-    user_collection.update_one({"username": current_user.id}, {"$set": {"hand": []}})
-    turn_over.set()
+@socketio.on("fold")
+def handle_fold_front(data):
+    if not current_user.is_authenticated:
+        disconnect()
+
+    table_id = data["table_id"]
+    current_player = table_collection.find_one({"table_id": table_id},{"current_player": 1})
+
+    if current_user.id == current_player:
+        handle_fold_back(current_player, table_id)
+    else:
+        return
+
+def handle_fold_back(player, table_id):
+    user_collection.update_one({"username": player}, {"$set": {"hand": [], "has_moved": True}})
+    table_collection.update_one({"table_id": table_id}, {"$pull": {"players": player}})
+    emit("update_hand", {"hand": [], "username": player}, room=table_id)
 
 
-@socketio.on('hit')
-def handle_deal_card():
+@socketio.on("hit")
+def handle_hit(data):
 
     if not current_user.is_authenticated:
         disconnect()
 
-    mongo = MongoClient("db")
-    db = mongo["BlackJack"]
-    user_collection = db["user"]
-    table_collection = db["tables"]
+    table_id = data["table_id"]
+    current_player = table_collection.find_one({"table_id": table_id},{"current_player": 1})
 
-    # find the current user in the database
-    username = current_user.id
-    user = user_collection.find_one({"username": username})
-    print(user)
+    if current_player != current_user.id:
+        return
     
+    user = user_collection.find_one({"username": current_player})
+
     # find the table id
-    table = user.get("table")
-    print(table)
-    table_info = table_collection.find_one({"table_id": table})
-    print(table_info)
+    table_info = table_collection.find_one({"table_id": table_id})
 
     # add a new card to the user's hand
     hand = user.get("hand")
@@ -131,29 +128,53 @@ def handle_deal_card():
     hand.append(new_card)
 
     # update the user's hand in the database
-    user_collection.update_one(
-        {"username": username},
-        {"$set": {"hand": hand}}
-    )
+    update_player_hand(current_player, hand)
 
     # update the table's deck in the database
-    table_collection.update_one(
-        {"table_id": table},
-        {"$set": {"deck": deck}}
-    )
+    update_deck(table_id, deck)
+
+    user_collection.update_one({"username": current_player}, {"$set": {"hand": [], "has_moved": True}})
 
     # emit the new card to the user
-    emit('hand', {'hand': hand, 'username': username}, broadcast=True)
-    turn_over.set()
+    emit("update_hand", {"hand": hand, "username": current_player}, room=table_id)
 
 
 
+@socketio.on("stand")
+def handle_stand(data):
+    if not current_user.is_authenticated:
+        disconnect()
+    
+    table_id = data["table_id"]
+    current_player = table_collection.find_one({"table_id": table_id},{"current_player": 1})
 
+    if current_player != current_user.id:
+        return
+    
+    user_collection.update_one({"username": current_player}, {"$set": {"hand": [], "has_moved": True}})
 
-
-
-@socketio.on('stand')
-def handle_play_card(data):
     pass
+
+def next_turn(table_id):
+    table = table_collection.find_one({"table_id": table_id})
+    player_list = table["players"]
+    current_player_index = player_list.index(table["current_player"])
+    next_player = player_list[(current_player_index + 1) % len(player_list)]
+    
+    table_collection.update_one({"table_id", table_id}, {"$set": {"current_player": next_player}})
+    user_collection.update_one({"username": next_player}, {"$set": {"has_moved": False}})
+
+    emit("next_turn", {"username": next_player}, room=table_id)
+
+def update_deck(table_id, deck):
+    table_collection.update_one({"table_id": table_id}, {"$set": {"deck": deck}})
+
+def update_dealer_hand(table_id, hand):
+    table_collection.update_one({"table_id": table_id}, {"$set": {"dealer_hand": hand}})
+
+def update_player_hand(username, hand):
+    user_collection.update_one({"username": username}, {"$set": {"hand": hand}})
+
+
 
 
