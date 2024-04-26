@@ -22,7 +22,7 @@ function hit(){
 
 socket.on('new_turn', function(data){
     if(data.table_id == document.getElementById("table_id").getAttribute("data-id")) {
-        console.log(username);
+        console.log(data.username);
     }
 });
 

@@ -5,7 +5,9 @@ from app import socketio
 from pymongo import MongoClient
 from bson.json_util import dumps
 from routes.auth import user_collection
+from routes.table import table_collection
 import random
+import threading
 
 
 @socketio.on('first_hand')
@@ -61,8 +63,41 @@ def handle_first_hand():
 
     # emit the user's hand to the user and their username
     emit('hand', {'hand': hand, 'dealer_hand': dealer_hand, 'username': username}, broadcast=True)
+    game_loop(table)
 
 
+turn_over = threading.Event()
+def game_loop(table_id):
+    game_active = True
+    while game_active:
+        players = table_collection.find_one({"table_id": table_id})
+        players = players.get("players")
+        print("PENIS2", players)
+        if not players:
+            break
+            # ToDo: delete table
+
+        while players:
+            for player in players:
+                print("PENIS", player)
+                socketio.emit("new_turn", {"username": player, "table_id" : table_id})
+                # Create & start timer for player
+                timer = threading.Timer(60, handle_fold_back, player)
+                timer.start()
+                turn_over.wait()
+                timer.cancel()
+                turn_over.clear()
+
+
+
+@socketio.on('fold')
+def handle_fold_front():
+    handle_fold_back(current_user.id)
+
+
+def handle_fold_back(player):
+    user_collection.update_one({"username": current_user.id}, {"$set": {"hand": []}})
+    turn_over.set()
 
 
 @socketio.on('hit')
@@ -109,6 +144,7 @@ def handle_deal_card():
 
     # emit the new card to the user
     emit('hand', {'hand': hand, 'username': username}, broadcast=True)
+    turn_over.set()
 
 
 
