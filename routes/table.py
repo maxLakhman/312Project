@@ -92,6 +92,9 @@ def join_table(table_id):
     table = table_collection.find_one({"table_id": table_id})
     if not table:
         return jsonify({"status": "error", "message": "Table not found."})
+    
+    if table["started"]:
+        return jsonify({"status": "error", "message": "Game has already started"})
 
     # check if the user is already in the table
     if username in table.get("players"):

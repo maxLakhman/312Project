@@ -9,6 +9,7 @@ from routes.table import table_collection
 import random
 
 
+
 @socketio.on("init_game")
 def init_game(data):
 
@@ -66,6 +67,7 @@ def start_game(table_id):
     user_collection.update_one({"username": current_player}, {"$set": {"has_moved": False}})
     
     # Game Loop Start
+    global game_over
     game_over = False
     while not game_over:
         current_player = table_collection.find_one({"table_id": table_id},{"_id":0, "current_player": 1})["current_player"]
@@ -81,7 +83,13 @@ def start_game(table_id):
             handle_fold_back(current_player, table_id)
             socketio.sleep(1)
 
+        if game_over:
+            break
+
         next_turn(table_id)
+    if game_over:
+        # Do something
+        print(" hello there")
 
 
 @socketio.on("fold")
@@ -90,21 +98,29 @@ def handle_fold_front(data):
         disconnect()
 
     table_id = data["table_id"]
-    current_player = table_collection.find_one({"table_id": table_id},{"_id": 0, "current_player": 1})["current_player"]
 
+    current_player = table_collection.find_one({"table_id": table_id},{"_id": 0, "current_player": 1})
+
+    if "current_player" not in current_player:
+        return
+    current_player = current_player["current_player"]
+    
     if current_user.id == current_player:
         handle_fold_back(current_player, table_id)
     else:
         return
 
 def handle_fold_back(player, table_id):
+    global game_over
     user_collection.update_one({"username": player}, {"$set": {"hand": [], "has_moved": True}})
     table_collection.update_one({"table_id": table_id}, {"$pull": {"players": player}})
     emit("update_hand", {"player_hand": [], "username": player, "table_id": table_id}, broadcast=True)
     players_remaining = table_collection.find_one({"table_id": table_id}, {"_id": 0, "players": 1})["players"]
     if len(players_remaining) == 0:
+        game_over = True
         socketio.sleep(2)
         table_collection.delete_one({"table_id":table_id})
+        
     #### Todo: What to do with person who folds? Disconnect?
 
 @socketio.on("hit")
@@ -114,8 +130,11 @@ def handle_hit(data):
         disconnect()
 
     table_id = data["table_id"]
-    current_player = table_collection.find_one({"table_id": table_id},{"_id":0, "current_player": 1})["current_player"]
+    current_player = table_collection.find_one({"table_id": table_id},{"_id": 0, "current_player": 1})
 
+    if "current_player" not in current_player:
+        return
+    current_player = current_player["current_player"]
     if current_player != current_user.id:
         return
     
@@ -152,8 +171,12 @@ def handle_stand(data):
         disconnect()
     
     table_id = data["table_id"]
-    current_player = table_collection.find_one({"table_id": table_id},{"_id":0, "current_player": 1})
+    
+    current_player = table_collection.find_one({"table_id": table_id},{"_id": 0, "current_player": 1})
 
+    if "current_player" not in current_player:
+        return
+    current_player = current_player["current_player"]
     if current_player != current_user.id:
         return
     
@@ -163,8 +186,8 @@ def handle_stand(data):
 
 def next_turn(table_id):
     table = table_collection.find_one({"table_id": table_id})
+
     player_list = table["players"]
-    print("Player_List",player_list,"type(player_list):",type(player_list))
     current_player_index = player_list.index(table["current_player"])
     next_player = player_list[(current_player_index + 1) % len(player_list)]
     

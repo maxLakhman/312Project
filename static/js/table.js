@@ -45,8 +45,17 @@ socket.on('current_player', function(data){
 });
 
 function hit(){
-    let table_id = document.getElementById("table_id").getAttribute("data-id")
+    let table_id = document.getElementById("table_id").getAttribute("data-id");
     socket.emit('hit', {"table_id":table_id});
+}
+function stand(){
+    let table_id = document.getElementById("table_id").getAttribute("data-id");
+    socket.emit('stand', {"table_id":table_id});
+}
+
+function fold(){
+    let table_id = document.getElementById("table_id").getAttribute("data-id");
+    socket.emit('fold', {"table_id":table_id});
 }
 
 socket.on('new_turn', function(data){
