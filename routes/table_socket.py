@@ -8,21 +8,25 @@ from routes.auth import user_collection
 from routes.table import table_collection
 import random
 
+# If player folds/disconnects from table session I add this to end of username in table
+suffix = ".)G&*9q2ih}kc$RKiCN*e3#v]);Gp=[_pXd!FcjLY@;7cx]$8N"
 
 @socketio.on("init_game")
 def init_game(data):
-
     table_id = data["table_id"]
     table = table_collection.find_one({"table_id": table_id})
 
-    if table.get("started") and time_out == 0:
+    # Joining game that already started
+    if table.get("started") == True:
         emit("error", {"message": "Game already started.", "table_id": table_id})
         return
     
-    elif table.get("started") == "In progress..." and time_out > 0:
+    # Joining game that's in init phase
+    elif table.get("started") == "In progress...":
         emit("init_players", {"message": "Welcome", "table_id": table_id})
         return
     
+    # Making game for first time
     table_collection.update_one({"table_id": table_id}, {"$set": {"started": "In progress..."}})
     time_out = 10
     while time_out > 0:
@@ -41,6 +45,7 @@ def init_game(data):
 
 # @socketio.on("start_game")
 def start_game(table_id):
+    
     table = table_collection.find_one({"table_id": table_id})
     player_list = table.get("players")
     deck = table.get("deck")
@@ -62,6 +67,7 @@ def start_game(table_id):
         update_player_hand(player, player_hand)
         update_deck(table_id, deck)
         emit("update_hand", {"player_hand": player_hand, "username": player, "table_id": table_id}, broadcast=True)
+
     # First player
     current_player = table["players"][0]
     table_collection.update_one({"table_id": table_id}, {"$set": {"current_player": current_player}})
@@ -71,17 +77,23 @@ def start_game(table_id):
     game_over = table.get("game_over")
     while not game_over:
         current_player = table_collection.find_one({"table_id": table_id},{"_id":0, "current_player": 1})["current_player"]
-
+        
         timer = 30
-        while timer > 0 and not user_collection.find_one({"username": current_player},{"_id":0, "has_moved": 1})["has_moved"]:
+        while not game_over and timer > 0 and not user_collection.find_one({"username": current_player},{"_id":0, "has_moved": 1})["has_moved"]:
+            check_if_game_over(table_id)
+        
             emit("current_player", {"username": current_player, "table_id": table_id, "time": timer}, broadcast=True)
             socketio.sleep(1)
             timer -= 1
+        
+        check_if_game_over(table_id)
         
         if not user_collection.find_one({"username": current_player},{"_id":0,"has_moved": 1})["has_moved"]:
             emit("current_player", {"username": current_player, "table_id": table_id, "time": 0}, broadcast=True)
             handle_fold_back(current_player, table_id)
             socketio.sleep(1)
+        
+        check_if_game_over(table_id)
 
         game_over = table_collection.find_one({"table_id": table_id}).get("game_over")
         if game_over:
@@ -90,6 +102,8 @@ def start_game(table_id):
 
         next_turn(table_id)
     if game_over:
+        socketio.sleep(2)
+
         # Do something
         print(" hello there")
 
@@ -113,17 +127,13 @@ def handle_fold_front(data):
         return
 
 def handle_fold_back(player, table_id):
-    user_collection.update_one({"username": player}, {"$set": {"hand": [], "has_moved": True}})
-    table_collection.update_one({"table_id": table_id}, {"$pull": {"players": player}})
-    emit("update_hand", {"player_hand": [], "username": player, "table_id": table_id}, broadcast=True)
-    players_remaining = table_collection.find_one({"table_id": table_id}, {"_id": 0, "players": 1})["players"]
+    player_index = get_player_index(table_id, player)
+    new_username = player + suffix
+    table_collection.update_one({"table_id": table_id}, {"$set": {f"players.{player_index}": new_username}})
 
-    if len(players_remaining) == 0:
-        table_collection.update_one({"table_id": table_id}, {"$set": {"game_over": True}})
-        socketio.sleep(2)
-        return
-        
-    #### Todo: What to do with person who folds? Disconnect?
+    user_collection.update_one({"username": player}, {"$set": {"hand": [], "has_moved": True}})
+    
+    emit("update_hand", {"player_hand": [], "username": player, "table_id": table_id}, broadcast=True)
 
 @socketio.on("hit")
 def handle_hit(data):
@@ -186,11 +196,30 @@ def handle_stand(data):
 
 def next_turn(table_id):
     table = table_collection.find_one({"table_id": table_id})
-
     player_list = table["players"]
-    current_player_index = player_list.index(table["current_player"])
+
+    try:
+        current_player_index = player_list.index(table["current_player"])
+    except ValueError:
+        current_player_index = player_list.index(table["current_player"] + suffix)
+
+
     next_player = player_list[(current_player_index + 1) % len(player_list)]
     
+    # If one or more players disconnected/folded
+    max_players = 5
+    while next_player.endswith(suffix):
+        current_player_index += 1
+        next_player = player_list[(current_player_index + 1) % len(player_list)]
+
+        max_players -= 1
+        # If all players disconnected/folded
+        if max_players < 0:
+            table_collection.update_one({"table_id": table_id}, {"$set": {"game_over": True}})
+            break
+
+
+
     table_collection.update_one({"table_id": table_id}, {"$set": {"current_player": next_player}})
     user_collection.update_one({"username": next_player}, {"$set": {"has_moved": False}})
 
@@ -206,7 +235,21 @@ def update_dealer_hand(table_id, hand):
 def update_player_hand(username, hand):
     user_collection.update_one({"username": username}, {"$set": {"hand": hand}})
 
+def get_player_index(table_id, player):
+    table_players = table_collection.find_one({"table_id": table_id}, {"_id": 0, "players": 1})
+    player_index = table_players["players"].index(player)
+    return player_index
 
+def check_if_game_over(table_id):
+    player_list = table_collection.find_one({"table_id": table_id}, {"_id": 0, "players": 1})["players"]
+
+    disconnected_players = 0
+    for player in player_list:
+        if player.endwith(suffix):
+            disconnected_players += 1
+
+    if disconnected_players == len(player_list):
+        table_collection.update_one({"table_id": table_id}, {"$set": {"game_over": True}})
 
 
 
@@ -214,17 +257,19 @@ def update_player_hand(username, hand):
 def handle_disconnect():
     if current_user.id:
         
-        # table_id = user_collection.find_one({"username": current_user.id}, {"_id": 0, "table": 1})
+        table_id = user_collection.find_one({"username": current_user.id}, {"_id": 0, "table": 1})
 
-        # # If table exists
-        # if table_collection.find_one({"table_id": table_id},):
-        #     players = table_collection.find_one({"table:id": table_id}, {"_id": 0, "players": 1})
-        #     current_player = table_collection.find_one({"table:id": table_id}, {"_id": 0, "current_player": 1})
+        # If table exists
+        if table_collection.find_one({"table_id": table_id},):
+            players = table_collection.find_one({"table:id": table_id}, {"_id": 0, "players": 1})
+            current_player = table_collection.find_one({"table:id": table_id}, {"_id": 0, "current_player": 1})
+            if current_user.id == current_user:
+                user_collection.update_one({"username": current_user.id}, {"$set": {"hand": None, "has_moved": True}})
 
         #     # If user is part of the table:
-        #     if current_user.id in current_player:
-        #         next_turn(table_id)
-        #     if current_user.id in players:
-        #         table_collection.update_one({"table_id": table_id}, {"$pull": {"players": current_user.id}})
+            if current_user.id in players:
+                new_username = current_user.id + suffix
+                player_index = get_player_index(table_id, current_user.id)
+                table_collection.update_one({"table_id": table_id}, {"$set": {f"players.{player_index}": new_username}})
 
         user_collection.update_one({"username": current_user.id}, {"$set": {"table": None, "hand": None, "has_moved": None}})
