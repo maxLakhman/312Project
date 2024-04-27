@@ -9,29 +9,30 @@ from routes.table import table_collection
 import random
 
 
-
 @socketio.on("init_game")
 def init_game(data):
 
     table_id = data["table_id"]
     table = table_collection.find_one({"table_id": table_id})
 
-    time_out = 10
-    if table.get("started") and time_out > 0:
+    if table.get("started") and time_out == 0:
         emit("error", {"message": "Game already started.", "table_id": table_id})
         return
     
-    elif table.get("started") and time_out > 0:
+    elif table.get("started") == "In progress..." and time_out > 0:
         emit("init_players", {"message": "Welcome", "table_id": table_id})
         return
     
-    table_collection.update_one({"table_id": table_id}, {"$set": {"started": True}})
-    
+    table_collection.update_one({"table_id": table_id}, {"$set": {"started": "In progress..."}})
+    time_out = 10
     while time_out > 0:
         emit("init_players", {"table_id": table_id , "message": f"Waiting {time_out} seconds for players to join."}, broadcast=True)
         socketio.sleep(1)
         time_out -= 1
-    
+
+    time_out = 0
+
+    table_collection.update_one({"table_id": table_id}, {"$set": {"started": True}})
     emit("init_players", {"message": "Game starting...", "table_id": table_id}, broadcast=True)
     socketio.sleep(2)
 

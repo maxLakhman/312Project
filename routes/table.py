@@ -93,7 +93,7 @@ def join_table(table_id):
     if not table:
         return jsonify({"status": "error", "message": "Table not found."})
     
-    if table["started"]:
+    if table["started"] == True:
         return jsonify({"status": "error", "message": "Game has already started"})
 
     # check if the user is already in the table
