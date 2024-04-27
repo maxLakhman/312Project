@@ -68,8 +68,7 @@ def start_game(table_id):
     user_collection.update_one({"username": current_player}, {"$set": {"has_moved": False}})
     
     # Game Loop Start
-    global game_over
-    game_over = False
+    game_over = table.get("game_over")
     while not game_over:
         current_player = table_collection.find_one({"table_id": table_id},{"_id":0, "current_player": 1})["current_player"]
 
@@ -84,7 +83,9 @@ def start_game(table_id):
             handle_fold_back(current_player, table_id)
             socketio.sleep(1)
 
+        game_over = table_collection.find_one({"table_id": table_id}).get("game_over")
         if game_over:
+            table_collection.delete_one({"table_id":table_id})
             break
 
         next_turn(table_id)
@@ -112,15 +113,13 @@ def handle_fold_front(data):
         return
 
 def handle_fold_back(player, table_id):
-    global game_over
     user_collection.update_one({"username": player}, {"$set": {"hand": [], "has_moved": True}})
     table_collection.update_one({"table_id": table_id}, {"$pull": {"players": player}})
     emit("update_hand", {"player_hand": [], "username": player, "table_id": table_id}, broadcast=True)
     players_remaining = table_collection.find_one({"table_id": table_id}, {"_id": 0, "players": 1})["players"]
     if len(players_remaining) == 0:
-        game_over = True
         socketio.sleep(2)
-        table_collection.delete_one({"table_id":table_id})
+        table_collection.update_one({"table_id": table_id}, {"$set": {"game_over": True}})
         
     #### Todo: What to do with person who folds? Disconnect?
 
@@ -181,7 +180,7 @@ def handle_stand(data):
     if current_player != current_user.id:
         return
     
-    user_collection.update_one({"username": current_player}, {"$set": {"hand": [], "has_moved": True}})
+    user_collection.update_one({"username": current_player}, {"$set": {"has_moved": True}})
 
     pass
 

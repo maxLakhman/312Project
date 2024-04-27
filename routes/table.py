@@ -67,6 +67,7 @@ def create_table():
                  "2S", "3S", "4S", "5S", "6S", "7S", "8S", "9S", "10S", "JS", "QS", "KS", "AS"],
         "dealer_hand": [], 
         "started": False,
+        "game_over": False
     }
 
     # insert the table into the collection
