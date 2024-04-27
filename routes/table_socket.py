@@ -117,9 +117,11 @@ def handle_fold_back(player, table_id):
     table_collection.update_one({"table_id": table_id}, {"$pull": {"players": player}})
     emit("update_hand", {"player_hand": [], "username": player, "table_id": table_id}, broadcast=True)
     players_remaining = table_collection.find_one({"table_id": table_id}, {"_id": 0, "players": 1})["players"]
+
     if len(players_remaining) == 0:
-        socketio.sleep(2)
         table_collection.update_one({"table_id": table_id}, {"$set": {"game_over": True}})
+        socketio.sleep(2)
+        return
         
     #### Todo: What to do with person who folds? Disconnect?
 
@@ -162,8 +164,6 @@ def handle_hit(data):
 
     # emit the new card to the user
     emit("update_hand", {"player_hand": hand, "username": current_player, "table_id": table_id}, broadcast=True)
-
-
 
 @socketio.on("stand")
 def handle_stand(data):
@@ -209,3 +209,22 @@ def update_player_hand(username, hand):
 
 
 
+
+@socketio.on("disconnect")
+def handle_disconnect():
+    if current_user.id:
+        
+        # table_id = user_collection.find_one({"username": current_user.id}, {"_id": 0, "table": 1})
+
+        # # If table exists
+        # if table_collection.find_one({"table_id": table_id},):
+        #     players = table_collection.find_one({"table:id": table_id}, {"_id": 0, "players": 1})
+        #     current_player = table_collection.find_one({"table:id": table_id}, {"_id": 0, "current_player": 1})
+
+        #     # If user is part of the table:
+        #     if current_user.id in current_player:
+        #         next_turn(table_id)
+        #     if current_user.id in players:
+        #         table_collection.update_one({"table_id": table_id}, {"$pull": {"players": current_user.id}})
+
+        user_collection.update_one({"username": current_user.id}, {"$set": {"table": None, "hand": None, "has_moved": None}})

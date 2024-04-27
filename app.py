@@ -35,10 +35,6 @@ app.register_blueprint(table_blueprint)
 # def handle_connect():
 
 
-@socketio.on("disconnect")
-def handle_disconnect():
-    if current_user.id != "Guest":
-        user_collection.update_one({"username": current_user.id}, {"$set": {"table": None, "hand": None}})
 
 
 # Sets pfp for current_user
