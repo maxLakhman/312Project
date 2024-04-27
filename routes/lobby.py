@@ -1,4 +1,13 @@
-from flask import Blueprint, jsonify, make_response, redirect, request, url_for, current_app, render_template
+from flask import (
+    Blueprint,
+    jsonify,
+    make_response,
+    redirect,
+    request,
+    url_for,
+    current_app,
+    render_template,
+)
 from pymongo import MongoClient
 from routes.auth import user_collection
 from routes.table import table_collection
@@ -12,17 +21,11 @@ db = mongo_client["BlackJack"]
 table_collection = db["tables"]
 
 # blueprint for the lobby
-lobby_blueprint = Blueprint(
-    "lobby_blueprint",
-    __name__,
-    template_folder="templates"
-)
+lobby_blueprint = Blueprint("lobby_blueprint", __name__, template_folder="templates")
+
 
 # generate the appropriate amount of tables in the lobby
 @lobby_blueprint.route("/lobby", methods=["GET"])
 def get_tables():
     tables = list(table_collection.find({}))
-    # print(tables)
     return render_template("lobby.html", tables=tables)
-
-
