@@ -16,7 +16,7 @@ def init_game(data):
     table = table_collection.find_one({"table_id": table_id})
 
     time_out = 10
-    if table.get("started") and time_out == 0:
+    if table.get("started") and time_out > 0:
         emit("error", {"message": "Game already started.", "table_id": table_id})
         return
     
@@ -27,15 +27,17 @@ def init_game(data):
     table_collection.update_one({"table_id": table_id}, {"$set": {"started": True}})
     
     while time_out > 0:
-        emit("init_players", {"table": table_id , "message": f"Waiting {time_out} seconds for players to join."}, broadcast=True)
+        emit("init_players", {"table_id": table_id , "message": f"Waiting {time_out} seconds for players to join."}, broadcast=True)
         socketio.sleep(1)
         time_out -= 1
     
     emit("init_players", {"message": "Game starting...", "table_id": table_id}, broadcast=True)
+    socketio.sleep(2)
+
 
     start_game(table_id)
 
-
+# @socketio.on("start_game")
 def start_game(table_id):
     table = table_collection.find_one({"table_id": table_id})
     player_list = table.get("players")
@@ -51,7 +53,6 @@ def start_game(table_id):
     update_deck(table_id, deck)
     emit("update_hand", {"dealer_hand": dealer_hand, "table_id": table_id}, broadcast=True)
     
-
     # Giving everyone there their first hand
     for player in player_list:
         player_hand = deck[:2]
@@ -59,27 +60,26 @@ def start_game(table_id):
         update_player_hand(player, player_hand)
         update_deck(table_id, deck)
         emit("update_hand", {"player_hand": player_hand, "username": player, "table_id": table_id}, broadcast=True)
-    
     # First player
     current_player = table["players"][0]
     table_collection.update_one({"table_id": table_id}, {"$set": {"current_player": current_player}})
     user_collection.update_one({"username": current_player}, {"$set": {"has_moved": False}})
     
-
     # Game Loop Start
     game_over = False
     while not game_over:
-
-        current_player = table_collection.find_one({"table_id": table_id},{"_id":0, "current_player": 1})
-        socketio.emit("current_player", {"username": current_player, "table_id": table_id}, broadcast=True)
+        current_player = table_collection.find_one({"table_id": table_id},{"_id":0, "current_player": 1})["current_player"]
 
         timer = 30
-        while timer > 0 and not user_collection.find_one({"username": current_player},{"_id":0, "has_moved": 1}):
+        while timer > 0 and not user_collection.find_one({"username": current_player},{"_id":0, "has_moved": 1})["has_moved"]:
+            emit("current_player", {"username": current_player, "table_id": table_id, "time": timer}, broadcast=True)
             socketio.sleep(1)
             timer -= 1
         
-        if not user_collection.find_one({"username": current_player},{"_id":0,"has_moved": 1}):
+        if not user_collection.find_one({"username": current_player},{"_id":0,"has_moved": 1})["has_moved"]:
+            emit("current_player", {"username": current_player, "table_id": table_id, "time": 0}, broadcast=True)
             handle_fold_back(current_player, table_id)
+            socketio.sleep(1)
 
         next_turn(table_id)
 
@@ -90,7 +90,7 @@ def handle_fold_front(data):
         disconnect()
 
     table_id = data["table_id"]
-    current_player = table_collection.find_one({"table_id": table_id},{"_id": 0, "current_player": 1})
+    current_player = table_collection.find_one({"table_id": table_id},{"_id": 0, "current_player": 1})["current_player"]
 
     if current_user.id == current_player:
         handle_fold_back(current_player, table_id)
@@ -100,8 +100,11 @@ def handle_fold_front(data):
 def handle_fold_back(player, table_id):
     user_collection.update_one({"username": player}, {"$set": {"hand": [], "has_moved": True}})
     table_collection.update_one({"table_id": table_id}, {"$pull": {"players": player}})
-    emit("update_hand", {"hand": [], "username": player, "table_id": table_id}, broadcast=True)
-    return
+    emit("update_hand", {"player_hand": [], "username": player, "table_id": table_id}, broadcast=True)
+    players_remaining = table_collection.find_one({"table_id": table_id}, {"_id": 0, "players": 1})["players"]
+    if len(players_remaining) == 0:
+        socketio.sleep(2)
+        table_collection.delete_one({"table_id":table_id})
     #### Todo: What to do with person who folds? Disconnect?
 
 @socketio.on("hit")
@@ -111,7 +114,7 @@ def handle_hit(data):
         disconnect()
 
     table_id = data["table_id"]
-    current_player = table_collection.find_one({"table_id": table_id},{"_id":0, "current_player": 1})
+    current_player = table_collection.find_one({"table_id": table_id},{"_id":0, "current_player": 1})["current_player"]
 
     if current_player != current_user.id:
         return
@@ -139,7 +142,7 @@ def handle_hit(data):
 
 
     # emit the new card to the user
-    emit("update_hand", {"hand": hand, "username": current_player, "table_id": table_id}, broadcast=True)
+    emit("update_hand", {"player_hand": hand, "username": current_player, "table_id": table_id}, broadcast=True)
 
 
 
@@ -161,10 +164,11 @@ def handle_stand(data):
 def next_turn(table_id):
     table = table_collection.find_one({"table_id": table_id})
     player_list = table["players"]
+    print("Player_List",player_list,"type(player_list):",type(player_list))
     current_player_index = player_list.index(table["current_player"])
     next_player = player_list[(current_player_index + 1) % len(player_list)]
     
-    table_collection.update_one({"table_id", table_id}, {"$set": {"current_player": next_player}})
+    table_collection.update_one({"table_id": table_id}, {"$set": {"current_player": next_player}})
     user_collection.update_one({"username": next_player}, {"$set": {"has_moved": False}})
 
     emit("next_turn", {"username": next_player, "table_id": table_id}, broadcast=True)

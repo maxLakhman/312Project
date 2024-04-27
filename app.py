@@ -29,15 +29,16 @@ app.register_blueprint(auth_blueprint)
 app.register_blueprint(chat_blueprint)
 app.register_blueprint(lobby_blueprint)
 app.register_blueprint(table_blueprint)
-# # Websocket Connections
+
+# # # Websocket Connections
 # @socketio.on("connect")
 # def handle_connect():
-#     print("Connection Successful")
 
 
-# @socketio.on("disconnect")
-# def handle_disconnect():
-#     print("Disconnection Successful")
+@socketio.on("disconnect")
+def handle_disconnect():
+    if current_user.id != "Guest":
+        user_collection.update_one({"username": current_user.id}, {"$set": {"table": None, "hand": None}})
 
 
 # Sets pfp for current_user
