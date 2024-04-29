@@ -268,7 +268,7 @@ def check_if_game_over(table_id):
 
     disconnected_players = 0
     for player in player_list:
-        if player.endwith(suffix):
+        if player.endswith(suffix):
             disconnected_players += 1
 
     if disconnected_players == len(player_list):

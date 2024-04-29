@@ -15,30 +15,48 @@ function init_game(){
 
 socket.on('user_connected', function(data){
     let username = data.username;
-    let table_id = data.table_id;
+    let table_id = data.table_id["table"];
 
     if(table_id == document.getElementById("table_id").getAttribute("data-id")) {
-        if(!users.includes(username)) {
+
+        if(!users.includes(username) && username != getUsername()) {
             users.push(username);
 
             createUserElement(username);
         }
-
     }
 });
 
 function createUserElement(username) {
-    /*
-        <div class="player" id="player-{{ player }}">
-                        <h2>Player {{ player }}</h2>
-                        <p>Balance: 0</p>
-                        <p>Bet: 0</p>
-                        <p>Hand: 0</p>
-                        <!-- div for displaying hand -->
-                        <div class="hand" id="hand-{{ player }}">
-                        </div>
-                    </div>
-    */
+    const players_container = document.getElementById("player-box");
+
+    let player = document.createElement("div");
+    player.classList.add("player");
+    player.id = "player-" + username;
+
+    let player_header = document.createElement("h2");
+    player_header.innerText = username;
+
+    let balance = document.createElement("p");
+    balance.innerText = "Balance: 0";
+
+    let bet = document.createElement("p");
+    balance.innerText = "Bet: 0";
+
+    let hand = document.createElement("p");
+    balance.innerText = "Hand: 0";
+
+    let hand_div = document.createElement("div");
+    hand_div.classList.add("hand");
+    hand_div.id = "hand-" + username;
+    
+    player.appendChild(player_header);
+    player.appendChild(balance);
+    player.appendChild(bet);
+    player.appendChild(hand);
+    player.appendChild(hand_div);
+
+    players_container.appendChild(player);
 }
 
 socket.on('init_players', function(data){
