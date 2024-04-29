@@ -5,7 +5,7 @@
     <title>Blackjack Table Room</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/table.css') }}">
 </head>
-<body>
+<body style="background-color: black">
     <div id="table_id" data-id="{{ table.table_id }}" style="display: none;"></div>
     <script>
         function getUsername() {
@@ -13,8 +13,8 @@
         }
     </script>
     
-    <h1>Blackjack Table Room {{ table.table_id }}</h1>
-    <div id="game_starting">
+    <h1 style="color: white">Blackjack Table Room {{ table.table_id }}</h1>
+    <div id="game_starting" style="color: white">
         
     </div>
     <div id="table">

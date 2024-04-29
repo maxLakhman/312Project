@@ -100,12 +100,42 @@ def start_game(table_id):
             table_collection.delete_one({"table_id":table_id})
             break
 
-        next_turn(table_id)
+        if not next_turn(table_id):
+            # Dealers turn
+            print("HAND =================================================")
+            hand = table_collection.find_one({"table_id": table_id}, {"_id": 0, "dealer_hand": 1})["dealer_hand"]
+            hand_value = calculateHand(hand)
+            print(hand)
+            print(hand_value)
+
+            if hand_value < 17:
+                table_info = table_collection.find_one({"table_id": table_id})
+
+                # add a new card to the user's hand
+                deck = table_info.get("deck")
+                random.shuffle(deck)
+                new_card = deck[0]
+                deck = deck[1:]
+                hand.append(new_card)
+
+                # update the user's hand in the database
+                update_dealer_hand(table_id, hand)
+
+                # update the table's deck in the database
+                update_deck(table_id, deck)
+
+                # emit the new card to the user
+                emit("update_hand", {"dealer_hand": hand, "table_id": table_id}, broadcast=True)
+
+                break
+
     if game_over:
         socketio.sleep(2)
 
         # Do something
-        print(" hello there")
+        print("END OF GAME =============================")
+
+    print("END OF GAME =============================")
 
 
 # money stuff
@@ -226,6 +256,9 @@ def next_turn(table_id):
     except ValueError:
         current_player_index = player_list.index(table["current_player"] + suffix)
 
+    print("CURRENT PLAYER INDEX")
+    print(current_player_index)
+
 
     next_player = player_list[(current_player_index + 1) % len(player_list)]
     
@@ -233,6 +266,7 @@ def next_turn(table_id):
     max_players = 5
     while next_player.endswith(suffix):
         current_player_index += 1
+        
         next_player = player_list[(current_player_index + 1) % len(player_list)]
 
         max_players -= 1
@@ -240,13 +274,17 @@ def next_turn(table_id):
         if max_players < 0:
             table_collection.update_one({"table_id": table_id}, {"$set": {"game_over": True}})
             break
-
-
+    
+    if (current_player_index + 1) % len(player_list) == 0:
+        return False
+        
 
     table_collection.update_one({"table_id": table_id}, {"$set": {"current_player": next_player}})
     user_collection.update_one({"username": next_player}, {"$set": {"has_moved": False}})
 
     emit("next_turn", {"username": next_player, "table_id": table_id}, broadcast=True)
+
+    return True
 
 
 def update_deck(table_id, deck):
@@ -302,3 +340,24 @@ def handle_disconnect():
         user_collection.update_one({"username": current_user.id}, {"$set": {"table": None, "hand": None, "has_moved": None}})
 
         emit("user_disconnected", {"username": current_user.id, "table_id": table_id}, broadcast=True)
+
+def calculateHand(hand):
+    total_value = 0
+    ace_count = 0
+    
+    card_values = {'2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8, '9': 9, '10': 10, 'J': 10, 'Q': 10, 'K': 10, 'A': 11}
+    
+    for card in hand:
+        # Get value
+        rank = card[:-1]
+        total_value += card_values[rank]
+        
+        if rank == 'A':
+            ace_count += 1
+    
+    # Adjust total value for Aces
+    while total_value > 21 and ace_count > 0:
+        total_value -= 10
+        ace_count -= 1
+    
+    return total_value

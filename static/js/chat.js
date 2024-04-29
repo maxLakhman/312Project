@@ -62,7 +62,7 @@ function sendChat(el){
 socket.on('new_message', function(data) {
     data = JSON.parse(data);
 
-    messageBox = document.getElementById(data.chat_box).children[1];
+    messageBox = document.getElementById(data.chat_box).getElementsByClassName("chat-message-container")[0];
     messageBox.appendChild(newMessage(data));
 
     scrollToBottom();
