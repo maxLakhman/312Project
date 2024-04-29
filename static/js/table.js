@@ -67,6 +67,8 @@ socket.on('init_players', function(data){
 
         if(data.message === "Game starting..."){
             setTimeout(function(){
+                player_ready_btn = document.getElementById("start_now_btn");
+                player_ready_btn.style.display = "none";
                 game_starting.innerText = "";
                 game_starting.style.display = "none";
             }, 2000);
@@ -193,3 +195,8 @@ socket.on('update_hand', function(data){
         // creating the table
         display_hand(data);
 });
+
+function start_now(){
+    let table_id = document.getElementById("table_id").getAttribute("data-id");
+    socket.emit("player_ready", {"table_id":table_id});
+}
