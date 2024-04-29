@@ -72,10 +72,6 @@ body {
     transition: background-color 0.3s; /* Smooth transition for background color change */
 }
 
-/* .buttons {
-    margin-top: 20px;
-} */
-
 button#exit,button#play,button#login,button#register,button#settings,button#logout,button#update-profile-pic { 
     border: 2px solid #EEBD22; 
     border-radius: 10px;

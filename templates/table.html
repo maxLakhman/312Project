@@ -17,7 +17,8 @@
     <div id="game_starting" style="color: white">
     </div>
     <div id="start_now_btn">
-        <button type="button" onclick=start_now()>Start Now</button>
+        <!-- <button type="button" onclick=start_now()>Start Now</button> -->
+        <button onclick=start_now() class="basic-button primary">Start Now</button>
     </div>
 
     <div id="table">
@@ -65,13 +66,10 @@
     <button onclick="stand()" id="hit">
         Stand
     </button>
-    <button onclick="fold()" id="hit">
-        Fold
-    </button>
     <div class="container chat-box" id="chat-box-{{ table.table_id }}">
         <div class="chat-form">
             <input type="text" id="chat-text" class="input-basic" placeholder="Send message">
-            <button onclick="sendChat(this)" class="basic-button primary">Submit</button>
+            <button id="penis" onclick=sendChat(this) class="basic-button primary">Submit</button>
         </div>
 
         <div class="chat-message-container">

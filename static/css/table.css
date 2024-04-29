@@ -93,3 +93,27 @@
     cursor: pointer;
     transition: background-color 0.3s;
 }
+.basic-button { 
+    border-radius: 10px;
+    border: none; 
+    padding: 10px 20px;
+    margin: 0 10px; 
+    font-size: 16px; 
+    cursor: pointer;
+    transition: filter 0.3s ease;
+}
+
+.basic-button:hover { 
+    filter: brightness(70%) 
+ } 
+
+.primary {
+    background-color: green;
+    color: white;
+}
+
+#start_now_btn{
+    justify-content: center;
+    display:flex;
+    align-items: center;
+}
