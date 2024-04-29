@@ -35,9 +35,12 @@
 
             <div class="player current-player" id="player-{{ current_user.id }}">
                 <h2>Player {{ current_user.id }}</h2>
-                <p>Balance: {{ current_user.balance }}</p>
+                <div>
+                    <p>Balance: <span id = "balance">{{ current_user.balance }}</span></p>
+
+                </div>
                 <button onClick="increaseBet()">+</button>
-                <p id="bet">Bet: {{ current_user.bet }}</p>
+                <p>Bet: <span id= "bet">{{ current_user.bet }}</span></p>
                 <button onClick="decreaseBet()">-</button>
                 <!-- div for displaying hand -->
                 <div class="hand" id="hand-{{ current_user.id }}">
@@ -82,6 +85,20 @@
         </div>
     </div>
     <script src="{{ url_for('static', filename='js/chat.js')}}"></script>
+
+
+
+    <div id="end-game-modal" class="modal" style="display:none">
+        <div class="modal-content">
+            <div id="end-game-header">
+                <h2 id="end-game-header-text"></h2>
+                <span class="close" onclick="closeEndGameModal()">&times;</span>
+            </div>
+            <div id="end-game-text">
+
+            </div>
+        </div>
+    </div>
 </body>
 <script defer src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <script src="{{ url_for('static', filename='js/table.js') }}"></script>

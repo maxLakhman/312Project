@@ -138,7 +138,6 @@ def register() -> Dict[str, str]:
             "hash": password_hash,
             "salt": salt,
             "auth_token": token_hash,
-            "tokens": 500,
         }
         user_collection.insert_one(record)
 

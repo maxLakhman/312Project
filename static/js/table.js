@@ -85,9 +85,49 @@ function createUserElement(username) {
 
 socket.on('game_over', function(data){
     if(data.table_id == document.getElementById("table_id").getAttribute("data-id")) {
-        let container = document.getElementById("outcome");
-        console.log(data.outcome);
-        container.innerText = JSON.stringify(data.outcome);
+        document.getElementById("end-game-modal").style.display = "block";
+        let header = document.getElementById("end-game-header-text");
+        let current_user = getUsername();
+        let outcome = data.outcome
+
+        // loop through players
+        for(let player in outcome){
+            let player_info = outcome[player];
+            
+            let value = player_info.value;
+            let message = player_info.message;
+            let hand = player_info.hand;
+            let bet = player_info.bet;
+            let total = player_info.total;
+            
+            if(message === "won"){
+                bet *= 2;
+            }
+
+
+            if(player === current_user){
+                let text = document.getElementById("end-game-header-text")
+                if(message === "tied"){
+                    text.innerText = `You ${message}! Your bet of ${bet} tokens has been returned to you.`;
+                }
+                else{
+                    text.innerText = `You ${message} ${bet} tokens! You have a total of ${total} tokens.`;
+                }
+            }
+            else{
+                let span = document.createElement("span");
+                if(message === "tied"){
+                    span.textContent = `${player} ${message}! Their bet of ${bet} tokens has been returned.`;
+                }
+                else{
+                    span.textContent = `${player} ${message} ${bet} tokens! They have a total of ${total} tokens.`;
+                }
+                span.className += " player-result";
+                let text_container = document.getElementById("end-game-text")
+                text_container.appendChild(span);
+                text_container.appendChild(document.createElement("br"));
+            }
+        }
     }
 });
 
@@ -176,6 +216,7 @@ socket.on('new_turn', function(data){
 });
 
 function display_hand(data){
+
     if(data.dealer_hand && data.table_id == document.getElementById("table_id").getAttribute("data-id")){
         var dealer_hand = data.dealer_hand;
         var dealer_id = 'dealer-hand';
@@ -218,7 +259,7 @@ function display_hand(data){
         var player_box = document.getElementById('player_box');
         var hand = document.getElementById(element_id);
         hand.innerHTML = '';
-    
+
         // set the images
         for (var i = 0; i < player_hand.length; i++){
             var img = document.createElement('img');
@@ -244,4 +285,8 @@ socket.on('update_hand', function(data){
 function start_now(){
     let table_id = document.getElementById("table_id").getAttribute("data-id");
     socket.emit("player_ready", {"table_id":table_id});
+}
+
+function closeEndGameModal(){
+    window.location.href = '/';
 }

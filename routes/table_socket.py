@@ -68,7 +68,8 @@ def start_game(table_id):
         deck = deck[2:]
         update_player_hand(player, player_hand)
         update_deck(table_id, deck)
-        emit("update_hand", {"player_hand": player_hand, "username": player, "table_id": table_id}, broadcast=True)
+        balance = user_collection.find_one({"player":player}, {"_id":0, "balance":1})
+        emit("update_hand", {"player_hand": player_hand, "username": player, "table_id": table_id, "balance": balance, "bet": 0}, broadcast=True)
 
     # First player
     current_player = table["players"][0]
@@ -154,23 +155,32 @@ def start_game(table_id):
         user = user_collection.find_one({"username": player})
         hand = user.get("hand")
         hand_value = calculateHand(hand)
+        bet = user.get("bet")
+        balance = user.get("balance")
 
         player_distance = 21 - hand_value
 
         if player_distance < 0:
-            player_value[player] = {"value": hand_value, "message": "loss", "hand": hand}
+            player_value[player] = {"value": hand_value, "message": "lost", "hand": hand, "bet":bet, "total": total}
+            user_collection.update_one({"username":player}, {"$set":{"bet":0}})
             # Player busts
         elif dealer_distance < 0:
-            player_value[player] = {"value": hand_value, "message": "win", "hand": hand}
+            total = balance + (bet*2)
+            user_collection.update_one({"username":player}, {"$set":{"bet":0, "balance":total}})
+            player_value[player] = {"value": hand_value, "message": "won", "hand": hand, "bet":bet, "total": total}
             # Player wins
         elif player_distance - dealer_distance > 0:
-            player_value[player] = {"value": hand_value, "message": "loss", "hand": hand} 
+            total = balance + (bet*2)
+            user_collection.update_one({"username":player}, {"$set":{"bet":0, "balance":total}})
+            player_value[player] = {"value": hand_value, "message": "lost", "hand": hand, "bet":bet, "total": total} 
             # Dealer wins
         elif dealer_distance - player_distance == 0:
-            player_value[player] = {"value": hand_value, "message": "tie", "hand": hand}
+            player_value[player] = {"value": hand_value, "message": "tied", "hand": hand, "bet":bet, "total": total}
             # Tie
         else:
-            player_value[player] = {"value": hand_value, "message": "win", "hand": hand}
+            total = balance + (bet*2)
+            user_collection.update_one({"username":player}, {"$set":{"bet":0, "balance":total}})
+            player_value[player] = {"value": hand_value, "message": "won", "hand": hand, "bet":bet, "total": total}
             # Player wins
 
         print(player_value)
@@ -192,9 +202,9 @@ def handle_increase_bet(data):
     balance = user.get("balance")
     bet = user.get("bet")
 
-    if balance > bet + 1:
-        bet += 1
-        balance -= 1
+    if balance > bet + 10:
+        bet += 10
+        balance -= 10
         user_collection.update_one({"username": current_user.id}, {"$set": {"bet": bet, "balance": balance}})
 
         emit("update_bet", {"username": current_user.id, "balance": balance, "bet": bet, "table_id": table_id}, broadcast=True)
@@ -212,8 +222,8 @@ def handle_decrease_bet(data):
     bet = user.get("bet")
 
     if bet > 0:
-        bet -= 1
-        balance += 1
+        bet -= 10
+        balance += 10
         user_collection.update_one({"username": current_user.id}, {"$set": {"bet": bet, "balance": balance}})
         
         emit("update_bet", {"username": current_user.id, "balance": balance, "bet": bet, "table_id": table_id}, broadcast=True)
@@ -375,7 +385,6 @@ def handle_connect(data):
 
 @socketio.on("disconnect")
 def handle_disconnect():
-    print("DISCONNECCCCCTEDDDDD")
     if current_user.id:
         
         table_id = user_collection.find_one({"username": current_user.id}, {"_id": 0, "table": 1})
@@ -390,7 +399,7 @@ def handle_disconnect():
                 player_index = get_player_index(table_id, current_user.id)
                 table_collection.update_one({"table_id": table_id}, {"$set": {f"players.{player_index}": new_username}})
 
-        user_collection.update_one({"username": current_user.id}, {"$set": {"table": None, "hand": None, "has_moved": None}})
+        user_collection.update_one({"username": current_user.id}, {"$set": {"table": None, "hand": None, "has_moved": None, "bet": 0}})
 
         emit("user_disconnected", {"username": current_user.id, "table_id": table_id}, broadcast=True)
 
