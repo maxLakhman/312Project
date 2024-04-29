@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.4/socket.io.min.js"></script>
+    <title>Blackjack Table Room</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/table.css') }}">
+</head>
+<body style="background-color: black">
+    <div id="table_id" data-id="{{ table.table_id }}" style="display: none;"></div>
+    <script>
+        function getUsername() {
+            return "{{ current_user.id }}"
+        }
+    </script>
+    
+    <h1 style="color: white">Blackjack Table Room {{ table.table_id }}</h1>
+    <div id="game_starting" style="color: white">
+    </div>
+    <div id="start_now_btn">
+        <!-- <button type="button" onclick=start_now()>Start Now</button> -->
+        <button onclick=start_now() class="basic-button primary">Start Now</button>
+    </div>
+
+    <div id="table">
+    </div>
+
+    <div class="display-table">
+        <div class="table-left">
+            <div class="dealer-box" id="dealer">
+                <!-- dealer box -->
+                <h2> Dealer </h2>
+                <h2 id="dealer-hand-value">Hand: Unknown</h2>
+                <div class="hand" id="dealer-hand">
+                </div>
+            </div>
+
+            <div class="player current-player" id="player-{{ current_user.id }}">
+                <h2>Player {{ current_user.id }}</h2>
+                <p>Balance: {{ current_user.balance }}</p>
+                <button onClick="increaseBet()">+</button>
+                <p id="bet">Bet: {{ current_user.bet }}</p>
+                <button onClick="decreaseBet()">-</button>
+                <p id="value-elm-{{ current_user.id }}">Hand: 0</p>
+                <!-- div for displaying hand -->
+                <div class="hand" id="hand-{{ current_user.id }}">
+                </div>
+            </div>
+        </div>
+
+        <div class="container player-box right-table" id="player-box">
+            {% for player in table.players %}
+                {% if player != current_user.id %}
+                    <div class="player" id="player-{{ player }}">
+                        <h2>Player {{ player }}</h2>
+                        <p>Balance: {{ player.balance }}</p>
+                        <p>Bet: {{ player.bet }}</p>
+                        <p id="value-elm-{{ player }}">Hand: 0</p>
+                        <!-- div for displaying hand -->
+                        <div class="hand" id="hand-{{ player }}">
+                        </div>
+                    </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+    <button onclick="hit()" id="hit">
+        Hit
+    </button>
+    <button onclick="stand()" id="hit">
+        Stand
+    </button>
+
+    <div style="color: white;" id="outcome">
+
+    </div>
+
+    <div class="container chat-box" id="chat-box-{{ table.table_id }}">
+        <div class="chat-form">
+            <input type="text" id="chat-text" class="input-basic" placeholder="Send message">
+            <button id="penis" onclick=sendChat(this) class="basic-button primary">Submit</button>
+        </div>
+
+        <div class="chat-message-container">
+
+        </div>
+    </div>
+    <script src="{{ url_for('static', filename='js/chat.js')}}"></script>
+    <div id="end-game-modal" class="modal" style="display:none">
+        <div class="modal-content">
+            <div id="end-game-header">
+                <h2 id="end-game-header-text"></h2>
+                <span class="close" onclick="closeEndGameModal()">&times;</span>
+            </div>
+            <div id="end-game-text">
+
+            </div>
+        </div>
+    </div>
+</body>
+<script defer src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="{{ url_for('static', filename='js/table.js') }}"></script>
+<script>
+        const socket = io();
+</script>
+</html>

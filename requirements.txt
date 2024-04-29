@@ -1,0 +1,13 @@
+Flask
+Flask-Login
+Flask-SocketIO
+Eventlet
+Gevent
+Werkzeug
+MongoEngine
+bcrypt
+pymongo
+Flask-PyMongo
+jinja2
+Flask-Cors
+python-magic

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/settings.css') }}">
+    <style>
+        .dark-mode {
+            background-color: #333;
+            color: white;
+        }
+    </style>
+    <script src="{{ url_for('static', filename='js/settings.js')}}"></script>
+</head>
+<body>
+    <script>
+        function getUsername() {
+            return "{{ current_user.id }}"
+        }
+    </script>
+<header>
+    <nav>
+        <a href="/" id="home-link">Blackjack</a>
+        <div class="buttons">
+            {% if current_user.is_authenticated %}
+            <button id="exit">Welcome, {{ current_user.id }}</button>
+            <button id="logout" onclick="logout()">LOGOUT</button>
+            {% else %}
+            <button id="login" onclick="openLoginModal()">LOGIN</button>
+            <button id="register" onclick="openRegisterModal()">REGISTER</button>
+            {% endif %}
+        </div>
+
+        <!-- </div> -->
+    </nav>
+</header>
+
+<div class="card">
+
+    <h1>Settings</h1>
+    <button id="change-background-btn">Select Background Color</button>
+    <select id="color-select" hidden>
+        <option value="red">Red</option>
+        <option value="#00FF00">Green</option>
+        <option value="rgb(0, 0, 255)">Black</option>
+        <!-- Add more color options as needed -->
+    </select>
+    <div id="music-player" >
+        <audio id="audio-player" src="/static/music/Morning-Routine-Lofi-Study-Music(chosic.com).mp3" preload="auto" controls autoplay></audio>
+    </div>
+    <button id="home" onclick="redirectToHome()">HOME</button>
+</div>
+
+<script src="{{ url_for('static', filename='js/settings.js')}}"></script>
+</body>
+</html>

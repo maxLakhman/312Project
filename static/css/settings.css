@@ -1,0 +1,70 @@
+body, html {
+    height: 100%;
+    margin: 0;
+    background-color: black;
+    font-family: Arial, sans-serif; /* Using a standard font */
+    color: black
+}
+
+header nav {
+    background-color: black;
+    padding: 1px 10%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+header nav a#home-link {
+    color: #EEBD22; /* Set color of the link to golden */
+    text-decoration: none; /* Remove default underline */
+    font-size: 20px; /* Adjust font size */
+    font-weight: bold; /* Make the font bold */
+}
+
+header nav a#home-link:hover {
+    color: #FFD700; /* Change color on hover for better feedback */
+}
+
+h1 {
+    font-size: 48px;
+    margin: 0;
+    font-weight: bold;
+    color: orange;
+}
+
+.card {
+  box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+  transition: 0.3s;
+  border-radius: 5px; /* Adds rounded corners */
+  padding: 20px;
+  margin: 10px 0; /* Space above and below the card */
+  background-color: black; /* Card background color */
+  width: 40%; /* Set the width of the card */
+  height: 50%;
+  text-align: center;
+      position: relative;
+      top: 50%;
+      left:50%;
+      transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column; /* Arrange children in a column */
+  justify-content: space-between; /* Space items evenly along the main axis */
+  border-radius: 10px;
+}
+
+button {
+  border: 2px solid #EEBD22;
+      border-radius: 10px;
+      background-color: #B91D2D;
+      color: white;
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+}
+
+
+#playbtn {
+    display: inline-block;
+}
+
