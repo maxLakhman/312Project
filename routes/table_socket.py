@@ -28,7 +28,7 @@ def init_game(data):
     
     # Making game for first time
     table_collection.update_one({"table_id": table_id}, {"$set": {"started": "In progress..."}})
-    time_out = 10
+    time_out = 60
     player_ready = table_collection.find_one({"table_id": table_id},{"_id":0,"player_ready":1})["player_ready"]
     while time_out > 0 and not player_ready:
         player_ready = table_collection.find_one({"table_id": table_id},{"_id":0,"player_ready":1})["player_ready"]

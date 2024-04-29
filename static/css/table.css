@@ -82,3 +82,14 @@
 .right-table {
     background-color: red;
 }
+
+#start_now_btn {
+    border: 2px solid #EEBD22;
+    border-radius: 10px;
+    background-color: #35654d;
+    color: white;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
