@@ -86,6 +86,9 @@
                 <div id="login_error" style="color: red;"></div>
                 <div id="login_success" style="color: green;"></div>
             </form>
+            <div>
+                <a id="register-in-login" style="color: blue; text-decoration: underline; cursor: pointer; margin-top: 8px;">Create an account</a>
+            </div>
         </div>
     </div>
 
@@ -101,16 +104,20 @@
                 <input type="password" id="register_password" class="input-basic" placeholder="Password" required>
                 <input type="password" id="register_password_confirm" class="input-basic"
                     placeholder="Re-enter Password" required>
+                <input type="submit" id="register_submit" class="basic-button primary" value="Submit">
                 <!-- Error Message -->
                 <div id="register_error" style="color: red;"></div>
                 <div id="register_success" style="color: green;"></div>
-                <input type="submit" id="register_submit" class="basic-button primary" value="Submit">
             </form>
+            <div>
+                <a id="loginLink">Have an account? <span style="color: blue; text-decoration: underline; cursor: pointer; margin-top: 8px;" id="login-in-register">Login</span></a>
+            </div>
         </div>
     </div>
     
     <div class = "container" id = "both-boxes">
         <div class="container chat-box" id="chat-box-001">
+            <h1 style="color: white; margin: 0;">Chat Room 1</h1>
             <div class="chat-form">
                 <input type="text" id="chat-text" class="input-basic" placeholder="Send message">
                 <button onclick="sendChat(this)" class="basic-button primary">Submit</button>
@@ -122,6 +129,7 @@
         </div>
 
         <div class="container chat-box" id="chat-box-002">
+            <h1 style="color: white; margin: 0;">Chat Room 2</h1>
             <div class="chat-form">
                 <input type="text" id="chat-text" class="input-basic" placeholder="Send message">
                 <button onclick="sendChat(this)" class="basic-button primary">Submit</button>

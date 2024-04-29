@@ -12,7 +12,22 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Lobby Redirect (brings up the interactive blackjack tables)
     play_button.addEventListener("click", function (event) {
-        window.location.href = "/lobby";
+        console.log(getUsername());
+        if(getUsername() != "") {
+            window.location.href = "/lobby";
+        } else {
+            openRegisterModal();
+        }
+    });
+
+    document.getElementById("login-in-register").addEventListener("click", function() {
+        closeRegisterModal();
+        openLoginModal();
+    });
+
+    document.getElementById("register-in-login").addEventListener("click", function() {
+        closeLoginModal();
+        openRegisterModal();
     });
 
     // Login Submit Button
