@@ -5,12 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Settings</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/settings.css') }}">
-    <style>
-        .dark-mode {
-            background-color: #333;
-            color: white;
-        }
-    </style>
     <script src="{{ url_for('static', filename='js/settings.js')}}"></script>
 </head>
 <body>
@@ -37,21 +31,31 @@
 </header>
 
 <div class="card">
-
     <h1>Settings</h1>
-    <button id="change-background-btn">Select Background Color</button>
-    <select id="color-select" hidden>
-        <option value="red">Red</option>
-        <option value="#00FF00">Green</option>
-        <option value="rgb(0, 0, 255)">Black</option>
-        <!-- Add more color options as needed -->
-    </select>
-    <div id="music-player" >
-        <audio id="audio-player" src="/static/music/Morning-Routine-Lofi-Study-Music(chosic.com).mp3" preload="auto" controls autoplay></audio>
+    <button id="open-model-btn" class="card-btns">Select Background Style</button>
+    <div id="myModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="close">&times;</span>
+                <h2>Select your theme</h2>
+            </div>
+            <div class="radiobtns">
+                <input type="radio" id="dark" name="capital" value="Dark">
+                <label for="dark">Dark</label>
+            </div>
+            <div class="radiobtns">
+                <input type="radio" id="light" name="capital" value="Light">
+                <label for="light">Light</label>
+            </div>
+        </div>
     </div>
-    <button id="home" onclick="redirectToHome()">HOME</button>
+    <div id="music-player" >
+        <audio id="audio-player" src="/static/music/Morning-Routine-Lofi-Study-Music(chosic.com).mp3" preload="auto" controls></audio>
+    </div>
+    <button id="home" onclick="redirectToHome()" class="card-btns">HOME</button>
 </div>
 
 <script src="{{ url_for('static', filename='js/settings.js')}}"></script>
+<script src="{{ url_for('static', filename='js/backgroundcolor.js')}}"></script>
 </body>
 </html>
