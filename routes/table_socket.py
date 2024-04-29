@@ -5,87 +5,155 @@ from app import socketio
 from pymongo import MongoClient
 from bson.json_util import dumps
 from routes.auth import user_collection
+from routes.table import table_collection
 import random
 
+# If player folds/disconnects from table session I add this to end of username in table
+suffix = ".)G&*9q2ih}kc$RKiCN*e3#v]);Gp=[_pXd!FcjLY@;7cx]$8N"
 
-@socketio.on('first_hand')
-def handle_first_hand():
-    if not current_user.is_authenticated:
-        disconnect()
+@socketio.on("init_game")
+def init_game(data):
+    table_id = data["table_id"]
+    table = table_collection.find_one({"table_id": table_id})
 
-    mongo = MongoClient("db")
-    db = mongo["BlackJack"]
-    user_collection = db["user"]
-    table_collection = db["tables"]
-
-    # find the current user in the database
-    username = current_user.id
-    user = user_collection.find_one({"username": username})
-    print(user)
-
-    # find the table id
-    table = user.get("table")
-    print(table)
-    table_info = table_collection.find_one({"table_id": table})
-
-    # give the newly joined user their hand
-    deck = table_info.get("deck")
+    # Joining game that already started
+    if table.get("started") == True:
+        emit("error", {"message": "Game already started.", "table_id": table_id})
+        return
     
-    # shuffle the deck and randomly select 2 cards for the user
-    random.shuffle(deck)
-    hand = deck[:2]
-    deck = deck[2:]
+    # Joining game that's in init phase
+    elif table.get("started") == "In progress...":
+        emit("init_players", {"message": "Welcome", "table_id": table_id})
+        return
+    
+    # Making game for first time
+    table_collection.update_one({"table_id": table_id}, {"$set": {"started": "In progress..."}})
+    time_out = 10
+    while time_out > 0:
+        emit("init_players", {"table_id": table_id , "message": f"Waiting {time_out} seconds for players to join."}, broadcast=True)
+        socketio.sleep(1)
+        time_out -= 1
 
-    # also generate a hand for the dealer
+    time_out = 0
+
+    table_collection.update_one({"table_id": table_id}, {"$set": {"started": True}})
+    emit("init_players", {"message": "Game starting...", "table_id": table_id}, broadcast=True)
+    socketio.sleep(2)
+
+
+    start_game(table_id)
+
+# @socketio.on("start_game")
+def start_game(table_id):
+    
+    table = table_collection.find_one({"table_id": table_id})
+    player_list = table.get("players")
+    deck = table.get("deck")
+
+    # Shuffle Deck
+    random.shuffle(deck)
+
+    # Dealer
     dealer_hand = deck[:2]
     deck = deck[2:]
+    update_dealer_hand(table_id, dealer_hand)
+    update_deck(table_id, deck)
+    emit("update_hand", {"dealer_hand": dealer_hand, "table_id": table_id}, broadcast=True)
     
+    # Giving everyone there their first hand
+    for player in player_list:
+        player_hand = deck[:2]
+        deck = deck[2:]
+        update_player_hand(player, player_hand)
+        update_deck(table_id, deck)
+        emit("update_hand", {"player_hand": player_hand, "username": player, "table_id": table_id}, broadcast=True)
 
-    # update the user's hand in the database
-    user_collection.update_one(
-        {"username": username},
-        {"$set": {"hand": hand}}
-    )
+    # First player
+    current_player = table["players"][0]
+    table_collection.update_one({"table_id": table_id}, {"$set": {"current_player": current_player}})
+    user_collection.update_one({"username": current_player}, {"$set": {"has_moved": False}})
+    
+    # Game Loop Start
+    game_over = table.get("game_over")
+    while not game_over:
+        current_player = table_collection.find_one({"table_id": table_id},{"_id":0, "current_player": 1})["current_player"]
+        
+        timer = 30
+        while not game_over and timer > 0 and not user_collection.find_one({"username": current_player},{"_id":0, "has_moved": 1})["has_moved"]:
+            check_if_game_over(table_id)
+        
+            emit("current_player", {"username": current_player, "table_id": table_id, "time": timer}, broadcast=True)
+            socketio.sleep(1)
+            timer -= 1
+        
+        check_if_game_over(table_id)
+        
+        if not user_collection.find_one({"username": current_player},{"_id":0,"has_moved": 1})["has_moved"]:
+            emit("current_player", {"username": current_player, "table_id": table_id, "time": 0}, broadcast=True)
+            handle_fold_back(current_player, table_id)
+            socketio.sleep(1)
+        
+        check_if_game_over(table_id)
 
-    # update the table's deck in the database
-    table_collection.update_one(
-        {"table_id": table},
-        {"$set": {"deck": deck}}
-    )
+        game_over = table_collection.find_one({"table_id": table_id}).get("game_over")
+        if game_over:
+            table_collection.delete_one({"table_id":table_id})
+            break
 
-    # update the dealer hand
-    table_collection.update_one(
-        {"table_id": table},
-        {"$set": {"dealer_hand": dealer_hand}}
-    )
+        next_turn(table_id)
+    if game_over:
+        socketio.sleep(2)
 
-    # emit the user's hand to the user and their username
-    emit('hand', {'hand': hand, 'dealer_hand': dealer_hand, 'username': username}, broadcast=True)
+        # Do something
+        print(" hello there")
 
 
+@socketio.on("fold")
+def handle_fold_front(data):
+    if not current_user.is_authenticated:
+        disconnect()
 
+    table_id = data["table_id"]
 
-@socketio.on('hit')
-def handle_deal_card():
+    current_player = table_collection.find_one({"table_id": table_id},{"_id": 0, "current_player": 1})
+
+    if "current_player" not in current_player:
+        return
+    current_player = current_player["current_player"]
+    
+    if current_user.id == current_player:
+        handle_fold_back(current_player, table_id)
+    else:
+        return
+
+def handle_fold_back(player, table_id):
+    player_index = get_player_index(table_id, player)
+    new_username = player + suffix
+    table_collection.update_one({"table_id": table_id}, {"$set": {f"players.{player_index}": new_username}})
+
+    user_collection.update_one({"username": player}, {"$set": {"hand": [], "has_moved": True}})
+    
+    emit("update_hand", {"player_hand": [], "username": player, "table_id": table_id}, broadcast=True)
+
+@socketio.on("hit")
+def handle_hit(data):
 
     if not current_user.is_authenticated:
         disconnect()
 
-    mongo = MongoClient("db")
-    db = mongo["BlackJack"]
-    user_collection = db["user"]
-    table_collection = db["tables"]
+    table_id = data["table_id"]
+    current_player = table_collection.find_one({"table_id": table_id},{"_id": 0, "current_player": 1})
 
-    # find the current user in the database
-    username = current_user.id
-    user = user_collection.find_one({"username": username})
-    print(user)
+    if "current_player" not in current_player:
+        return
+    current_player = current_player["current_player"]
+    if current_player != current_user.id:
+        return
     
+    user = user_collection.find_one({"username": current_player})
+
     # find the table id
-    table = user.get("table")
-    print(table)
-    table_info = table_collection.find_one({"table_id": table})
-    print(table_info)
+    table_info = table_collection.find_one({"table_id": table_id})
 
     # add a new card to the user's hand
     hand = user.get("hand")
@@ -96,28 +164,112 @@ def handle_deal_card():
     hand.append(new_card)
 
     # update the user's hand in the database
-    user_collection.update_one(
-        {"username": username},
-        {"$set": {"hand": hand}}
-    )
+    update_player_hand(current_player, hand)
 
     # update the table's deck in the database
-    table_collection.update_one(
-        {"table_id": table},
-        {"$set": {"deck": deck}}
-    )
+    update_deck(table_id, deck)
+
+    user_collection.update_one({"username": current_player}, {"$set": {"has_moved": True}})
+
 
     # emit the new card to the user
-    emit('hand', {'hand': hand, 'username': username}, broadcast=True)
+    emit("update_hand", {"player_hand": hand, "username": current_player, "table_id": table_id}, broadcast=True)
 
+@socketio.on("stand")
+def handle_stand(data):
+    if not current_user.is_authenticated:
+        disconnect()
+    
+    table_id = data["table_id"]
+    
+    current_player = table_collection.find_one({"table_id": table_id},{"_id": 0, "current_player": 1})
 
+    if "current_player" not in current_player:
+        return
+    current_player = current_player["current_player"]
+    if current_player != current_user.id:
+        return
+    
+    user_collection.update_one({"username": current_player}, {"$set": {"has_moved": True}})
 
-
-
-
-
-@socketio.on('stand')
-def handle_play_card(data):
     pass
 
+def next_turn(table_id):
+    table = table_collection.find_one({"table_id": table_id})
+    player_list = table["players"]
 
+    try:
+        current_player_index = player_list.index(table["current_player"])
+    except ValueError:
+        current_player_index = player_list.index(table["current_player"] + suffix)
+
+
+    next_player = player_list[(current_player_index + 1) % len(player_list)]
+    
+    # If one or more players disconnected/folded
+    max_players = 5
+    while next_player.endswith(suffix):
+        current_player_index += 1
+        next_player = player_list[(current_player_index + 1) % len(player_list)]
+
+        max_players -= 1
+        # If all players disconnected/folded
+        if max_players < 0:
+            table_collection.update_one({"table_id": table_id}, {"$set": {"game_over": True}})
+            break
+
+
+
+    table_collection.update_one({"table_id": table_id}, {"$set": {"current_player": next_player}})
+    user_collection.update_one({"username": next_player}, {"$set": {"has_moved": False}})
+
+    emit("next_turn", {"username": next_player, "table_id": table_id}, broadcast=True)
+
+
+def update_deck(table_id, deck):
+    table_collection.update_one({"table_id": table_id}, {"$set": {"deck": deck}})
+
+def update_dealer_hand(table_id, hand):
+    table_collection.update_one({"table_id": table_id}, {"$set": {"dealer_hand": hand}})
+
+def update_player_hand(username, hand):
+    user_collection.update_one({"username": username}, {"$set": {"hand": hand}})
+
+def get_player_index(table_id, player):
+    table_players = table_collection.find_one({"table_id": table_id}, {"_id": 0, "players": 1})
+    player_index = table_players["players"].index(player)
+    return player_index
+
+def check_if_game_over(table_id):
+    player_list = table_collection.find_one({"table_id": table_id}, {"_id": 0, "players": 1})["players"]
+
+    disconnected_players = 0
+    for player in player_list:
+        if player.endwith(suffix):
+            disconnected_players += 1
+
+    if disconnected_players == len(player_list):
+        table_collection.update_one({"table_id": table_id}, {"$set": {"game_over": True}})
+
+
+
+@socketio.on("disconnect")
+def handle_disconnect():
+    if current_user.id:
+        
+        table_id = user_collection.find_one({"username": current_user.id}, {"_id": 0, "table": 1})
+
+        # If table exists
+        if table_collection.find_one({"table_id": table_id},):
+            players = table_collection.find_one({"table:id": table_id}, {"_id": 0, "players": 1})
+            current_player = table_collection.find_one({"table:id": table_id}, {"_id": 0, "current_player": 1})
+            if current_user.id == current_user:
+                user_collection.update_one({"username": current_user.id}, {"$set": {"hand": None, "has_moved": True}})
+
+        #     # If user is part of the table:
+            if current_user.id in players:
+                new_username = current_user.id + suffix
+                player_index = get_player_index(table_id, current_user.id)
+                table_collection.update_one({"table_id": table_id}, {"$set": {f"players.{player_index}": new_username}})
+
+        user_collection.update_one({"username": current_user.id}, {"$set": {"table": None, "hand": None, "has_moved": None}})

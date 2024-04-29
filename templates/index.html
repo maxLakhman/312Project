@@ -61,7 +61,12 @@
                 <button id="profile_pic_submit" type="submit" class="basic-button primary">Upload</button>
             </form>
             Image Preview:
-            <img id="profile-pic-preview" src="./{{current_user.profile_pic}}" width="300" height="300">
+            {% if current_user.is_authenticated %}
+            <img id="profile-pic-preview" src="../{{current_user.profile_pic}}" width="300" height="300">
+            {% else %}
+            <img id="profile-pic-preview" src="../static/images/profiles/default" width="300" height="300">
+            {% endif %}
+            <div id="upload-error-msg" style="color: red;"></div>
         </div>
     </div>
 
@@ -163,5 +168,3 @@
 </body>
 
 </html>
-
-

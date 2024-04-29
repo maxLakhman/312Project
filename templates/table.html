@@ -6,6 +6,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/table.css') }}">
 </head>
 <body>
+    <div id="table_id" data-id="{{ table.table_id }}" style="display: none;"></div>
     <script>
         function getUsername() {
             return "{{ current_user.id }}"
@@ -13,33 +14,56 @@
     </script>
     
     <h1>Blackjack Table Room</h1>
-
+    <div id="game_starting">
+        
+    </div>
     <div id="table">
     </div>
 
-    <div class="dealer-box" id="dealer">
-        <!-- dealer box -->
-        <h2> Dealer </h2>
-        <div class="hand" id="dealer-hand">
-        </div>
-    </div>
+    <div class="display-table">
+        <div class="table-left">
+            <div class="dealer-box" id="dealer">
+                <!-- dealer box -->
+                <h2> Dealer </h2>
+                <div class="hand" id="dealer-hand">
+                </div>
+            </div>
 
-    <div class="container player-box" id="player-box">
-        {% for player in table.players %}
-        <div class="player" id="player-{{ player }}">
-            <h2>Player {{ player }}</h2>
-            <p>Balance: 0</p>
-            <p>Bet: 0</p>
-            <p>Hand: 0</p>
-            <!-- div for displaying hand -->
-            <div class="hand" id="hand-{{ player }}">
+            <div class="player current-player" id="player-{{ current_user.id }}">
+                <h2>Player {{ current_user.id }}</h2>
+                <p>Balance: 0</p>
+                <p>Bet: 0</p>
+                <p>Hand: 0</p>
+                <!-- div for displaying hand -->
+                <div class="hand" id="hand-{{ current_user.id }}">
+                </div>
             </div>
         </div>
-        {% endfor %}
 
+        <div class="container player-box right-table" id="player-box">
+            {% for player in table.players %}
+                {% if player != current_user.id %}
+                    <div class="player" id="player-{{ player }}">
+                        <h2>Player {{ player }}</h2>
+                        <p>Balance: 0</p>
+                        <p>Bet: 0</p>
+                        <p>Hand: 0</p>
+                        <!-- div for displaying hand -->
+                        <div class="hand" id="hand-{{ player }}">
+                        </div>
+                    </div>
+                {% endif %}
+            {% endfor %}
+        </div>
     </div>
     <button onclick="hit()" id="hit">
         Hit
+    </button>
+    <button onclick="stand()" id="hit">
+        Stand
+    </button>
+    <button onclick="fold()" id="hit">
+        Fold
     </button>
     <div class="container chat-box" id="chat-box-{{ table.table_id }}">
         <div class="chat-form">

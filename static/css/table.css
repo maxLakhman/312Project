@@ -66,3 +66,19 @@
 .chat-form {
     display: flex;
 }
+
+.display-table {
+    display: flex;
+}
+
+.dealer-box {
+    background-color: purple;
+}
+
+.current-player {
+    background-color: green;
+}
+
+.right-table {
+    background-color: red;
+}

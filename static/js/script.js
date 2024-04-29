@@ -94,14 +94,38 @@ document.addEventListener("DOMContentLoaded", function () {
         var request = new XMLHttpRequest();
         request.open("POST", "/profile-pic");
         request.onreadystatechange = function() {
-            if (request.readyState === 4 && request.status === 200) {
-                const response = JSON.parse(this.responseText);
-                console.log(response);
-                if (response['status'] === "success"){
-                    document.getElementById("profile-pic-preview").src = "./"+ response["filepath"];
-                    document.getElementById("user-profile-pic").src ="./"+ response["filepath"];
+            if (request.readyState === 4){
+                // Worked
+                let error_text = document.getElementById("upload-error-msg");
+                if(request.status === 200){
+                    const response = JSON.parse(this.responseText);
+                    console.log(response);
+                    if (response['status'] === "success"){
+                        document.getElementById("upload-error-msg").innerText = '';
+                        document.getElementById("profile-pic-preview").src = "./"+ response["filepath"];
+                        document.getElementById("user-profile-pic").src ="./"+ response["filepath"];
+                    }
                 }
+                // Bad file type
+                else if(request.status === 400){
+                    json_response = JSON.parse(this.response);
+                    error_text.innerText = json_response.message;
+                }
+                // Image too large
+                else if (request.status === 413){
+                    error_text.innerText = "Image size must be less than 1MB."
+                }
+
             }
+            // if (request.readyState === 4 && request.status === 200) {
+                // const response = JSON.parse(this.responseText);
+                // console.log(response);
+                // if (response['status'] === "success"){
+                //     document.getElementById("profile-pic-preview").src = "./"+ response["filepath"];
+                //     document.getElementById("user-profile-pic").src ="./"+ response["filepath"];
+                // }
+            // }
+            
         };
         request.send(formData); // Send the FormData object
     });
@@ -138,6 +162,7 @@ function openUploadModal() {
 }
 
 function closeUploadModal() {
+    document.getElementById("upload-error-msg").innerText = '';
     document.getElementById("update-profile-pic-modal").style.display = "none";
     document.body.classList.remove('disable-scroll');
 }

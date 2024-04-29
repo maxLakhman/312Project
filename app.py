@@ -12,6 +12,7 @@ from routes.auth import user_collection
 app = Flask(__name__)
 CORS(app)
 app.config["SECRET_KEY"] = "secret_key"
+app.config["MAX_CONTENT_LENGTH"] = 15 * 1024 * 1024
 socketio = SocketIO(app, cors_allowed_origins="*")
 
 from routes import table_socket
@@ -28,15 +29,12 @@ app.register_blueprint(auth_blueprint)
 app.register_blueprint(chat_blueprint)
 app.register_blueprint(lobby_blueprint)
 app.register_blueprint(table_blueprint)
-# # Websocket Connections
+
+# # # Websocket Connections
 # @socketio.on("connect")
 # def handle_connect():
-#     print("Connection Successful")
 
 
-# @socketio.on("disconnect")
-# def handle_disconnect():
-#     print("Disconnection Successful")
 
 
 # Sets pfp for current_user
