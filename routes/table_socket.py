@@ -29,7 +29,6 @@ def init_game(data):
     # Making game for first time
     table_collection.update_one({"table_id": table_id}, {"$set": {"started": "In progress..."}})
     time_out = 10
-
     player_ready = table_collection.find_one({"table_id": table_id},{"_id":0,"player_ready":1})["player_ready"]
     while time_out > 0 and not player_ready:
         player_ready = table_collection.find_one({"table_id": table_id},{"_id":0,"player_ready":1})["player_ready"]
@@ -259,8 +258,6 @@ def next_turn(table_id):
         if max_players < 0:
             table_collection.update_one({"table_id": table_id}, {"$set": {"game_over": True}})
             break
-
-
 
     table_collection.update_one({"table_id": table_id}, {"$set": {"current_player": next_player}})
     user_collection.update_one({"username": next_player}, {"$set": {"has_moved": False}})

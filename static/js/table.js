@@ -76,7 +76,6 @@ socket.on('init_players', function(data){
     }
 });
 
-
 socket.on('current_player', function(data){
     if(data.table_id == document.getElementById("table_id").getAttribute("data-id")) {
         let username = data.username;
