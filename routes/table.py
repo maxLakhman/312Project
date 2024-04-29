@@ -108,7 +108,7 @@ def join_table(table_id):
 
     table_collection.update_one(
         {"table_id": table_id},
-        {"$push": {"players": username}}
+        {"$push": {"players": username, "bet": 0}}
     )
 
     table = table_collection.find_one({"table_id": table_id})

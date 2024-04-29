@@ -74,6 +74,17 @@ socket.on('current_player', function(data){
     }
 });
 
+function increaseBet(){
+    let table_id = document.getElementById("table_id").getAttribute("data-id");
+    socket.emit('increase_bet', {"table_id":table_id});
+}
+
+function decreaseBet(){
+    let table_id = document.getElementById("table_id").getAttribute("data-id");
+    socket.emit('decrease_bet', {"table_id":table_id});
+
+}
+
 function hit(){
     let table_id = document.getElementById("table_id").getAttribute("data-id");
     socket.emit('hit', {"table_id":table_id});

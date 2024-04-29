@@ -108,6 +108,29 @@ def start_game(table_id):
         print(" hello there")
 
 
+# money stuff
+@socketio.on("increase_bet")
+def handle_increase_bet(data):
+    if not current_user.is_authenticated:
+        disconnect()
+
+    table_id = data["table_id"]
+    
+    user = user_collection.find_one({"username": current_user.id})
+    table = table_collection.find_one({"table_id": table_id})
+
+    balance = user.get("balance")
+    bet = user.get("bet")
+
+    if balance > bet + 1:
+        bet += 1
+        balance -= 1
+        user_collection.update_one({"username": current_user.id}, {"$set": {"bet": bet, "balance": balance}})
+        table_collection.update_one({"table_id": table_id}, {"$set": {f"players.{get_player_index(table_id, current_user.id)}.bet": bet}})
+
+    
+
+
 @socketio.on("fold")
 def handle_fold_front(data):
     if not current_user.is_authenticated:

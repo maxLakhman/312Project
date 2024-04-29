@@ -31,9 +31,10 @@
 
             <div class="player current-player" id="player-{{ current_user.id }}">
                 <h2>Player {{ current_user.id }}</h2>
-                <p>Balance: 0</p>
-                <p>Bet: 0</p>
-                <p>Hand: 0</p>
+                <p>Balance: {{ current_user.balance }}</p>
+                <button onClick="increaseBet()">+</button>
+                <p id="bet">Bet: {{ current_user.bet }}</p>
+                <button onClick="decreaseBet()">-</button>
                 <!-- div for displaying hand -->
                 <div class="hand" id="hand-{{ current_user.id }}">
                 </div>
@@ -45,9 +46,8 @@
                 {% if player != current_user.id %}
                     <div class="player" id="player-{{ player }}">
                         <h2>Player {{ player }}</h2>
-                        <p>Balance: 0</p>
-                        <p>Bet: 0</p>
-                        <p>Hand: 0</p>
+                        <p>Balance: {{ player.balance }}</p>
+                        <p>Bet: {{ player.bet }}</p>
                         <!-- div for displaying hand -->
                         <div class="hand" id="hand-{{ player }}">
                         </div>
