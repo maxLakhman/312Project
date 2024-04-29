@@ -83,6 +83,14 @@ function createUserElement(username) {
     players_container.appendChild(player);
 }
 
+socket.on('game_over', function(data){
+    if(data.table_id == document.getElementById("table_id").getAttribute("data-id")) {
+        let container = document.getElementById("outcome");
+        console.log(data.outcome);
+        container.innerText = JSON.stringify(data.outcome);
+    }
+});
+
 socket.on('init_players', function(data){
     if(data.table_id == document.getElementById("table_id").getAttribute("data-id")) {
         let game_starting = document.getElementById("game_starting");
@@ -173,7 +181,12 @@ function display_hand(data){
         var dealer_id = 'dealer-hand';
         var dealer_hand_elem = document.getElementById(dealer_id);
         dealer_hand_elem.innerHTML = '';
-        for (var i = 0; i < dealer_hand.length; i++){
+        console.log("here 1st");
+        console.log((dealer_hand.length == 2 && data.is_end == false) ? 1 : dealer_hand.length);
+
+        let loopLength = (dealer_hand.length == 2 && data.is_end == false) ? 1 : dealer_hand.length;
+
+        for (var i = 0; i < loopLength; i++){
             var img = document.createElement('img');
             img.src = '/static/images/cards2/' + dealer_hand[i] + '.png';
             img.className = 'card';
@@ -182,6 +195,17 @@ function display_hand(data){
             img.style.height = 'auto';
             dealer_hand_elem.appendChild(img);
         }
+
+        if (dealer_hand.length == 2 && data.is_end == false) {
+            var img = document.createElement('img');
+            img.src = '/static/images/cards2/back.png';
+            img.className = 'card';
+            img.alt = dealer_hand[i];
+            img.style.width = '100px';
+            img.style.height = 'auto';
+            dealer_hand_elem.appendChild(img);
+        }
+
         dealer_hand_elem.style.display = 'flex';
         dealer_hand_elem.style.flexDirection = 'row';
     }
@@ -207,8 +231,6 @@ function display_hand(data){
         }
     
     }
-    hand.style.display = 'flex';
-    hand.style.flexDirection = 'row';
     
 }
 

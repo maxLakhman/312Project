@@ -83,6 +83,11 @@
     background-color: red;
 }
 
+.hand {
+    display: flex;
+    flex-direction: row;
+}
+
 #start_now_btn {
     border: 2px solid #EEBD22;
     border-radius: 10px;
