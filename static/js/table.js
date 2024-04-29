@@ -103,6 +103,26 @@ function decreaseBet(){
     socket.emit('decrease_bet', {"table_id":table_id});
 }
 
+socket.on('update_bet', function(data){
+    console.log(data);
+    console.log(users);
+
+
+    let username = data.username;
+    let bet = data.bet;
+    let balance = data.balance;
+
+    let user_div = document.getElementById("player-" + username);
+
+    let bet_elem = user_div.getElementsByTagName("p")[1];
+    bet_elem.innerText = `Bet: ${bet}`;
+    
+    let balance_elem = user_div.getElementsByTagName("p")[0];
+    balance_elem.innerText = `Balance: ${balance}`;
+    
+    
+});
+
 function hit(){
     let table_id = document.getElementById("table_id").getAttribute("data-id");
     socket.emit('hit', {"table_id":table_id});
