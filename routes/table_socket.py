@@ -29,8 +29,10 @@ def init_game(data):
     # Making game for first time
     table_collection.update_one({"table_id": table_id}, {"$set": {"started": "In progress..."}})
     time_out = 10
-    while time_out > 0:
-        emit("init_players", {"table_id": table_id , "message": f"Waiting {time_out} seconds for players to join."}, broadcast=True)
+    player_ready = table_collection.find_one({"table_id": table_id},{"_id":0,"player_ready":1})["player_ready"]
+    while time_out > 0 and not player_ready:
+        player_ready = table_collection.find_one({"table_id": table_id},{"_id":0,"player_ready":1})["player_ready"]
+        emit("init_players", {"table_id": table_id , "message": f"Waiting {time_out} seconds for players to join or click button to start now."}, broadcast=True)
         socketio.sleep(1)
         time_out -= 1
 
@@ -241,8 +243,6 @@ def next_turn(table_id):
             table_collection.update_one({"table_id": table_id}, {"$set": {"game_over": True}})
             break
 
-
-
     table_collection.update_one({"table_id": table_id}, {"$set": {"current_player": next_player}})
     user_collection.update_one({"username": next_player}, {"$set": {"has_moved": False}})
 
@@ -302,3 +302,8 @@ def handle_disconnect():
         user_collection.update_one({"username": current_user.id}, {"$set": {"table": None, "hand": None, "has_moved": None}})
 
         emit("user_disconnected", {"username": current_user.id, "table_id": table_id}, broadcast=True)
+
+@socketio.on("player_ready")
+def handle_player_ready(data):
+    table_id = data["table_id"]
+    table_collection.update_one({"table_id":table_id},{"$set":{"player_ready":True}})
