@@ -135,6 +135,7 @@ def register() -> Dict[str, str]:
         record = {
             "username": username,
             "balance": 1000,
+            "bet": 0,
             "hash": password_hash,
             "salt": salt,
             "auth_token": token_hash,

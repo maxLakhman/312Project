@@ -125,7 +125,6 @@ def handle_increase_bet(data):
         bet += 1
         balance -= 1
         user_collection.update_one({"username": current_user.id}, {"$set": {"bet": bet, "balance": balance}})
-        table_collection.update_one({"table_id": table_id}, {"$set": {f"players.{get_player_index(table_id, current_user.id)}.bet": bet}})
 
         emit("update_bet", {"username": current_user.id, "balance": balance, "bet": bet, "table_id": table_id}, broadcast=True)
     
@@ -145,8 +144,7 @@ def handle_decrease_bet(data):
         bet -= 1
         balance += 1
         user_collection.update_one({"username": current_user.id}, {"$set": {"bet": bet, "balance": balance}})
-        table_collection.update_one({"table_id": table_id}, {"$set": {f"players.{get_player_index(table_id, current_user.id)}.bet": bet}})
-
+        
         emit("update_bet", {"username": current_user.id, "balance": balance, "bet": bet, "table_id": table_id}, broadcast=True)
 
 @socketio.on("fold")

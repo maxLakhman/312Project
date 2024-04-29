@@ -103,18 +103,22 @@ function decreaseBet(){
 }
 
 socket.on('update_bet', function(data){
-    if(data.table_id == document.getElementById("table_id").getAttribute("data-id")) {
-        for(let i = 0; i < users.length; i++){
-            let username = users[i];
-            if (username === data.username){
-                let player = document.getElementById("player-" + username);
-                let bet = player.getElementsByTagName("p")[1];
-                bet.innerText = "Bet: " + data.bet;
-                let balance = player.getElementsByTagName("p")[0];
-                balance.innerText = "Balance: " + data.balance;
-            }
-        }
-    }
+    console.log(data);
+    console.log(users);
+
+
+    let username = data.username;
+    let bet = data.bet;
+    let balance = data.balance;
+
+    let user_div = document.getElementById("player-" + username);
+
+    let bet_elem = user_div.getElementsByTagName("p")[1];
+    bet_elem.innerText = `Bet: ${bet}`;
+    
+    let balance_elem = user_div.getElementsByTagName("p")[0];
+    balance_elem.innerText = `Balance: ${balance}`;
+    
     
 });
 
