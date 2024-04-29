@@ -1,7 +1,9 @@
+users = [];
 
 // Onload init game
 window.onload = function() {
     init_game();
+    socket.emit('user_connect', {"username": getUsername()});
 };
 
 
@@ -9,6 +11,34 @@ window.onload = function() {
 function init_game(){
     let table_id = document.getElementById("table_id").getAttribute("data-id");
     socket.emit('init_game', {"table_id": table_id});
+}
+
+socket.on('user_connected', function(data){
+    let username = data.username;
+    let table_id = data.table_id;
+
+    if(table_id == document.getElementById("table_id").getAttribute("data-id")) {
+        if(!users.includes(username)) {
+            users.push(username);
+
+            createUserElement(username);
+        }
+
+    }
+});
+
+function createUserElement(username) {
+    /*
+        <div class="player" id="player-{{ player }}">
+                        <h2>Player {{ player }}</h2>
+                        <p>Balance: 0</p>
+                        <p>Bet: 0</p>
+                        <p>Hand: 0</p>
+                        <!-- div for displaying hand -->
+                        <div class="hand" id="hand-{{ player }}">
+                        </div>
+                    </div>
+    */
 }
 
 socket.on('init_players', function(data){

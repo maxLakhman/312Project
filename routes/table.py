@@ -5,6 +5,7 @@ from pymongo import MongoClient
 from bson.json_util import dumps
 from routes.auth import user_collection
 import hashlib
+from flask_login import current_user
 import uuid
 
 
@@ -116,8 +117,7 @@ def join_table(table_id):
     user_collection.update_one(
         {"username": username},
         {"$set": {"table": table_id}}
-    )
-
+    )   
     
     return render_template("table.html", table=table)
 

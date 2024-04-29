@@ -251,10 +251,14 @@ def check_if_game_over(table_id):
     if disconnected_players == len(player_list):
         table_collection.update_one({"table_id": table_id}, {"$set": {"game_over": True}})
 
-
+@socketio.on("user_connect")
+def handle_connect(data):
+    table_id = user_collection.find_one({"username": data["username"]}, {"_id": 0, "table": 1})
+    emit("user_connected", {"username": data["username"], "table_id": table_id}, broadcast=True)
 
 @socketio.on("disconnect")
 def handle_disconnect():
+    print("DISCONNECCCCCTEDDDDD")
     if current_user.id:
         
         table_id = user_collection.find_one({"username": current_user.id}, {"_id": 0, "table": 1})
@@ -273,3 +277,5 @@ def handle_disconnect():
                 table_collection.update_one({"table_id": table_id}, {"$set": {f"players.{player_index}": new_username}})
 
         user_collection.update_one({"username": current_user.id}, {"$set": {"table": None, "hand": None, "has_moved": None}})
+
+        emit("user_disconnected", {"username": current_user.id, "table_id": table_id}, broadcast=True)

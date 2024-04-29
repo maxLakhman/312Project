@@ -20,11 +20,9 @@ h2 {
 
 .table-gallery {
     display: grid;
-    max-width: 60%;
     max-height: 700px;
     margin: 20px auto;
     grid-template-columns: repeat(3, 1fr);
-    grid-template-rows: repeat(3, 1fr);
     gap: 20px;
     justify-items: center;
 }
