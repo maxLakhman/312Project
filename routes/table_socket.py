@@ -29,8 +29,10 @@ def init_game(data):
     # Making game for first time
     table_collection.update_one({"table_id": table_id}, {"$set": {"started": "In progress..."}})
     time_out = 10
-    while time_out > 0:
-        emit("init_players", {"table_id": table_id , "message": f"Waiting {time_out} seconds for players to join."}, broadcast=True)
+    player_ready = table_collection.find_one({"table_id": table_id},{"_id":0,"player_ready":1})["player_ready"]
+    while time_out > 0 and not player_ready:
+        player_ready = table_collection.find_one({"table_id": table_id},{"_id":0,"player_ready":1})["player_ready"]
+        emit("init_players", {"table_id": table_id , "message": f"Waiting {time_out} seconds for players to join or click button to start now."}, broadcast=True)
         socketio.sleep(1)
         time_out -= 1
 
@@ -147,7 +149,6 @@ def handle_increase_bet(data):
     table_id = data["table_id"]
     
     user = user_collection.find_one({"username": current_user.id})
-    table = table_collection.find_one({"table_id": table_id})
 
     balance = user.get("balance")
     bet = user.get("bet")
@@ -156,10 +157,27 @@ def handle_increase_bet(data):
         bet += 1
         balance -= 1
         user_collection.update_one({"username": current_user.id}, {"$set": {"bet": bet, "balance": balance}})
-        table_collection.update_one({"table_id": table_id}, {"$set": {f"players.{get_player_index(table_id, current_user.id)}.bet": bet}})
 
+        emit("update_bet", {"username": current_user.id, "balance": balance, "bet": bet, "table_id": table_id}, broadcast=True)
     
+@socketio.on("decrease_bet")
+def handle_decrease_bet(data):
+    if not current_user.is_authenticated:
+        disconnect()
 
+    table_id = data["table_id"]
+    
+    user = user_collection.find_one({"username": current_user.id})
+
+    balance = user.get("balance")
+    bet = user.get("bet")
+
+    if bet > 0:
+        bet -= 1
+        balance += 1
+        user_collection.update_one({"username": current_user.id}, {"$set": {"bet": bet, "balance": balance}})
+        
+        emit("update_bet", {"username": current_user.id, "balance": balance, "bet": bet, "table_id": table_id}, broadcast=True)
 
 @socketio.on("fold")
 def handle_fold_front(data):
@@ -341,6 +359,10 @@ def handle_disconnect():
 
         emit("user_disconnected", {"username": current_user.id, "table_id": table_id}, broadcast=True)
 
+@socketio.on("player_ready")
+def handle_player_ready(data):
+    table_id = data["table_id"]
+    table_collection.update_one({"table_id":table_id},{"$set":{"player_ready":True}})
 def calculateHand(hand):
     total_value = 0
     ace_count = 0

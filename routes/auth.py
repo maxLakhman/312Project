@@ -131,10 +131,10 @@ def register() -> Dict[str, str]:
 
         auth_token = secrets.token_urlsafe(256)
         token_hash = hashlib.sha256(auth_token.encode()).hexdigest()
-
         record = {
             "username": username,
             "balance": 1000,
+            "bet": 0,
             "hash": password_hash,
             "salt": salt,
             "auth_token": token_hash,

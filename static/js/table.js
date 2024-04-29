@@ -67,13 +67,14 @@ socket.on('init_players', function(data){
 
         if(data.message === "Game starting..."){
             setTimeout(function(){
+                player_ready_btn = document.getElementById("start_now_btn");
+                player_ready_btn.style.display = "none";
                 game_starting.innerText = "";
                 game_starting.style.display = "none";
             }, 2000);
         }
     }
 });
-
 
 socket.on('current_player', function(data){
     if(data.table_id == document.getElementById("table_id").getAttribute("data-id")) {
@@ -100,8 +101,27 @@ function increaseBet(){
 function decreaseBet(){
     let table_id = document.getElementById("table_id").getAttribute("data-id");
     socket.emit('decrease_bet', {"table_id":table_id});
-
 }
+
+socket.on('update_bet', function(data){
+    console.log(data);
+    console.log(users);
+
+
+    let username = data.username;
+    let bet = data.bet;
+    let balance = data.balance;
+
+    let user_div = document.getElementById("player-" + username);
+
+    let bet_elem = user_div.getElementsByTagName("p")[1];
+    bet_elem.innerText = `Bet: ${bet}`;
+    
+    let balance_elem = user_div.getElementsByTagName("p")[0];
+    balance_elem.innerText = `Balance: ${balance}`;
+    
+    
+});
 
 function hit(){
     let table_id = document.getElementById("table_id").getAttribute("data-id");
@@ -174,3 +194,8 @@ socket.on('update_hand', function(data){
         // creating the table
         display_hand(data);
 });
+
+function start_now(){
+    let table_id = document.getElementById("table_id").getAttribute("data-id");
+    socket.emit("player_ready", {"table_id":table_id});
+}
