@@ -100,8 +100,23 @@ function increaseBet(){
 function decreaseBet(){
     let table_id = document.getElementById("table_id").getAttribute("data-id");
     socket.emit('decrease_bet', {"table_id":table_id});
-
 }
+
+socket.on('update_bet', function(data){
+    if(data.table_id == document.getElementById("table_id").getAttribute("data-id")) {
+        for(let i = 0; i < users.length; i++){
+            let username = users[i];
+            if (username === data.username){
+                let player = document.getElementById("player-" + username);
+                let bet = player.getElementsByTagName("p")[1];
+                bet.innerText = "Bet: " + data.bet;
+                let balance = player.getElementsByTagName("p")[0];
+                balance.innerText = "Balance: " + data.balance;
+            }
+        }
+    }
+    
+});
 
 function hit(){
     let table_id = document.getElementById("table_id").getAttribute("data-id");

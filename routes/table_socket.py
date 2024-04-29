@@ -117,7 +117,6 @@ def handle_increase_bet(data):
     table_id = data["table_id"]
     
     user = user_collection.find_one({"username": current_user.id})
-    table = table_collection.find_one({"table_id": table_id})
 
     balance = user.get("balance")
     bet = user.get("bet")
@@ -128,8 +127,27 @@ def handle_increase_bet(data):
         user_collection.update_one({"username": current_user.id}, {"$set": {"bet": bet, "balance": balance}})
         table_collection.update_one({"table_id": table_id}, {"$set": {f"players.{get_player_index(table_id, current_user.id)}.bet": bet}})
 
+        emit("update_bet", {"username": current_user.id, "balance": balance, "bet": bet, "table_id": table_id}, broadcast=True)
     
+@socketio.on("decrease_bet")
+def handle_decrease_bet(data):
+    if not current_user.is_authenticated:
+        disconnect()
 
+    table_id = data["table_id"]
+    
+    user = user_collection.find_one({"username": current_user.id})
+
+    balance = user.get("balance")
+    bet = user.get("bet")
+
+    if bet > 0:
+        bet -= 1
+        balance += 1
+        user_collection.update_one({"username": current_user.id}, {"$set": {"bet": bet, "balance": balance}})
+        table_collection.update_one({"table_id": table_id}, {"$set": {f"players.{get_player_index(table_id, current_user.id)}.bet": bet}})
+
+        emit("update_bet", {"username": current_user.id, "balance": balance, "bet": bet, "table_id": table_id}, broadcast=True)
 
 @socketio.on("fold")
 def handle_fold_front(data):
