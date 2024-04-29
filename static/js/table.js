@@ -27,6 +27,30 @@ socket.on('user_connected', function(data){
     }
 });
 
+socket.on('user_disconnected', function(data){
+    let username = data.username;
+    let table_id = data.table_id["table"];
+
+    if(table_id == document.getElementById("table_id").getAttribute("data-id")) {
+
+        if(users.includes(username) && username != getUsername()) {
+            users.del(username);
+
+            let index = users.indexOf(username);
+
+            if (index !== -1) {
+                users.splice(index, 1);
+            }
+
+            var playerElement = document.getElementById("player-" + username);
+
+            if (playerElement) {
+                playerElement.remove();
+            }
+        }
+    }
+});
+
 function createUserElement(username) {
     const players_container = document.getElementById("player-box");
 
@@ -144,7 +168,7 @@ socket.on('new_turn', function(data){
 });
 
 function display_hand(data){
-    if(data.dealer_hand){
+    if(data.dealer_hand && data.table_id == document.getElementById("table_id").getAttribute("data-id")){
         var dealer_hand = data.dealer_hand;
         var dealer_id = 'dealer-hand';
         var dealer_hand_elem = document.getElementById(dealer_id);
@@ -161,7 +185,7 @@ function display_hand(data){
         dealer_hand_elem.style.display = 'flex';
         dealer_hand_elem.style.flexDirection = 'row';
     }
-    else{
+    else if(data.table_id == document.getElementById("table_id").getAttribute("data-id")) {
         var player_hand = data.player_hand;
         var player_name = data.username;
         var element_id = 'hand-' + player_name;

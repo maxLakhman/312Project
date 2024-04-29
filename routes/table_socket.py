@@ -79,7 +79,8 @@ def start_game(table_id):
     game_over = table.get("game_over")
     while not game_over:
         current_player = table_collection.find_one({"table_id": table_id},{"_id":0, "current_player": 1})["current_player"]
-        
+        user_collection.update_one({"username": player}, {"$set": {"has_moved": False}})
+
         timer = 30
         while not game_over and timer > 0 and not user_collection.find_one({"username": current_player},{"_id":0, "has_moved": 1})["has_moved"]:
             check_if_game_over(table_id)
@@ -129,13 +130,9 @@ def start_game(table_id):
                 # emit the new card to the user
                 emit("update_hand", {"dealer_hand": hand, "table_id": table_id}, broadcast=True)
 
+                game_over = True
+                table_collection.update_one({"table_id": table_id}, {"$set": {"game_over": True}})
                 break
-
-    if game_over:
-        socketio.sleep(2)
-
-        # Do something
-        print("END OF GAME =============================")
 
     print("END OF GAME =============================")
 
@@ -344,12 +341,9 @@ def handle_disconnect():
 
         # If table exists
         if table_collection.find_one({"table_id": table_id},):
-            players = table_collection.find_one({"table:id": table_id}, {"_id": 0, "players": 1})
-            current_player = table_collection.find_one({"table:id": table_id}, {"_id": 0, "current_player": 1})
-            if current_user.id == current_user:
-                user_collection.update_one({"username": current_user.id}, {"$set": {"hand": None, "has_moved": True}})
-
-        #     # If user is part of the table:
+            players = table_collection.find_one({"table_id": table_id}, {"_id": 0, "players": 1})["players"]
+            
+            # If user is part of the table:
             if current_user.id in players:
                 new_username = current_user.id + suffix
                 player_index = get_player_index(table_id, current_user.id)
