@@ -1,3 +1,40 @@
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.4);
+}
+
+.modal-content {
+    background-color: #5a5a5a;
+    color: white;
+    margin: 15% auto;
+    padding: 10px;
+    border: 1px solid #888;
+    width: 80%;
+    border-radius: 20px;
+    display: flex;
+    flex-flow: column;
+    align-items: center;
+}
+
+.close {
+    color: #ececec;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+    color: rgb(0, 0, 0);
+    text-decoration: none;
+    cursor: pointer;
+}
 body, html {
     height: 100%;
     margin: 0;
@@ -33,23 +70,22 @@ h1 {
 }
 
 .card {
-  box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
-  transition: 0.3s;
-  border-radius: 5px; /* Adds rounded corners */
-  padding: 20px;
-  margin: 10px 0; /* Space above and below the card */
-  background-color: black; /* Card background color */
-  width: 40%; /* Set the width of the card */
-  height: 50%;
-  text-align: center;
-      position: relative;
-      top: 50%;
-      left:50%;
-      transform: translate(-50%, -50%);
   display: flex;
   flex-direction: column; /* Arrange children in a column */
   justify-content: space-between; /* Space items evenly along the main axis */
-  border-radius: 10px;
+  align-items: center; /* Center items horizontally */
+  width: 20%; /* Set the width of the card */
+  height: 40%; /* Set the height of the card */
+  padding: 20px;
+  margin: 10px 0; /* Space above and below the card */
+  text-align: center;
+  background-color: grey;
+  border-radius: 10px; /* Rounded corners */
+  transition: 0.3s; /* Smooth transitions for hover effects */
+  position: relative;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%); /* Center the card */
 }
 
 button {
@@ -63,8 +99,11 @@ button {
       transition: background-color 0.3s;
 }
 
-
-#playbtn {
-    display: inline-block;
+#music-player {
+       display: inline-block; /* Change display to block to allow scaling *//* Set the width to 80% of its container */
 }
 
+.cardbtns {
+    width : 40%;
+    display: inline-block;
+}
