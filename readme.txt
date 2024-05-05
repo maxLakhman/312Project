@@ -13,12 +13,12 @@ Part 3 Obj 3 Testing Procedure:
     3. Click on the PLAY button.
     4. Create a table.
     5. Press the Start Now button.
-    6. The + and - buttons increase or decrease your bet amount. Increase your bet to 5 credits and play the game. The bet is added to a pot of you & dealer so a win is +10 but you are only gaining a profit of +5. (Optional) Press stand to end your turn.
+    6. The + and - buttons increase or decrease your bet amount. Increase your bet to 5 credits and play the game. Your bet is removed from your balance so when you win it's +5 from your original bet & +5 from dealer = +10 in modal. Profit is only +5. (Optional) Press stand to end your turn.
     7. There are six possible endings. The output is shown to you in a popup modal when a game ends. Press the X to return to the main menu and repeat steps 3-6 to test all of them and ensure betting is handled correctly:
-        a. Player & dealer are the same distance from 21 - Credits are refunded (Profit: +-0).
-        b. Player & dealer both go over 21 - Credits are refunded (Profit: +-0).
-        c. Only player busts - You lose your bet (Profit: -5).
-        d. Only dealer busts - Your bet is refunded and you receive an additional bet amount (Profit: +5).
-        e. Dealer is closer to 21 - You lose your bet (Profit: -5).
-        f. Player is closer to 21 - Your bet is refunded and you receive an additional bet amount (Profit: +5).
+        a. Player & dealer are the same distance from 21 - Credits are refunded (Modal: +-0; Profit: +-0).
+        b. Player & dealer both go over 21 - Credits are refunded (Modal: +-0; Profit: +-0).
+        c. Only player busts - You lose your bet (Modal: -5; Profit: -5).
+        d. Only dealer busts - Your bet is refunded and you receive an additional bet amount (Modal: +10; Profit: +5).
+        e. Dealer is closer to 21 - You lose your bet (Modal: -5; Profit: -5).
+        f. Player is closer to 21 - Your bet is refunded and you receive an additional bet amount (Modal: +10; Profit: +5).
     
