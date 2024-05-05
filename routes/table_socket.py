@@ -155,30 +155,45 @@ def start_game(table_id):
         hand = user.get("hand")
         hand_value = calculateHand(hand)
         bet = user.get("bet")
-        total = user.get("balance")
+        total = user.get("balance") + bet
         player_distance = 21 - hand_value
 
-        if player_distance < 0:
-            player_value[player] = {"value": hand_value, "message": "lost", "hand": hand, "bet":bet, "total": total}
-            user_collection.update_one({"username":player}, {"$set":{"bet":0}})
-            # Player busts
-        elif dealer_distance < 0:
-            total = total + (bet*2)
-            user_collection.update_one({"username":player}, {"$set":{"bet":0, "balance":total}})
-            player_value[player] = {"value": hand_value, "message": "won", "hand": hand, "bet":bet, "total": total}
-            # Player wins
-        elif player_distance - dealer_distance > 0:
-            user_collection.update_one({"username":player}, {"$set":{"bet":0, "balance":total}})
-            player_value[player] = {"value": hand_value, "message": "lost", "hand": hand, "bet":bet, "total": total} 
-            # Dealer wins
-        elif dealer_distance - player_distance == 0:
+
+
+        # Same distance - TIE
+        if dealer_distance - player_distance == 0:
+            print("ENDER A")
             user_collection.update_one({"username":player}, {"$set":{"bet":0, "balance":total}})
             player_value[player] = {"value": hand_value, "message": "tied", "hand": hand, "bet":bet, "total": total}
-            # Tie
-        else:
+        # Both bust - TIE
+        elif player_distance < 0 and dealer_distance < 0:
+            print("ENDER B")
+            user_collection.update_one({"username":player}, {"$set":{"bet":0, "balance":total}})
+            player_value[player] = {"value": hand_value, "message": "tied", "hand": hand, "bet":bet, "total": total}
+        # Only player busts - LOSE
+        elif player_distance < 0:
+            print("ENDER C")
+            total -= bet
+            user_collection.update_one({"username":player}, {"$set":{"bet":0}})
+            player_value[player] = {"value": hand_value, "message": "lost", "hand": hand, "bet":bet, "total": total}
+        # Only dealer busts - WIN
+        elif dealer_distance < 0:
+            print("ENDER D")
+            total += bet
             user_collection.update_one({"username":player}, {"$set":{"bet":0, "balance":total}})
             player_value[player] = {"value": hand_value, "message": "won", "hand": hand, "bet":bet, "total": total}
-            # Player loses
+        # Dealer is closer to 21 - LOSE
+        elif player_distance - dealer_distance > 0:
+            print("ENDER E")
+            total -= bet
+            user_collection.update_one({"username":player}, {"$set":{"bet":0, "balance":total}})
+            player_value[player] = {"value": hand_value, "message": "lost", "hand": hand, "bet":bet, "total": total}
+        # Player is closer to 21 - WIN
+        else:
+            print("ENDER F")
+            total += bet
+            user_collection.update_one({"username":player}, {"$set":{"bet":0, "balance":total}})
+            player_value[player] = {"value": hand_value, "message": "won", "hand": hand, "bet":bet, "total": total}
 
         print(player_value)
 
