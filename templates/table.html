@@ -5,7 +5,7 @@
     <title>Blackjack Table Room</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/table.css') }}">
 </head>
-<body>
+<body style="background-color: black">
     <div id="table_id" data-id="{{ table.table_id }}" style="display: none;"></div>
     <script>
         function getUsername() {
@@ -13,10 +13,14 @@
         }
     </script>
     
-    <h1>Blackjack Table Room {{ table.table_id }}</h1>
-    <div id="game_starting">
-        
+    <h1 style="color: white">Blackjack Table Room {{ table.table_id }}</h1>
+    <div id="game_starting" style="color: white">
     </div>
+    <div id="start_now_btn">
+        <!-- <button type="button" onclick=start_now()>Start Now</button> -->
+        <button onclick=start_now() class="basic-button primary">Start Now</button>
+    </div>
+
     <div id="table">
     </div>
 
@@ -25,6 +29,7 @@
             <div class="dealer-box" id="dealer">
                 <!-- dealer box -->
                 <h2> Dealer </h2>
+                <h2 id="dealer-hand-value">Hand: Unknown</h2>
                 <div class="hand" id="dealer-hand">
                 </div>
             </div>
@@ -35,6 +40,7 @@
                 <button onClick="increaseBet()">+</button>
                 <p id="bet">Bet: {{ current_user.bet }}</p>
                 <button onClick="decreaseBet()">-</button>
+                <p id="value-elm-{{ current_user.id }}">Hand: 0</p>
                 <!-- div for displaying hand -->
                 <div class="hand" id="hand-{{ current_user.id }}">
                 </div>
@@ -48,6 +54,7 @@
                         <h2>Player {{ player }}</h2>
                         <p>Balance: {{ player.balance }}</p>
                         <p>Bet: {{ player.bet }}</p>
+                        <p id="value-elm-{{ player }}">Hand: 0</p>
                         <!-- div for displaying hand -->
                         <div class="hand" id="hand-{{ player }}">
                         </div>
@@ -62,13 +69,15 @@
     <button onclick="stand()" id="hit">
         Stand
     </button>
-    <button onclick="fold()" id="hit">
-        Fold
-    </button>
+
+    <div style="color: white;" id="outcome">
+
+    </div>
+
     <div class="container chat-box" id="chat-box-{{ table.table_id }}">
         <div class="chat-form">
             <input type="text" id="chat-text" class="input-basic" placeholder="Send message">
-            <button onclick="sendChat(this)" class="basic-button primary">Submit</button>
+            <button id="penis" onclick=sendChat(this) class="basic-button primary">Submit</button>
         </div>
 
         <div class="chat-message-container">
@@ -76,6 +85,17 @@
         </div>
     </div>
     <script src="{{ url_for('static', filename='js/chat.js')}}"></script>
+    <div id="end-game-modal" class="modal" style="display:none">
+        <div class="modal-content">
+            <div id="end-game-header">
+                <h2 id="end-game-header-text"></h2>
+                <span class="close" onclick="closeEndGameModal()">&times;</span>
+            </div>
+            <div id="end-game-text">
+
+            </div>
+        </div>
+    </div>
 </body>
 <script defer src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <script src="{{ url_for('static', filename='js/table.js') }}"></script>

@@ -1,21 +1,6 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // Change background color based on stored value
-    var storedColor = localStorage.getItem('backgroundColor');
-    if (storedColor) {
-        document.body.style.backgroundColor = storedColor;
-    }
 
-    var changeBackgroundBtn = document.getElementById('change-background-btn');
-    if (changeBackgroundBtn) {
-        changeBackgroundBtn.addEventListener('click', function() {
-            var color = prompt("Enter a color (e.g., 'red', '#00FF00', 'rgb(0, 0, 255)'): ");
-            if (color) {
-                localStorage.setItem('backgroundColor', color); // Store color in local storage
-                document.body.style.backgroundColor = color; // Set the background color
-            }
-        });
-    }
-
+    //---------------------------ALL BELOW IS FOR MUSIC-----------------------------
     var audio = document.getElementById('audio-player');
 
     // Load the saved state

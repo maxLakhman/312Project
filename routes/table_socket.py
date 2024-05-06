@@ -28,9 +28,11 @@ def init_game(data):
     
     # Making game for first time
     table_collection.update_one({"table_id": table_id}, {"$set": {"started": "In progress..."}})
-    time_out = 10
-    while time_out > 0:
-        emit("init_players", {"table_id": table_id , "message": f"Waiting {time_out} seconds for players to join."}, broadcast=True)
+    time_out = 60
+    player_ready = table_collection.find_one({"table_id": table_id},{"_id":0,"player_ready":1})["player_ready"]
+    while time_out > 0 and not player_ready:
+        player_ready = table_collection.find_one({"table_id": table_id},{"_id":0,"player_ready":1})["player_ready"]
+        emit("init_players", {"table_id": table_id , "message": f"Waiting {time_out} seconds for players to join or click button to start now."}, broadcast=True)
         socketio.sleep(1)
         time_out -= 1
 
@@ -58,7 +60,7 @@ def start_game(table_id):
     deck = deck[2:]
     update_dealer_hand(table_id, dealer_hand)
     update_deck(table_id, deck)
-    emit("update_hand", {"dealer_hand": dealer_hand, "table_id": table_id}, broadcast=True)
+    emit("update_hand", {"dealer_hand": dealer_hand, "value": calculateHand(dealer_hand), "table_id": table_id, "is_end": False}, broadcast=True)
     
     # Giving everyone there their first hand
     for player in player_list:
@@ -66,7 +68,7 @@ def start_game(table_id):
         deck = deck[2:]
         update_player_hand(player, player_hand)
         update_deck(table_id, deck)
-        emit("update_hand", {"player_hand": player_hand, "username": player, "table_id": table_id}, broadcast=True)
+        emit("update_hand", {"player_hand": player_hand, "value": calculateHand(player_hand), "username": player, "table_id": table_id}, broadcast=True)
 
     # First player
     current_player = table["players"][0]
@@ -77,7 +79,8 @@ def start_game(table_id):
     game_over = table.get("game_over")
     while not game_over:
         current_player = table_collection.find_one({"table_id": table_id},{"_id":0, "current_player": 1})["current_player"]
-        
+        user_collection.update_one({"username": player}, {"$set": {"has_moved": False}})
+
         timer = 30
         while not game_over and timer > 0 and not user_collection.find_one({"username": current_player},{"_id":0, "has_moved": 1})["has_moved"]:
             check_if_game_over(table_id)
@@ -90,7 +93,9 @@ def start_game(table_id):
         
         if not user_collection.find_one({"username": current_player},{"_id":0,"has_moved": 1})["has_moved"]:
             emit("current_player", {"username": current_player, "table_id": table_id, "time": 0}, broadcast=True)
-            handle_fold_back(current_player, table_id)
+            # handle_fold_back(current_player, table_id)
+
+            user_collection.update_one({"username": current_player}, {"$set": {"has_moved": True}})
             socketio.sleep(1)
         
         check_if_game_over(table_id)
@@ -100,12 +105,103 @@ def start_game(table_id):
             table_collection.delete_one({"table_id":table_id})
             break
 
-        next_turn(table_id)
-    if game_over:
-        socketio.sleep(2)
+        if not next_turn(table_id):
+            # Dealers turn
+            hand_value = 0
 
-        # Do something
-        print(" hello there")
+            hand = table_collection.find_one({"table_id": table_id}, {"_id": 0, "dealer_hand": 1})["dealer_hand"]
+            hand_value = calculateHand(hand)
+
+            while hand_value < 17:
+                socketio.sleep(1)
+                table_info = table_collection.find_one({"table_id": table_id})
+
+                # add a new card to the user's hand
+                deck = table_info.get("deck")
+                random.shuffle(deck)
+                new_card = deck[0]
+                deck = deck[1:]
+                hand.append(new_card)
+
+                # update the user's hand in the database
+                update_dealer_hand(table_id, hand)
+
+                # update the table's deck in the database
+                update_deck(table_id, deck)
+
+                # emit the new card to the user
+                emit("update_hand", {"dealer_hand": hand, "value": calculateHand(hand), "table_id": table_id, "is_end": True}, broadcast=True)
+
+                table_collection.update_one({"table_id": table_id}, {"$set": {"game_over": True}})
+
+                hand_value = calculateHand(hand)
+            
+            emit("update_hand", {"dealer_hand": hand, "value": calculateHand(hand), "table_id": table_id, "is_end": True}, broadcast=True)    
+            table_collection.update_one({"table_id": table_id}, {"$set": {"game_over": True}})
+            
+            game_over = True
+            break
+
+    print("DEALER HAND")
+    dealer_hand = table_collection.find_one({"table_id": table_id}, {"_id": 0, "dealer_hand": 1})["dealer_hand"]
+    dealer_value = calculateHand(dealer_hand)
+    dealer_distance = 21 - dealer_value
+    print(dealer_value)
+    print(hand_value)
+
+    player_value = {}
+    for player in player_list:
+        user = user_collection.find_one({"username": player})
+        hand = user.get("hand")
+        hand_value = calculateHand(hand)
+        bet = user.get("bet")
+        total = user.get("balance") + bet
+        player_distance = 21 - hand_value
+
+
+
+        # Same distance - TIE
+        if dealer_distance - player_distance == 0:
+            print("ENDER A")
+            user_collection.update_one({"username":player}, {"$set":{"bet":0, "balance":total}})
+            player_value[player] = {"value": hand_value, "message": "tied", "hand": hand, "bet":bet, "total": total}
+        # Both bust - TIE
+        elif player_distance < 0 and dealer_distance < 0:
+            print("ENDER B")
+            user_collection.update_one({"username":player}, {"$set":{"bet":0, "balance":total}})
+            player_value[player] = {"value": hand_value, "message": "tied", "hand": hand, "bet":bet, "total": total}
+        # Only player busts - LOSE
+        elif player_distance < 0:
+            print("ENDER C")
+            total -= bet
+            user_collection.update_one({"username":player}, {"$set":{"bet":0}})
+            player_value[player] = {"value": hand_value, "message": "lost", "hand": hand, "bet":bet, "total": total}
+        # Only dealer busts - WIN
+        elif dealer_distance < 0:
+            print("ENDER D")
+            total += bet
+            user_collection.update_one({"username":player}, {"$set":{"bet":0, "balance":total}})
+            player_value[player] = {"value": hand_value, "message": "won", "hand": hand, "bet":bet, "total": total}
+        # Dealer is closer to 21 - LOSE
+        elif player_distance - dealer_distance > 0:
+            print("ENDER E")
+            total -= bet
+            user_collection.update_one({"username":player}, {"$set":{"bet":0, "balance":total}})
+            player_value[player] = {"value": hand_value, "message": "lost", "hand": hand, "bet":bet, "total": total}
+        # Player is closer to 21 - WIN
+        else:
+            print("ENDER F")
+            total += bet
+            user_collection.update_one({"username":player}, {"$set":{"bet":0, "balance":total}})
+            player_value[player] = {"value": hand_value, "message": "won", "hand": hand, "bet":bet, "total": total}
+
+        print(player_value)
+
+    print("END OF GAME =============================")
+    table_collection.update_one({"table_id": table_id}, {"$set": {"game_over": True}})
+    
+    emit("game_over", {"outcome": player_value, "table_id": table_id}, broadcast=True)
+    table_collection.delete_one({"table_id": table_id})
 
 
 # money stuff
@@ -208,11 +304,13 @@ def handle_hit(data):
     # update the table's deck in the database
     update_deck(table_id, deck)
 
-    user_collection.update_one({"username": current_player}, {"$set": {"has_moved": True}})
+    if calculateHand(hand) >= 21:
+        user_collection.update_one({"username": current_player}, {"$set": {"has_moved": True}})
 
+    # user_collection.update_one({"username": current_player}, {"$set": {"has_moved": True}})
 
     # emit the new card to the user
-    emit("update_hand", {"player_hand": hand, "username": current_player, "table_id": table_id}, broadcast=True)
+    emit("update_hand", {"player_hand": hand, "value": calculateHand(hand), "username": current_player, "table_id": table_id}, broadcast=True)
 
 @socketio.on("stand")
 def handle_stand(data):
@@ -242,6 +340,9 @@ def next_turn(table_id):
     except ValueError:
         current_player_index = player_list.index(table["current_player"] + suffix)
 
+    print("CURRENT PLAYER INDEX")
+    print(current_player_index)
+
 
     next_player = player_list[(current_player_index + 1) % len(player_list)]
     
@@ -249,6 +350,7 @@ def next_turn(table_id):
     max_players = 5
     while next_player.endswith(suffix):
         current_player_index += 1
+        
         next_player = player_list[(current_player_index + 1) % len(player_list)]
 
         max_players -= 1
@@ -256,13 +358,17 @@ def next_turn(table_id):
         if max_players < 0:
             table_collection.update_one({"table_id": table_id}, {"$set": {"game_over": True}})
             break
-
-
+    
+    if (current_player_index + 1) % len(player_list) == 0:
+        return False
+        
 
     table_collection.update_one({"table_id": table_id}, {"$set": {"current_player": next_player}})
     user_collection.update_one({"username": next_player}, {"$set": {"has_moved": False}})
 
     emit("next_turn", {"username": next_player, "table_id": table_id}, broadcast=True)
+
+    return True
 
 
 def update_deck(table_id, deck):
@@ -304,17 +410,39 @@ def handle_disconnect():
 
         # If table exists
         if table_collection.find_one({"table_id": table_id},):
-            players = table_collection.find_one({"table:id": table_id}, {"_id": 0, "players": 1})
-            current_player = table_collection.find_one({"table:id": table_id}, {"_id": 0, "current_player": 1})
-            if current_user.id == current_user:
-                user_collection.update_one({"username": current_user.id}, {"$set": {"hand": None, "has_moved": True}})
-
-        #     # If user is part of the table:
+            players = table_collection.find_one({"table_id": table_id}, {"_id": 0, "players": 1})["players"]
+            
+            # If user is part of the table:
             if current_user.id in players:
                 new_username = current_user.id + suffix
                 player_index = get_player_index(table_id, current_user.id)
                 table_collection.update_one({"table_id": table_id}, {"$set": {f"players.{player_index}": new_username}})
 
-        user_collection.update_one({"username": current_user.id}, {"$set": {"table": None, "hand": None, "has_moved": None}})
+        user_collection.update_one({"username": current_user.id}, {"$set": {"table": None, "hand": None, "has_moved": None, "bet": 0}})
 
         emit("user_disconnected", {"username": current_user.id, "table_id": table_id}, broadcast=True)
+
+@socketio.on("player_ready")
+def handle_player_ready(data):
+    table_id = data["table_id"]
+    table_collection.update_one({"table_id":table_id},{"$set":{"player_ready":True}})
+def calculateHand(hand):
+    total_value = 0
+    ace_count = 0
+    
+    card_values = {'2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8, '9': 9, '10': 10, 'J': 10, 'Q': 10, 'K': 10, 'A': 11}
+    
+    for card in hand:
+        # Get value
+        rank = card[:-1]
+        total_value += card_values[rank]
+        
+        if rank == 'A':
+            ace_count += 1
+    
+    # Adjust total value for Aces
+    while total_value > 21 and ace_count > 0:
+        total_value -= 10
+        ace_count -= 1
+    
+    return total_value

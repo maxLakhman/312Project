@@ -159,7 +159,7 @@ def handle_like_message(data):
                 {"_id": ObjectId(message_id)}, {"$set": {"liked_list": liked_list}}
             )
             response = {"id": message_id, "likes": liked_list}
-            emit("new_like", response)
+            emit("new_like", response, broadcast=True)
 
         else:
             liked_list.append(current_user.id)
@@ -167,10 +167,10 @@ def handle_like_message(data):
                 {"_id": ObjectId(message_id)}, {"$set": {"liked_list": liked_list}}
             )
             response = {"id": message_id, "likes": liked_list}
-            emit("new_like", response)
+            emit("new_like", response, broadcast=True)
     else:
         response = {"authenticated": False}
-        emit("new_like", response)
+        emit("new_like", response, broadcast=True)
 
 
 # @chat_blueprint.route("/like-message", methods=["POST"])
