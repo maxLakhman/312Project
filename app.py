@@ -1,7 +1,8 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, request, make_response
 from flask_login import LoginManager, current_user
 from flask_socketio import SocketIO, join_room, leave_room, emit
 from flask_cors import CORS
+import time
 
 from routes.auth import *
 import json
@@ -35,6 +36,38 @@ app.register_blueprint(table_blueprint)
 # def handle_connect():
 
 
+
+# DDOS defense
+request_counts = {}
+blocked_ips = {}
+
+def is_ip_blocked(ip):
+    if ip in blocked_ips and time.time() < blocked_ips[ip]:
+        return True
+    return False
+
+def add_request(ip):
+    current_time = time.time()
+    window_start = current_time - 10
+
+    if ip not in request_counts:
+        request_counts[ip] = []
+
+    request_counts[ip] = [t for t in request_counts[ip] if t > window_start]
+
+    request_counts[ip].append(current_time)
+
+    if len(request_counts[ip]) > 50:
+        blocked_ips[ip] = current_time + 30
+
+@app.before_request
+def check_rate_limit():
+    ip = request.remote_addr
+
+    if is_ip_blocked(ip):
+        return make_response("Too Many Requests", 429)
+
+    add_request(ip)
 
 
 # Sets pfp for current_user
